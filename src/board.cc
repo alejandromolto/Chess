@@ -57,7 +57,7 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window
 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            switch (board[7-i][j] % 10) {
+            switch (board[i][j] % 10) {
                 case 0:  
                     // Casilla vacía
                     break;
