@@ -20,12 +20,12 @@ class Board{
         void setboard(int board[8][8]);
         void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   
         void updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation);
-        void isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool* isItThreatened);
-        void isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool* isItLegit);
-        void prohibitedMoves( int movementCount, T_Coordinates prohibitedSquares[4096], int* nsquares);
-        void isTheKingChecked(int movementCount, T_Coordinates prohibitedSquares[4096], int nsquares, bool* checked);
-        void isTheKingCheckMated(int movementCount, T_Coordinates prohibitedSquares[4096], bool* matchOver);
-        void PawnPromotion( bool* change, char language);
+        void isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool &isItThreatened);
+        void isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool &isItLegit);
+        void prohibitedMoves( int movementCount, T_Coordinates prohibitedSquares[4096], int &nsquares);
+        void isTheKingChecked(int movementCount, T_Coordinates prohibitedSquares[4096], int nsquares, bool &checked);
+        void isTheKingCheckMated(int movementCount, T_Coordinates prohibitedSquares[4096], bool &matchOver);
+        void PawnPromotion(bool &change, char language);
 };
 
 #endif
