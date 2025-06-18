@@ -4,6 +4,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <vector>
 
 typedef struct{
     int row;
@@ -20,12 +21,12 @@ class Board{
         void setboard(int board[8][8]);
         void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   
         void updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation);
-        void isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool &isItThreatened);
-        void isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation, bool &isItLegit);
-        void prohibitedMoves( int movementCount, T_Coordinates prohibitedSquares[4096], int &nsquares);
-        void isTheKingChecked(int movementCount, T_Coordinates prohibitedSquares[4096], int nsquares, bool &checked);
-        void isTheKingCheckMated(int movementCount, T_Coordinates prohibitedSquares[4096], bool &matchOver);
-        void PawnPromotion(bool &change, char language);
+        bool isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation);
+        bool isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation);
+        bool isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
+        std::vector<T_Coordinates> prohibitedMoves(int movementCount);
+        bool isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
+        bool PawnPromotion(char language);
 };
 
 #endif

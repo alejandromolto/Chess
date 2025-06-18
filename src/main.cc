@@ -85,7 +85,6 @@ T_Coordinates coordsTranslator(int row, char col){
 
 /*
 TODO:
-Turn prohibitedSquares into a std vector.
 Develop, in order:
     The askMovement
     The mainmenu
