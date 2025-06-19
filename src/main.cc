@@ -17,7 +17,7 @@ void askMovement(int movementCount, char &colPos, int &rowPos, char &colMove, in
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
-
+T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
 
 int main(){
 
@@ -37,23 +37,28 @@ int main(){
     
     // CODE
 
-    T_Coordinates selectingPiece;
+    T_Coordinates actualLocation;
+    T_Coordinates futureLocation;
 
         int movementCount = 0;
         char value2;
         int value1;
-
         printBoard(board, width, height, renderer, window);
-        std::cin >> value2 >> value1;
-        selectingPiece = coordsTranslator(value1, value2);
-        std::cout << selectingPiece.row << std::endl;
-        std::cout << selectingPiece.col << std::endl;
+        
+        while(varwait){
+            actualLocation = selectPiece(board, movementCount, renderer, window);
+            printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window);
+            futureLocation = selectPiece(board, movementCount, renderer, window);
+            printBoard(board, width, height, renderer, window);
+            
+            if(board.isLegit(movementCount, actualLocation, futureLocation)){
+                board.updateboard(actualLocation, futureLocation);
+            }else{
+                std::cout << "not legit";
+            }
+            movementCount++;
+        }
 
-        std::cin >> varwait;
-
-        printBoardAndLegitMoves(board, selectingPiece, movementCount, width, height, renderer, window);
-
-        std::cin >> varwait;
 
     // END
 
@@ -89,30 +94,72 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
     importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
 
-    std::vector <T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
+    if((board.getboard()[pieceCoords.col][pieceCoords.row]/10 == 0 && (movementCount % 2 != 0)) ||
+    (board.getboard()[pieceCoords.col][pieceCoords.row]/10 == 1 && (movementCount % 2 == 0))){
 
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
+        std::vector <T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
 
-            T_Coordinates tempCoord;
-            tempCoord.row = i;
-            tempCoord.col = j;
+                T_Coordinates tempCoord;
+                tempCoord.row = i;
+                tempCoord.col = j;
 
 
-            if(std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end()){
-                SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20); 
-                rect.y = i * 600/8;
-                rect.x = j * 600/8;
-                rect.w = 600/8;
-                rect.h = 600/8;
-                SDL_RenderFillRect(renderer, &rect);
+                if(std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end()){
+                    SDL_Rect rect;
+                    SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20); 
+                    rect.y = i * 600/8;
+                    rect.x = j * 600/8;
+                    rect.w = 600/8;
+                    rect.h = 600/8;
+                    SDL_RenderFillRect(renderer, &rect);
+                }
             }
         }
     }
 
 
+
 SDL_RenderPresent(renderer);
+}
+
+T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window){
+
+    bool waiting = true;
+    SDL_Event e;
+
+    while (waiting)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                waiting = false;
+                T_Coordinates nullcord;
+                nullcord.row = -1;
+                nullcord.col = -1;
+                return nullcord;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            {
+                int mx = e.button.x;
+                int my = e.button.y;
+                if(mx/75 >= 0 && mx/75 < 8 && my/75 >= 0 && my/75 < 8){
+                    T_Coordinates returnPiece;
+                    returnPiece.col = mx / 75;
+                    returnPiece.row = my / 75;
+                    return returnPiece;
+                }
+            }
+        }
+    }
+
+T_Coordinates nullcord;
+nullcord.row = -1;
+nullcord.col = -1;
+return nullcord;
+
 }
 
 void mainmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language){
