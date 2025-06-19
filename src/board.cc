@@ -273,7 +273,9 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
             (dx == 0 && dy == -2 && actualLocation.row == 6 &&  // Double step from start
             board[futurelocation.row][futurelocation.col] / 10 == 0 &&
             board[actualLocation.row - 1][actualLocation.col] / 10 == 0) ||
-            ((dx == 1 || dx == -1) && dy == -1 && board[futurelocation.row][futurelocation.col] / 10 == 0)){ // Capturing diagonally
+            ((dx == 1 || dx == -1) && dy == -1 && 
+            board[futurelocation.row][futurelocation.col] % 10 != 0 &&
+            board[futurelocation.row][futurelocation.col] / 10 == 0)){ // Capturing diagonally
             
             isItLegit = true;
         }
@@ -286,7 +288,9 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
             (dx == 0 && dy == 2 && actualLocation.row == 1 &&  // Double step from start
             board[futurelocation.row][futurelocation.col] / 10 == 0 &&
             board[actualLocation.row + 1][actualLocation.col] / 10 == 0) ||
-            ((dx == 1 || dx == -1) && dy == 1 && board[futurelocation.row][futurelocation.col] / 10 != 0)) { // Capturing diagonally
+            ((dx == 1 || dx == -1) && dy == 1 &&
+            board[futurelocation.row][futurelocation.col] % 10 != 0 && 
+            board[futurelocation.row][futurelocation.col] / 10 != 0)) { // Capturing diagonally
 
             isItLegit = true;
         }

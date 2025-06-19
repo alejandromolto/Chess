@@ -45,8 +45,14 @@ int main(){
 
         printBoard(board, width, height, renderer, window);
         std::cin >> value2 >> value1;
-        selectingPiece = coordsTranslator(value2, value1);
+        selectingPiece = coordsTranslator(value1, value2);
+        std::cout << selectingPiece.row << std::endl;
+        std::cout << selectingPiece.col << std::endl;
+
+        std::cin >> varwait;
+
         printBoardAndLegitMoves(board, selectingPiece, movementCount, width, height, renderer, window);
+
         std::cin >> varwait;
 
     // END
@@ -58,9 +64,6 @@ int main(){
 }
 
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
-
-    SDL_RenderClear(renderer);
-
     // Board decoration.
     importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, windowwidth, windowheight);
     
@@ -76,10 +79,17 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
 
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
 
-    printBoard(board, windowwidth, windowheight, renderer, window);
-    std::cout << "boardprinted";
-    std::vector <T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
+    // Board decoration.
+    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, windowwidth, windowheight);
     
+    // Chess board.
+    board.printboard(600, 600, renderer, window);
+
+    // Strips (A-H) and (1-8) 
+    importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
+    importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
+
+    std::vector <T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
 
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
@@ -92,8 +102,8 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if(std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end()){
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20); 
-                rect.x = i * 600/8;
-                rect.y = j * 600/8;
+                rect.y = i * 600/8;
+                rect.x = j * 600/8;
                 rect.w = 600/8;
                 rect.h = 600/8;
                 SDL_RenderFillRect(renderer, &rect);
@@ -103,7 +113,6 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 
 
 SDL_RenderPresent(renderer);
-std::cout << "RENDERPRESENTED";
 }
 
 void mainmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language){
