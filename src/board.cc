@@ -116,8 +116,6 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window
             }
         }
     }
-
-    SDL_RenderPresent(renderer);
  
 }
 
@@ -636,6 +634,30 @@ std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
     }
 
     return prohibitedSquares;
+}
+
+std::vector<T_Coordinates> Board::legitMoves(int movementCount, T_Coordinates actualLocation){
+
+    std::vector<T_Coordinates> legitMoves;
+
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+
+        T_Coordinates futureLocation;
+
+        futureLocation.col = i;
+        futureLocation.row = j;
+
+        if(isLegit(movementCount, actualLocation, futureLocation)){
+            legitMoves.push_back(futureLocation);
+        }
+
+
+        }
+    }
+
+return legitMoves;
+
 }
 
 bool Board::isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares){

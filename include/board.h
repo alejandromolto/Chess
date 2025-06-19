@@ -6,10 +6,15 @@
 #include <SDL2/SDL_image.h>
 #include <vector>
 
-typedef struct{
+struct T_Coordinates{ 
     int row;
     int col; 
-} T_Coordinates;
+
+    bool operator==(const T_Coordinates& other) const {
+        return row == other.row && col == other.col;
+    }
+    
+};
 
 class Board{
     private:
@@ -25,6 +30,7 @@ class Board{
         bool isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation);
         bool isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
         std::vector<T_Coordinates> prohibitedMoves(int movementCount);
+        std::vector<T_Coordinates> legitMoves(int movementCount, T_Coordinates actualLocation);
         bool isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
         bool PawnPromotion(char language);
 };
