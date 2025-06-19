@@ -22,6 +22,12 @@ Board::Board(){
 
 }
 
+Board::Board(int board[8][8]){
+
+    setboard(board);
+
+}
+
 void Board::setboard(int board[8][8]){
 
     for(int i = 0; i < 8; i++){

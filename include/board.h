@@ -22,6 +22,7 @@ class Board{
         bool matchOver;
     public:
         Board();
+        Board(int board[8][8]);
         int (*getboard())[8] { return board; };
         void setboard(int board[8][8]);
         void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   

@@ -10,10 +10,9 @@
 #include "include/board.h"
 
 
-void mainmenu(int &option, char &language);
-void settingsmenu(int &option, char &language);
-void languagemenu(int &option, char &language);
-void askMovement(int movementCount, char &colPos, int &rowPos, char &colMove, int &rowMove, char &language);
+void mainmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
+void settingsmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
+void languagemenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
@@ -21,12 +20,12 @@ T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer
 
 int main(){
 
-    bool varwait = true;
+    
 
     //Variables initialization
     int width = 1152;
     int height = 648;
-
+    bool matchOver = false;
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = nullptr;
@@ -39,32 +38,64 @@ int main(){
 
     T_Coordinates actualLocation;
     T_Coordinates futureLocation;
+    int movementCount = 0;
 
-        int movementCount = 0;
-        char value2;
-        int value1;
         printBoard(board, width, height, renderer, window);
         
-        while(varwait){
-            actualLocation = selectPiece(board, movementCount, renderer, window);
-            printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window);
-            futureLocation = selectPiece(board, movementCount, renderer, window);
-            printBoard(board, width, height, renderer, window);
+        while(!matchOver){
+
+            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves(movementCount);
             
-            if(board.isLegit(movementCount, actualLocation, futureLocation)){
-                board.updateboard(actualLocation, futureLocation);
-            }else{
-                std::cout << "not legit";
+            if(board.isTheKingCheckMated(movementCount, prohibitedSquares)){    // LOOK FOR CHECKMATE
+                if(board.isTheKingChecked(movementCount, prohibitedSquares)){
+                    // CHECKMATE
+                }else{
+                    // STALEMATE
+                }
+                matchOver = true;
+                // GO BACK TO THE MENU
             }
+
+            if(board.isTheKingChecked(movementCount, prohibitedSquares)){   // LOOK FOR CHECK
+                // CHECKED MESSAGE
+            }
+
+            bool validmove = false;
+
+            while(!validmove){
+                printBoard(board, width, height, renderer, window);
+                actualLocation = selectPiece(board, movementCount, renderer, window);
+                printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window);
+                futureLocation = selectPiece(board, movementCount, renderer, window);
+                printBoard(board, width, height, renderer, window);
+                
+                validmove = board.isLegit(movementCount, actualLocation, futureLocation);
+
+                if(validmove){
+                    // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
+                    Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
+                    boardDuplicate.updateboard(actualLocation, futureLocation);
+                    if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquares)){ // And it verifies that the king is not left on check
+                        board.updateboard(actualLocation, futureLocation);
+                    }else{
+                        validmove = false;
+                    }
+                }else{
+                    // NOT LEGIT
+                }
+            }
+
             movementCount++;
         }
+
 
 
     // END
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-
+    SDL_Quit();
+    
     return 0;
 }
 
@@ -94,32 +125,28 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
     importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
 
-    if((board.getboard()[pieceCoords.col][pieceCoords.row]/10 == 0 && (movementCount % 2 != 0)) ||
-    (board.getboard()[pieceCoords.col][pieceCoords.row]/10 == 1 && (movementCount % 2 == 0))){
+    std::vector<T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
 
-        std::vector <T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
+            T_Coordinates tempCoord;
+            tempCoord.row = i;
+            tempCoord.col = j;
 
-                T_Coordinates tempCoord;
-                tempCoord.row = i;
-                tempCoord.col = j;
-
-
-                if(std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end()){
-                    SDL_Rect rect;
-                    SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20); 
-                    rect.y = i * 600/8;
-                    rect.x = j * 600/8;
-                    rect.w = 600/8;
-                    rect.h = 600/8;
-                    SDL_RenderFillRect(renderer, &rect);
-                }
+            if (std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end())
+            {
+                SDL_Rect rect;
+                SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20);
+                rect.y = i * 600 / 8;
+                rect.x = j * 600 / 8;
+                rect.w = 600 / 8;
+                rect.h = 600 / 8;
+                SDL_RenderFillRect(renderer, &rect);
             }
         }
     }
-
-
 
 SDL_RenderPresent(renderer);
 }
@@ -174,10 +201,6 @@ void languagemenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char 
 
 }
 
-void askMovement(SDL_Renderer *renderer, SDL_Window *window, int movementCount, char &colPos, int &rowPos, char &colMove, int &rowMove, char &language){
-
-}
-
 T_Coordinates coordsTranslator(int row, char col){
     
     T_Coordinates coordinates;
@@ -200,10 +223,10 @@ T_Coordinates coordsTranslator(int row, char col){
 
 /*
 TODO:
+    Manage check, checkmate and stalemate situations.
 Develop, in order:
-    The askMovement
-    The mainmenu
-    The settingsmenu
-    The languagemenu
+    The mainmenu.
+    The settingsmenu.
+    The languagemenu.
 Fix comments in the board methods.
 */
