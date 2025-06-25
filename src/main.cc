@@ -10,18 +10,14 @@
 #include "include/board.h"
 
 
-void mainmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
-void settingsmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
-void languagemenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language);
+int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
 T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
 
 int main(){
-
     
-
     //Variables initialization
     int width = 1152;
     int height = 648;
@@ -36,11 +32,16 @@ int main(){
     
     // CODE
 
-    T_Coordinates actualLocation;
-    T_Coordinates futureLocation;
-    int movementCount = 0;
+    int option = mainmenu(width, height, renderer, window);
+    
+    
+    if(option == -1){
+        return 0;
+    }
 
-        printBoard(board, width, height, renderer, window);
+    // GAME LOOP:
+
+        int movementCount = 0;
         
         while(!matchOver){
 
@@ -49,8 +50,24 @@ int main(){
             if(board.isTheKingCheckMated(movementCount, prohibitedSquares)){    // LOOK FOR CHECKMATE
                 if(board.isTheKingChecked(movementCount, prohibitedSquares)){
                     // CHECKMATE
+                    if(movementCount % 2 == 0){ // BLACK WINS
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        return 0;
+                    }else{ // WHITE WINS
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        return 0;
+                    }
+
                 }else{
                     // STALEMATE
+                    SDL_DestroyRenderer(renderer);
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    return 0;
                 }
                 matchOver = true;
                 // GO BACK TO THE MENU
@@ -63,11 +80,36 @@ int main(){
             bool validmove = false;
 
             while(!validmove){
+
+                T_Coordinates actualLocation;
+                T_Coordinates futureLocation;
+                bool samecolor;
                 printBoard(board, width, height, renderer, window);
-                actualLocation = selectPiece(board, movementCount, renderer, window);
-                printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window);
-                futureLocation = selectPiece(board, movementCount, renderer, window);
-                printBoard(board, width, height, renderer, window);
+                
+                // MANAGMENT OF THE PIECE CHOOSING.
+                
+                
+                
+                    // FIRST PIECE
+
+                    do{
+                        actualLocation = selectPiece(board, movementCount, renderer, window);
+                    }while(!board.isPieceValid(movementCount, actualLocation));
+
+                do{
+                    printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+                    
+                    // SECOND PIECE
+                        futureLocation = selectPiece(board, movementCount, renderer, window);
+
+                    samecolor = board.haveSameColor(actualLocation, futureLocation); 
+
+                    if(samecolor){
+                        actualLocation = futureLocation;
+                    }
+
+                }while(samecolor);
+                
                 
                 validmove = board.isLegit(movementCount, actualLocation, futureLocation);
 
@@ -84,10 +126,9 @@ int main(){
                     // NOT LEGIT
                 }
             }
-
+            printBoard(board, width, height, renderer, window); // PRINTING
             movementCount++;
         }
-
 
 
     // END
@@ -189,15 +230,36 @@ return nullcord;
 
 }
 
-void mainmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language){
+int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
  
-}
+    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", width/3, height/8 * 4, width/3, height/8);
+    SDL_RenderPresent(renderer);
 
-void settingsmenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language){
+    bool waiting = true;
+    SDL_Event e;
 
-}
+    while (waiting)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                waiting = false;
+                return -1;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            {
+                int mx = e.button.x;
+                int my = e.button.y;
+                if(mx >  width/3 && mx < width/3 * 2 && my > height/8 * 4 && my < height/8 * 5){
+                    return 1;
+                }
+            }
+        }
+    }
 
-void languagemenu(SDL_Renderer *renderer, SDL_Window *window, int &option, char &language){
+return -1;
 
 }
 
@@ -221,12 +283,10 @@ T_Coordinates coordsTranslator(int row, char col){
     return coordinates;
 }
 
+
 /*
 TODO:
-    Manage check, checkmate and stalemate situations.
-Develop, in order:
-    The mainmenu.
-    The settingsmenu.
-    The languagemenu.
+Fix movement.
+Implement pawn promotion.
 Fix comments in the board methods.
 */

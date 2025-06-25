@@ -70,50 +70,50 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window
                     break;
                 case 1:  
                     // Peón
-                    if ((i + j) % 2 == 0) {
+                    if ((board[i][j])/10 != 0) {
                         importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackpawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 case 2:  
                     // Rey
-                    if ((i + j) % 2 == 0) {
-                        importImageInRender(renderer, "assets/images/whitepawn.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
+                    if ((board[i][j])/10 != 0) {
+                        importImageInRender(renderer, "assets/images/whiteking.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackking.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 case 3:  
                     // Reina
-                    if ((i + j) % 2 == 0) {
-                        importImageInRender(renderer, "assets/images/whitepawn.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
+                    if ((board[i][j])/10 != 0) {
+                        importImageInRender(renderer, "assets/images/whitequeen.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackqueen.png",  j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 case 4:  
                     // Torre
-                    if ((i + j) % 2 == 0) {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                    if ((board[i][j])/10 != 0) {
+                        importImageInRender(renderer, "assets/images/whiterook.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackrook.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 case 5:  
                     // Alfil
-                    if ((i + j) % 2 == 0) {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                    if ((board[i][j])/10 != 0) {
+                        importImageInRender(renderer, "assets/images/whitebishop.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackbishop.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 case 6:  
                     // Caballo
-                    if ((i + j) % 2 == 0) {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                    if ((board[i][j])/10 != 0) {
+                        importImageInRender(renderer, "assets/images/whiteknight.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     } else {
-                        importImageInRender(renderer, "assets/images/whitepawn.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
+                        importImageInRender(renderer, "assets/images/blackknight.png", j * blockwidth, i * blockheight, blockwidth, blockheight);
                     }
                     break;
                 default: 
@@ -570,6 +570,20 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
 return isItLegit;
 }
 
+bool Board::isPieceValid(int movementCount, T_Coordinates pieceCoords){
+
+    if(board[pieceCoords.row][pieceCoords.col] == 0){
+        return false;
+    }
+
+    if(movementCount % 2 == 0){
+        return board[pieceCoords.row][pieceCoords.col] / 10;
+    }else{
+        return !(board[pieceCoords.row][pieceCoords.col] / 10);
+    }
+
+}
+
 std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
 
 
@@ -873,4 +887,10 @@ bool Board::PawnPromotion(char language){
     }
 
 return change;
+}
+
+bool Board::haveSameColor(T_Coordinates coord1, T_Coordinates coord2){
+
+    return ((board[coord1.row][coord1.col] / 10) == (board[coord2.row][coord2.col] / 10));
+
 }
