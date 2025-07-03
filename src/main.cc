@@ -15,6 +15,7 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
 T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
+bool nullCoord(T_Coordinates Coord);
 
 int main(){
     
@@ -94,40 +95,49 @@ int main(){
 
                     do{
                         actualLocation = selectPiece(board, movementCount, renderer, window);
+
+                        if(nullCoord(actualLocation)){
+                            return 0; // DEBUG
+                        }
+
                     }while(!board.isPieceValid(movementCount, actualLocation));
 
-                do{
-                    printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+
+                    do{
+                        printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+                        
+                        // SECOND PIECE
+                            futureLocation = selectPiece(board, movementCount, renderer, window);
+
+                        samecolor = board.haveSameColor(actualLocation, futureLocation); 
+                        
+
+
+                        if(samecolor){
+                            actualLocation = futureLocation;
+                        }
+
+                    }while(samecolor);
                     
-                    // SECOND PIECE
-                        futureLocation = selectPiece(board, movementCount, renderer, window);
 
-                    samecolor = board.haveSameColor(actualLocation, futureLocation); 
+                    validmove = board.isLegit(movementCount, actualLocation, futureLocation);
 
-                    if(samecolor){
-                        actualLocation = futureLocation;
-                    }
-
-                }while(samecolor);
-                
-                
-                validmove = board.isLegit(movementCount, actualLocation, futureLocation);
-
-                if(validmove){
-                    // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
-                    Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
-                    boardDuplicate.updateboard(actualLocation, futureLocation);
-                    if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquares)){ // And it verifies that the king is not left on check
-                        board.updateboard(actualLocation, futureLocation);
+                    if(validmove){
+                        // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
+                        Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
+                        boardDuplicate.updateboard(actualLocation, futureLocation);
+                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquares)){ // And it verifies that the king is not left on check
+                            board.updateboard(actualLocation, futureLocation);
+                        }else{
+                            validmove = false;
+                        }
                     }else{
-                        validmove = false;
+                        // NOT LEGIT
                     }
-                }else{
-                    // NOT LEGIT
                 }
-            }
-            printBoard(board, width, height, renderer, window); // PRINTING
-            movementCount++;
+
+                printBoard(board, width, height, renderer, window); // PRINTING
+                movementCount++;
         }
 
 
@@ -218,6 +228,15 @@ T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer
                     returnPiece.col = mx / 75;
                     returnPiece.row = my / 75;
                     return returnPiece;
+                }else{
+                    SDL_DestroyRenderer(renderer);
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    
+                    T_Coordinates nullcord;
+                    nullcord.row = -1;
+                    nullcord.col = -1;
+                    return nullcord;
                 }
             }
         }
@@ -283,10 +302,19 @@ T_Coordinates coordsTranslator(int row, char col){
     return coordinates;
 }
 
+bool nullCoord(T_Coordinates Coord){
+
+    if(Coord.col == -1 && Coord.row == -1){
+        return true;
+    }
+
+return false;
+
+}
 
 /*
 TODO:
-Fix movement.
+If piece is not valid (Not color that is moving or a empty square, Do not show "possible moves" and go back to reading FIRST COORDINATE)
 Implement pawn promotion.
 Fix comments in the board methods.
 */

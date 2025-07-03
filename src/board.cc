@@ -889,8 +889,8 @@ bool Board::PawnPromotion(char language){
 return change;
 }
 
-bool Board::haveSameColor(T_Coordinates coord1, T_Coordinates coord2){
+bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
-    return ((board[coord1.row][coord1.col] / 10) == (board[coord2.row][coord2.col] / 10));
+    return ( !(board[futurelocation.row][futurelocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futurelocation.row][futurelocation.col] / 10));
 
 }
