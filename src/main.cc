@@ -126,9 +126,11 @@ int main(){
                         // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
                         Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
                         boardDuplicate.updateboard(actualLocation, futureLocation);
-                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquares)){ // And it verifies that the king is not left on check
+                        std::vector <T_Coordinates> prohibitedSquaresDuplicate = boardDuplicate.prohibitedMoves(movementCount);
+                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquaresDuplicate)){ // And it verifies that the king is not left on check
                             board.updateboard(actualLocation, futureLocation);
                         }else{
+                            std::cout << "KING IS LEFT ON CHECK" << std::endl;
                             validmove = false;
                         }
                     }else{
@@ -314,7 +316,6 @@ return false;
 
 /*
 TODO:
-If piece is not valid (Not color that is moving or a empty square, Do not show "possible moves" and go back to reading FIRST COORDINATE)
 Implement pawn promotion.
 Fix comments in the board methods.
 */
