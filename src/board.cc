@@ -275,14 +275,13 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
 
     // WHITE PAWNS (Moving up the board)
     if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 == 0) {
-        if ((dx == 0 && dy == -1 && board[futurelocation.row][futurelocation.col] / 10 == 0) ||  // Forward one step
-            (dx == 0 && dy == -2 && actualLocation.row == 6 &&  // Double step from start
-            board[futurelocation.row][futurelocation.col] / 10 == 0 &&
-            board[actualLocation.row - 1][actualLocation.col] / 10 == 0) ||
-            ((dx == 1 || dx == -1) && dy == -1 && 
+        if ((dx == 0 && dy == -1 && board[futurelocation.row][futurelocation.col] % 10 == 0) ||
+            (dx == 0 && dy == -2 && actualLocation.row == 6 &&
+            board[futurelocation.row][futurelocation.col] % 10 == 0 &&
+            board[actualLocation.row - 1][actualLocation.col] % 10 == 0) ||
+            ((dx == 1 || dx == -1) && dy == -1 &&
             board[futurelocation.row][futurelocation.col] % 10 != 0 &&
-            board[futurelocation.row][futurelocation.col] / 10 == 0)){ // Capturing diagonally
-            
+            board[futurelocation.row][futurelocation.col] / 10 == 0)) {
             isItLegit = true;
         }
         return isItLegit;
@@ -290,14 +289,13 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
 
     // BLACK PAWNS (Moving down the board)
     if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 != 0) {
-        if ((dx == 0 && dy == 1 && board[futurelocation.row][futurelocation.col] / 10 == 0) ||  // Forward one step
-            (dx == 0 && dy == 2 && actualLocation.row == 1 &&  // Double step from start
-            board[futurelocation.row][futurelocation.col] / 10 == 0 &&
-            board[actualLocation.row + 1][actualLocation.col] / 10 == 0) ||
+        if ((dx == 0 && dy == 1 && board[futurelocation.row][futurelocation.col] % 10 == 0) ||
+            (dx == 0 && dy == 2 && actualLocation.row == 1 &&
+            board[futurelocation.row][futurelocation.col] % 10 == 0 &&
+            board[actualLocation.row + 1][actualLocation.col] % 10 == 0) ||
             ((dx == 1 || dx == -1) && dy == 1 &&
-            board[futurelocation.row][futurelocation.col] % 10 != 0 && 
-            board[futurelocation.row][futurelocation.col] / 10 != 0)) { // Capturing diagonally
-
+            board[futurelocation.row][futurelocation.col] % 10 != 0 &&
+            board[futurelocation.row][futurelocation.col] / 10 != 0)) {
             isItLegit = true;
         }
         return isItLegit;
@@ -819,74 +817,124 @@ bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> pr
 return false;
 }
 
-bool Board::PawnPromotion(char language){
+bool Board::isPawnPromoting(int movementCount){
 
-    bool change;
-    char piece = 'Q';
-
-    for (int i = 0; i < 8; i++) {
-        if (board[0][i] % 10 == 1) {
-            change = true;
-            do {
-                printf("%s", (language == 's') ? "\n¿Que quieres cambiar por tu peón? Reina (Q), Caballo (N), Torre(R), Alfil (B): " : "\nWhat do you want to trade your pawn for? Queen (Q), Knight (N), Rook(R), Bishop (B): ");
-                scanf(" %c", &piece);
-                printf("\n");
-
-                if (piece != 'Q' && piece != 'R' && piece != 'N' && piece != 'B') {
-                    printf("%s", (language == 's') ? "\nPor favor, introduce una pieza válida.\n" : "\nPlease introduce a valid piece\n");
-                }
-
-            } while (piece != 'Q' && piece != 'R' && piece != 'N' && piece != 'B');
-
-            switch (piece) {
-                case 'Q':
-                    board[0][i] = 13;
-                    break;
-                case 'B':
-                    board[0][i] = 15;
-                    break;
-                case 'N':
-                    board[0][i] = 16;
-                    break;
-                case 'R':
-                    board[0][i] = 14;
-                    break;
-            }
-        }
+    if(movementCount % 2 == 0){
+        return(board[0][0] % 10 == 1|| board[0][1] % 10 == 1 || board[0][2] % 10 == 1 || board[0][3] % 10 == 1 || board[0][4] % 10 == 1 || board[0][5] % 10 == 1 || board[0][6] % 10 == 1 || board[0][7] % 10 == 1);
+    }else{
+        return(board[7][0] % 10 == 1 || board[7][1] % 10 == 1 || board[7][2] % 10 == 1 || board[7][3] % 10 == 1 || board[7][4] % 10 == 1 || board[7][5] % 10 == 1 || board[7][6] % 10 == 1 || board[7][7] % 10 == 1);
     }
 
-    for (int j = 0; j < 8; j++) {
-        if (board[7][j] % 10 == 1) {
-            change = true;
-            do {
-                printf("%s", (language == 's') ? "\nQue quieres cambiar por tu peón: Reina (Q), Caballo (N), Torre(R), Alfil (B)\n" : "\nWhat do you want to trade your pawn for: Queen (Q), Knight (N), Rook(R), Bishop (B)\n");
-                scanf(" %c", &piece);
-                printf("\n");
+}
 
-                if (piece != 'Q' && piece != 'R' && piece != 'N' && piece != 'B') {
-                    printf("%s", (language == 's') ? "\nPor favor, introduce una pieza válida.\n" : "\nPlease introduce a valid piece\n");
-                }
+void Board::PawnPromotion(int movementCount, SDL_Renderer* renderer){
 
-            } while (piece != 'Q' && piece != 'R' && piece != 'N' && piece != 'B');
+    T_Coordinates pawnCoords{-1, -1};
 
-            switch (piece) {
-                case 'Q':
-                    board[7][j] = 3;
-                    break;
-                case 'B':
-                    board[7][j] = 5;
-                    break;
-                case 'N':
-                    board[7][j] = 6;
-                    break;
-                case 'R':
-                    board[7][j] = 4;
-                    break;
+    if(movementCount%2==0){
+        for(int i = 0; i < 8; i++){
+            if(board[0][i]%10==1){
+                pawnCoords.row = 0;
+                pawnCoords.col = i;
+                break;
             }
         }
+    }else{
+        for(int i = 0; i < 8; i++){
+            if(board[7][i]%10==1){
+                pawnCoords.row = 7;
+                pawnCoords.col = i;
+                break;
+            }
+        }       
     }
 
-return change;
+    if(pawnCoords.row >= 0){
+        if(movementCount%2==0){ // WHITE PIECES
+
+            int x = pawnCoords.col * 75;
+            int y = pawnCoords.row * 75;
+            int w = 100; 
+            int h = 300;
+
+            importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
+            SDL_RenderPresent(renderer);
+
+            std::cout << "PRESENTED" << std::endl;
+
+            SDL_Event e;
+            bool promotion = false;
+            while (SDL_WaitEvent(&e) && !promotion) {
+                if (e.type == SDL_QUIT){
+                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
+                        switch(e.button.y/75){
+                            case 0: 
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+3;    // QUEEN
+                                promotion = true;
+                                break;
+                            case 1:
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+6;    // KNIGHT
+                                promotion = true;
+                                break;
+                            case 2:
+                              board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+4;    // ROOK
+                              promotion = true;
+                                break;
+                            case 3:
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+5;    // BISHOP
+                                promotion = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+        }else{ // BLACK PIECES
+            int x = pawnCoords.col * 75;
+            int y = (pawnCoords.row - 3) * 75; // To adjust to the display.
+            int w = 100; 
+            int h = 300;
+
+            importImageInRender(renderer, "assets/image/pawnpromotion.png", x, y, w, h);
+            SDL_RenderPresent(renderer);
+            SDL_Event e;
+            bool promotion = false;
+            while (SDL_WaitEvent(&e) && !promotion) {
+                if (e.type == SDL_QUIT){
+                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
+                        switch(e.button.y/75){
+                            case 4: 
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+3;    // QUEEN
+                                promotion = true;
+                                break;
+                            case 5:
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+6;    // KNIGHT
+                                promotion = true;
+                                break;
+                            case 6:
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+4;    // ROOK
+                                promotion = true;
+                                break;
+                            case 7:
+                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+5;    // BISHOP
+                                promotion = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+ 
+    }
+
+
+
 }
 
 bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation){

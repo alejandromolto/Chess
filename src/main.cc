@@ -130,12 +130,16 @@ int main(){
                         if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquaresDuplicate)){ // And it verifies that the king is not left on check
                             board.updateboard(actualLocation, futureLocation);
                         }else{
-                            std::cout << "KING IS LEFT ON CHECK" << std::endl;
                             validmove = false;
                         }
                     }else{
                         // NOT LEGIT
                     }
+                }
+
+                if(board.isPawnPromoting(movementCount)){
+                    board.PawnPromotion(movementCount, renderer);
+
                 }
 
                 printBoard(board, width, height, renderer, window); // PRINTING
