@@ -854,7 +854,7 @@ void Board::PawnPromotion(int movementCount, SDL_Renderer* renderer){
 
             int x = pawnCoords.col * 75;
             int y = pawnCoords.row * 75;
-            int w = 100; 
+            int w = 75; 
             int h = 300;
 
             importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
@@ -937,8 +937,115 @@ void Board::PawnPromotion(int movementCount, SDL_Renderer* renderer){
 
 }
 
+void Board::AIPawnPromotion(int movementCount){
+    
+    T_Coordinates pawnCoords{-1, -1};
+
+    if(movementCount%2==0){
+        for(int i = 0; i < 8; i++){
+            if(board[0][i]%10==1){
+                pawnCoords.row = 0;
+                pawnCoords.col = i;
+                break;
+            }
+        }
+    }else{
+        for(int i = 0; i < 8; i++){
+            if(board[7][i]%10==1){
+                pawnCoords.row = 7;
+                pawnCoords.col = i;
+                break;
+            }
+        }       
+    }
+
+    board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10 + 3);
+}
+
 bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
     return ( !(board[futurelocation.row][futurelocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futurelocation.row][futurelocation.col] / 10));
 
+}
+
+int Board::evaluateMaterial(int movementCount){
+
+    int sumSign = !(static_cast<bool>(movementCount % 2));
+    int sum = 0;
+
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            if(board[i][j]/10 == sumSign){
+                if(board[i][j]%10==1){
+                    sum+=1;
+                }else if(board[i][j]%10==6){
+                    sum+=3;
+                }else if(board[i][j]%10==3){
+                    sum+=3;
+                }else if(board[i][j]%10==4){
+                    sum+=5;
+                }else if(board[i][j]%10==5){
+                    sum+=9;                    
+                }
+            }else{
+                if(board[i][j]%10==1){
+                    sum-=1;
+                }else if(board[i][j]%10==6){
+                    sum-=3;
+                }else if(board[i][j]%10==3){
+                    sum-=3;
+                }else if(board[i][j]%10==4){
+                    sum-=5;
+                }else if(board[i][j]%10==5){
+                    sum-=9;                    
+                }                
+            }
+        }
+    }
+    
+    return sum;
+}
+
+std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves(int movementCount){
+
+    std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves;
+
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            for(int k = 0; k < 8; k++){
+                for(int l = 0; l < 8; l++){
+
+                    T_Coordinates actualCoord = {i, j};
+                    T_Coordinates futureCoord = {k, l};
+
+                    if(isLegit(movementCount, actualCoord, futureCoord)){
+                        legalMoves.emplace_back(std::make_pair(actualCoord, futureCoord));
+                    }
+                }
+            }
+        }
+    }
+
+    return legalMoves;
+} 
+
+std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves, int movementCount){
+
+    std::pair<T_Coordinates, T_Coordinates> bestMove;
+    int bestMoveEval = -2147483647;
+    int tempMoveEval = 0;
+    int bestMoveIndex = 0;
+
+    for(int i = 0; i < allLegalMoves.size(); i++){
+        Board duplicateboard = board;
+        duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
+        tempMoveEval = duplicateboard.evaluateMaterial(movementCount);
+        if(tempMoveEval > bestMoveEval){
+            bestMoveIndex = i;
+            bestMoveEval = tempMoveEval; 
+        }
+    }
+
+
+    return allLegalMoves[bestMoveIndex];
 }

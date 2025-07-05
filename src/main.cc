@@ -11,6 +11,8 @@
 
 
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
+int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
+int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
@@ -20,6 +22,7 @@ bool nullCoord(T_Coordinates Coord);
 int main(){
     
     //Variables initialization
+    bool AI = true;
     int width = 1152;
     int height = 648;
     bool matchOver = false;
@@ -40,8 +43,26 @@ int main(){
         return 0;
     }
 
-    // GAME LOOP:
+    if(AI){
+        singleplayerloop(board, renderer, window, width, height);
+    }else{
+        twoplayerloop(board, renderer, window, width, height);
+    }
 
+    // END
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    
+    return 0;
+}
+
+int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height){
+
+// GAME LOOP:
+        
+        bool matchOver = false;
         int movementCount = 0;
         
         while(!matchOver){
@@ -55,12 +76,12 @@ int main(){
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
-                        return 0;
+                        return -1;
                     }else{ // WHITE WINS
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
-                        return 0;
+                        return 1;
                     }
 
                 }else{
@@ -68,7 +89,7 @@ int main(){
                     SDL_DestroyRenderer(renderer);
                     SDL_DestroyWindow(window);
                     SDL_Quit();
-                    return 0;
+                    return 2    ;
                 }
                 matchOver = true;
                 // GO BACK TO THE MENU
@@ -142,18 +163,135 @@ int main(){
 
                 }
 
+                std::cout << board.evaluateMaterial(movementCount) << std::endl;
+
                 printBoard(board, width, height, renderer, window); // PRINTING
+                movementCount++;
+
+        }
+
+        return 0;
+
+}
+
+int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height){
+
+// GAME LOOP:
+        
+        bool matchOver = false;
+        int movementCount = 0;
+        
+        while(!matchOver){
+
+            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves(movementCount);
+            
+            if(board.isTheKingCheckMated(movementCount, prohibitedSquares)){    // LOOK FOR CHECKMATE
+                if(board.isTheKingChecked(movementCount, prohibitedSquares)){
+                    // CHECKMATE
+                    if(movementCount % 2 == 0){ // BLACK WINS
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        return -1;
+                    }else{ // WHITE WINS
+                        SDL_DestroyRenderer(renderer);
+                        SDL_DestroyWindow(window);
+                        SDL_Quit();
+                        return 1;
+                    }
+
+                }else{
+                    // STALEMATE
+                    SDL_DestroyRenderer(renderer);
+                    SDL_DestroyWindow(window);
+                    SDL_Quit();
+                    return 2    ;
+                }
+                matchOver = true;
+                // GO BACK TO THE MENU
+            }
+
+            if(board.isTheKingChecked(movementCount, prohibitedSquares)){   // LOOK FOR CHECK
+                // CHECKED MESSAGE
+            }
+
+            bool validmove = false;
+
+            while(!validmove){
+
+                T_Coordinates actualLocation;
+                T_Coordinates futureLocation;
+                bool samecolor;
+                bool playerMoving;
+                printBoard(board, width, height, renderer, window);
+                
+                playerMoving = !(movementCount%2 == 0);
+
+                if(playerMoving){
+                    // FIRST PIECE
+
+                    do{
+                        actualLocation = selectPiece(board, movementCount, renderer, window);
+
+                        if(nullCoord(actualLocation)){
+                            return 0; // DEBUG
+                        }
+
+                    }while(!board.isPieceValid(movementCount, actualLocation));
+
+
+                    do{
+                        printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+                        
+                        // SECOND PIECE
+                            futureLocation = selectPiece(board, movementCount, renderer, window);
+
+                        samecolor = board.haveSameColor(actualLocation, futureLocation); 
+                        
+
+
+                        if(samecolor){
+                            actualLocation = futureLocation;
+                        }
+
+                    }while(samecolor);
+
+                    validmove = board.isLegit(movementCount, actualLocation, futureLocation);
+
+                    if(validmove){
+                        // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
+                        Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
+                        boardDuplicate.updateboard(actualLocation, futureLocation);
+                        std::vector <T_Coordinates> prohibitedSquaresDuplicate = boardDuplicate.prohibitedMoves(movementCount);
+                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquaresDuplicate)){ // And it verifies that the king is not left on check
+                            board.updateboard(actualLocation, futureLocation);
+                        }else{
+                            validmove = false;
+                        }
+                    }else{
+                        // NOT LEGIT
+                    }
+
+                    if(board.isPawnPromoting(movementCount)){
+                        board.PawnPromotion(movementCount, renderer);
+                    }
+                }else{
+                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMove(board.generateAllLegalMoves(movementCount), movementCount);
+                    board.updateboard(bestMove.first, bestMove.second);
+                    if(board.isPawnPromoting(movementCount)){
+                        board.AIPawnPromotion(movementCount);
+                    }
+                    validmove = true;
+                }
+
+                printBoard(board, width, height, renderer, window); // PRINTING
+                }
+                    
                 movementCount++;
         }
 
+        return 0;
 
-    // END
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    
-    return 0;
 }
 
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
@@ -320,6 +458,5 @@ return false;
 
 /*
 TODO:
-Implement pawn promotion.
-Fix comments in the board methods.
+Implement AI movement.
 */

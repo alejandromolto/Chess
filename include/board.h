@@ -36,7 +36,11 @@ class Board{
         bool isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
         bool isPawnPromoting(int movementCount);
         void PawnPromotion(int movementCount, SDL_Renderer* renderer);
+        void AIPawnPromotion(int movementCount);
         bool haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation);
+        int evaluateMaterial(int movementCount);
+        std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves(int movementCount);
+        std::pair<T_Coordinates, T_Coordinates> bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves, int movementCount);
 };
 
 #endif
