@@ -176,6 +176,44 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height){
 
+ // CHOOSE BLACK/WHITE
+
+    board.printboard(600, 600, renderer, window);
+    importImageInRender(renderer, "assets/images/blackwhite.png", 2*75, 2*75, 2*75, 75);
+    SDL_RenderPresent(renderer);
+    bool color = true;
+
+    bool waiting = true;
+    SDL_Event e;
+
+    while (waiting)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                waiting = false;
+                return 0;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            {
+                int mx = e.button.x;
+                int my = e.button.y;
+                if(mx >= 75*2 && mx <= 75*3 && my >= 75*2 && my <= 75*3){
+                    color = true; // player plays as white
+                    waiting = false;
+                    break;
+                }else if(mx >= 75*3 && mx <= 75*4 && my >= 75*2 && my <= 75*3){
+                    color = false; // player plays as black
+                    waiting = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    bool playerMoving = color; // Si el jugador escoje blancas, juega él primero.
+
 // GAME LOOP:
         
         bool matchOver = false;
@@ -216,18 +254,21 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
             }
 
             bool validmove = false;
-
+            playerMoving=!playerMoving;
+            
             while(!validmove){
 
                 T_Coordinates actualLocation;
                 T_Coordinates futureLocation;
                 bool samecolor;
-                bool playerMoving;
-                printBoard(board, width, height, renderer, window);
                 
-                playerMoving = !(movementCount%2 == 0);
+                // PRINTING
 
-                if(playerMoving){
+                printBoard(board, width, height, renderer, window);
+
+                // MOVING.
+
+                if(playerMoving){ // REAL PLAYER MOVING
                     // FIRST PIECE
 
                     do{
@@ -284,7 +325,9 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     validmove = true;
                 }
 
-                printBoard(board, width, height, renderer, window); // PRINTING
+                // PRINTING
+
+                printBoard(board, width, height, renderer, window); 
                 }
                     
                 movementCount++;
