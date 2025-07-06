@@ -216,6 +216,26 @@ bool Board::isThreatened(int movementCount, T_Coordinates actualLocation, T_Coor
     return isItThreatened;
 }
 
+bool Board::isLegal(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation){
+
+    bool isLegalVar = isLegit(movementCount, actualLocation, futurelocation);
+
+    if(!isLegalVar){
+        return false;
+    }else{
+        Board duplicateBoard(board);
+        duplicateBoard.updateboard(actualLocation, futurelocation);
+
+        if(duplicateBoard.isTheKingChecked(movementCount, duplicateBoard.prohibitedMoves(movementCount))){
+            isLegalVar = false;
+        }else{
+            isLegalVar = true;
+        }
+    }
+    
+    return isLegalVar;
+}
+
 bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation){
 
     bool isItLegit = false;
@@ -968,42 +988,58 @@ bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureloca
 
 }
 
-int Board::evaluateMaterial(int movementCount){
+int Board::evaluate(int movementCount){
 
+
+    int evaluation = 0;
+
+    // 1. EVALUATE MATERIAL.
+    // This criteria simply evaluates the material that each player has.
+
+    int materialEvaluationSum = 0;
     int sumSign = !(static_cast<bool>(movementCount % 2));
-    int sum = 0;
-
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
             if(board[i][j]/10 == sumSign){
                 if(board[i][j]%10==1){
-                    sum+=1;
+                    materialEvaluationSum+=1;
                 }else if(board[i][j]%10==6){
-                    sum+=3;
+                    materialEvaluationSum+=3;
                 }else if(board[i][j]%10==3){
-                    sum+=3;
+                    materialEvaluationSum+=3;
                 }else if(board[i][j]%10==4){
-                    sum+=5;
+                    materialEvaluationSum+=5;
                 }else if(board[i][j]%10==5){
-                    sum+=9;                    
+                    materialEvaluationSum+=9;                    
                 }
             }else{
                 if(board[i][j]%10==1){
-                    sum-=1;
+                    materialEvaluationSum-=1;
                 }else if(board[i][j]%10==6){
-                    sum-=3;
+                    materialEvaluationSum-=3;
                 }else if(board[i][j]%10==3){
-                    sum-=3;
+                    materialEvaluationSum-=3;
                 }else if(board[i][j]%10==4){
-                    sum-=5;
+                    materialEvaluationSum-=5;
                 }else if(board[i][j]%10==5){
-                    sum-=9;                    
+                    materialEvaluationSum-=9;                    
                 }                
             }
         }
     }
+
+    // 2. MOBILITY
+    // This criteria evaluates the number of legal moves that the two players have.
+
+    int mobilityEvaluationSum = generateAllLegalMoves(movementCount).size() - generateAllLegalMoves(movementCount+1).size();
     
-    return sum;
+    // 3. KING SAFETY
+    // This criteria evaluates: blablabla
+
+    
+
+    evaluation = materialEvaluationSum + mobilityEvaluationSum*0.1;
+    return evaluation;
 }
 
 std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves(int movementCount){
@@ -1018,7 +1054,7 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
                     T_Coordinates actualCoord = {i, j};
                     T_Coordinates futureCoord = {k, l};
 
-                    if(isLegit(movementCount, actualCoord, futureCoord)){
+                    if(isLegal(movementCount, actualCoord, futureCoord)){
                         legalMoves.emplace_back(std::make_pair(actualCoord, futureCoord));
                     }
                 }
@@ -1037,9 +1073,9 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_
     int bestMoveIndex = 0;
 
     for(int i = 0; i < allLegalMoves.size(); i++){
-        Board duplicateboard = board;
+        Board duplicateboard(board);
         duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
-        tempMoveEval = duplicateboard.evaluateMaterial(movementCount);
+        tempMoveEval = duplicateboard.evaluate(movementCount);
         if(tempMoveEval > bestMoveEval){
             bestMoveIndex = i;
             bestMoveEval = tempMoveEval; 
@@ -1049,3 +1085,8 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_
 
     return allLegalMoves[bestMoveIndex];
 }
+
+/*
+TODO:
+    Make the evaluate function evaluate different characteristics like pawn promotion, center control
+*/

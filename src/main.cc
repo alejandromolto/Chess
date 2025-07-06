@@ -141,18 +141,10 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     }while(samecolor);
                     
 
-                    validmove = board.isLegit(movementCount, actualLocation, futureLocation);
+                    validmove = board.isLegal(movementCount, actualLocation, futureLocation);
 
                     if(validmove){
-                        // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
-                        Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
-                        boardDuplicate.updateboard(actualLocation, futureLocation);
-                        std::vector <T_Coordinates> prohibitedSquaresDuplicate = boardDuplicate.prohibitedMoves(movementCount);
-                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquaresDuplicate)){ // And it verifies that the king is not left on check
-                            board.updateboard(actualLocation, futureLocation);
-                        }else{
-                            validmove = false;
-                        }
+                        board.updateboard(actualLocation, futureLocation);
                     }else{
                         // NOT LEGIT
                     }
@@ -163,7 +155,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
                 }
 
-                std::cout << board.evaluateMaterial(movementCount) << std::endl;
+                std::cout << board.evaluate(movementCount) << std::endl;
 
                 printBoard(board, width, height, renderer, window); // PRINTING
                 movementCount++;
@@ -214,7 +206,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
     bool playerMoving = color; // Si el jugador escoje blancas, juega él primero.
 
-// GAME LOOP:
+    // GAME LOOP:
         
         bool matchOver = false;
         int movementCount = 0;
@@ -255,7 +247,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
             bool validmove = false;
             playerMoving=!playerMoving;
-            
+
             while(!validmove){
 
                 T_Coordinates actualLocation;
@@ -268,7 +260,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
                 // MOVING.
 
-                if(playerMoving){ // REAL PLAYER MOVING
+                if(playerMoving){ // REAL PLAYER MOVING (RENDER PROCESING AND CLICKING)
                     // FIRST PIECE
 
                     do{
@@ -297,18 +289,10 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
                     }while(samecolor);
 
-                    validmove = board.isLegit(movementCount, actualLocation, futureLocation);
+                    validmove = board.isLegal(movementCount, actualLocation, futureLocation);
 
                     if(validmove){
-                        // If the movement is legit we have to check if it leaves the king on check to see if it can be performed.
-                        Board boardDuplicate(board.getboard()); // It is performed in a duplicate board
-                        boardDuplicate.updateboard(actualLocation, futureLocation);
-                        std::vector <T_Coordinates> prohibitedSquaresDuplicate = boardDuplicate.prohibitedMoves(movementCount);
-                        if(!boardDuplicate.isTheKingChecked(movementCount, prohibitedSquaresDuplicate)){ // And it verifies that the king is not left on check
-                            board.updateboard(actualLocation, futureLocation);
-                        }else{
-                            validmove = false;
-                        }
+                        board.updateboard(actualLocation, futureLocation);
                     }else{
                         // NOT LEGIT
                     }
@@ -316,7 +300,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     if(board.isPawnPromoting(movementCount)){
                         board.PawnPromotion(movementCount, renderer);
                     }
-                }else{
+                }else{ // AI MOVING (FUNCTION THAT GENERATES MOVES)
                     std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMove(board.generateAllLegalMoves(movementCount), movementCount);
                     board.updateboard(bestMove.first, bestMove.second);
                     if(board.isPawnPromoting(movementCount)){
@@ -501,5 +485,5 @@ return false;
 
 /*
 TODO:
-Implement AI movement.
+    Make the AI stronger.
 */
