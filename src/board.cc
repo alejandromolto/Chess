@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
+#include <set>
 #include <SDL2/SDL.h>
 
 Board::Board(){
@@ -20,11 +21,14 @@ Board::Board(){
 
     setboard(chessBoard);
 
+    movementCount = 0;
+
 }
 
-Board::Board(int board[8][8]){
+Board::Board(int board[8][8], int movementCount){
 
     setboard(board);
+    this->movementCount = movementCount;
 
 }
 
@@ -36,6 +40,10 @@ void Board::setboard(int board[8][8]){
         }
     }
 
+}
+
+void Board::setMovementCount(int movementCount){
+    this->movementCount = movementCount;
 }
 
 void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window) {   
@@ -135,7 +143,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
 }
 
-bool Board::isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation){
+bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
     bool isItThreatened = false;
 
@@ -150,7 +158,7 @@ bool Board::isThreatened(int movementCount, T_Coordinates actualLocation, T_Coor
             board[actualLocation.row][actualLocation.col] % 10 == 5 ||
             board[actualLocation.row][actualLocation.col] % 10 == 6){
 
-                isItThreatened = isLegit(movementCount, actualLocation, futurelocation);
+                isItThreatened = isLegit(actualLocation, futurelocation);
             }
 
 
@@ -216,17 +224,17 @@ bool Board::isThreatened(int movementCount, T_Coordinates actualLocation, T_Coor
     return isItThreatened;
 }
 
-bool Board::isLegal(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation){
+bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
-    bool isLegalVar = isLegit(movementCount, actualLocation, futurelocation);
+    bool isLegalVar = isLegit(actualLocation, futurelocation);
 
     if(!isLegalVar){
         return false;
     }else{
-        Board duplicateBoard(board);
+        Board duplicateBoard(board, getMovementCount());
         duplicateBoard.updateboard(actualLocation, futurelocation);
 
-        if(duplicateBoard.isTheKingChecked(movementCount, duplicateBoard.prohibitedMoves(movementCount))){
+        if(duplicateBoard.isTheKingChecked(duplicateBoard.prohibitedMoves())){
             isLegalVar = false;
         }else{
             isLegalVar = true;
@@ -236,7 +244,7 @@ bool Board::isLegal(int movementCount, T_Coordinates actualLocation, T_Coordinat
     return isLegalVar;
 }
 
-bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation){
+bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
     bool isItLegit = false;
 
@@ -588,7 +596,7 @@ bool Board::isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinat
 return isItLegit;
 }
 
-bool Board::isPieceValid(int movementCount, T_Coordinates pieceCoords){
+bool Board::isPieceValid(T_Coordinates pieceCoords){
 
     if(board[pieceCoords.row][pieceCoords.col] == 0){
         return false;
@@ -602,7 +610,7 @@ bool Board::isPieceValid(int movementCount, T_Coordinates pieceCoords){
 
 }
 
-std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
+std::vector<T_Coordinates> Board::prohibitedMoves(){
 
 
     //This function takes the board and the movementCount and generates a list of squares where the king corresponding to the current colour cant go.
@@ -629,15 +637,16 @@ std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
                         futurelocation.row = k;
                         futurelocation.col = t;
 
-                          
+                        setMovementCount(getMovementCount()+1);
 
-                        if(isThreatened(nextMovementCount, actualLocation, futurelocation)){ //... checks if its legit or not...
+                        if(isThreatened(actualLocation, futurelocation)){ //... checks if its legit or not...
                             T_Coordinates tempCoord;
                             tempCoord.row = futurelocation.row;
                             tempCoord.col = futurelocation.col;    // ...and the legit ones are saved in an array.
                             prohibitedSquares.push_back(tempCoord);
                         }
 
+                        setMovementCount(getMovementCount()-1);
 
 
                     }
@@ -658,12 +667,17 @@ std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
                         futurelocation.row = k;
                         futurelocation.col = t;
                         
-                        if(isThreatened(nextMovementCount, actualLocation, futurelocation)){ //... checks if its legit or not...
+                        setMovementCount(getMovementCount()+1);
+                        
+                        if(isThreatened(actualLocation, futurelocation)){ //... checks if its legit or not...
                             T_Coordinates tempCoord;
                             tempCoord.row = futurelocation.row;
                             tempCoord.col = futurelocation.col;    // ...and the legit ones are saved in an array.
                             prohibitedSquares.push_back(tempCoord);
                         }
+
+                        setMovementCount(getMovementCount()-1);
+
 
                     }
                 }
@@ -678,7 +692,7 @@ std::vector<T_Coordinates> Board::prohibitedMoves(int movementCount){
     return prohibitedSquares;
 }
 
-std::vector<T_Coordinates> Board::legitMoves(int movementCount, T_Coordinates actualLocation){
+std::vector<T_Coordinates> Board::legitMoves(T_Coordinates actualLocation){
 
     std::vector<T_Coordinates> legitMoves;
 
@@ -690,7 +704,7 @@ std::vector<T_Coordinates> Board::legitMoves(int movementCount, T_Coordinates ac
         futureLocation.col = i;
         futureLocation.row = j;
 
-        if(isLegit(movementCount, actualLocation, futureLocation)){
+        if(isLegit(actualLocation, futureLocation)){
             legitMoves.push_back(futureLocation);
         }
 
@@ -702,7 +716,7 @@ return legitMoves;
 
 }
 
-bool Board::isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares){
+bool Board::isTheKingChecked(std::vector<T_Coordinates> prohibitedSquares){
 
     //This function checks wether the king is checked or not.
 
@@ -737,7 +751,7 @@ return checked;
 
 }
 
-bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> prohibitedSquares){
+bool Board::isTheKingCheckMated(std::vector<T_Coordinates> prohibitedSquares){
 
     //This function checks if there exists a legal move such that the king is not in check. It can therefore indicate two different situations:
 
@@ -755,11 +769,7 @@ bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> pr
 
     //To do that, we duplicate the chess board for trials (to try every possible move)
 
-    Board board2;
-
-
-    board2.setboard(board);
-
+    Board board2 = Board(board, movementCount);
 
     //Then the magic comes. We check every piece.
 
@@ -779,11 +789,12 @@ bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> pr
                         futurelocation.row = k;
                         futurelocation.col = t;
                     
+                    
 
-                        if(isThreatened(movementCount, actualLocation, futurelocation)){ // ... and checks if its legit or not. If the movement is legit... 
+                        if(isThreatened(actualLocation, futurelocation)){ // ... and checks if its legit or not. If the movement is legit... 
                             board2.updateboard(actualLocation, futurelocation); //... we perform it in a duplicated board... 
-                            prohibitedSquaresD =  board2.prohibitedMoves(movementCount); //... we calculate the checked squares in that duplicate board..
-                            checked = board2.isTheKingChecked(movementCount, prohibitedSquaresD); //... and we look if the king is still checked.
+                            prohibitedSquaresD =  board2.prohibitedMoves(); //... we calculate the checked squares in that duplicate board..
+                            checked = board2.isTheKingChecked(prohibitedSquaresD); //... and we look if the king is still checked.
                              
                             if(checked == false){ //if there is at least one legal move where the king is still not checked, the king is not checkmated.
                                 savingMoves = savingMoves + 1;
@@ -812,10 +823,10 @@ bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> pr
 
                         board2.setboard(board);
 
-                        if(isThreatened(movementCount, actualLocation, futurelocation)){ // ... and checks if its legit or not. If the movement is legit... 
+                        if(isThreatened(actualLocation, futurelocation)){ // ... and checks if its legit or not. If the movement is legit... 
                             board2.updateboard(actualLocation, futurelocation); //... we perform it in a duplicated board... 
-                            prohibitedSquaresD =  board2.prohibitedMoves(movementCount); //... we calculate the checked squares in that duplicate board..
-                            checked = board2.isTheKingChecked(movementCount, prohibitedSquaresD); //... and we look if the king is still checked.
+                            prohibitedSquaresD =  board2.prohibitedMoves(); //... we calculate the checked squares in that duplicate board..
+                            checked = board2.isTheKingChecked(prohibitedSquaresD); //... and we look if the king is still checked.
 
                             if(checked == false){ //if there is at least one legal move where the king is still not checked, the king is not checkmated.
                                 savingMoves = savingMoves + 1;
@@ -837,7 +848,7 @@ bool Board::isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> pr
 return false;
 }
 
-bool Board::isPawnPromoting(int movementCount){
+bool Board::isPawnPromoting(){
 
     if(movementCount % 2 == 0){
         return(board[0][0] % 10 == 1|| board[0][1] % 10 == 1 || board[0][2] % 10 == 1 || board[0][3] % 10 == 1 || board[0][4] % 10 == 1 || board[0][5] % 10 == 1 || board[0][6] % 10 == 1 || board[0][7] % 10 == 1);
@@ -847,7 +858,7 @@ bool Board::isPawnPromoting(int movementCount){
 
 }
 
-void Board::PawnPromotion(int movementCount, SDL_Renderer* renderer){
+void Board::PawnPromotion(SDL_Renderer* renderer){
 
     T_Coordinates pawnCoords{-1, -1};
 
@@ -957,7 +968,7 @@ void Board::PawnPromotion(int movementCount, SDL_Renderer* renderer){
 
 }
 
-void Board::AIPawnPromotion(int movementCount){
+void Board::AIPawnPromotion(){
     
     T_Coordinates pawnCoords{-1, -1};
 
@@ -988,7 +999,7 @@ bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureloca
 
 }
 
-int Board::evaluate(int movementCount){
+int Board::evaluate(){
 
 
     int evaluation = 0;
@@ -1031,18 +1042,43 @@ int Board::evaluate(int movementCount){
     // 2. MOBILITY
     // This criteria evaluates the number of legal moves that the two players have.
 
-    int mobilityEvaluationSum = generateAllLegalMoves(movementCount).size() - generateAllLegalMoves(movementCount+1).size();
+    Board boardEnemy = Board(board, movementCount+1);
+    int mobilityEvaluationSum = generateAllLegalMoves().size() - boardEnemy.generateAllLegalMoves().size();
     
     // 3. KING SAFETY
     // This criteria evaluates: blablabla
 
+
+
+    // 4. CENTER CONTROL.
+
     
 
+    // 5. PIECE DEVELOPMENT.
+
+
+
+    // 6. SPACE CONTROLLED.
+
+
+    
+
+
+    // FINAL CALCULUS
+
     evaluation = materialEvaluationSum + mobilityEvaluationSum*0.1;
+
+    // LAST CRITERIA
+    // This criteria states that if the king of the other color is checkmated, the points are the maximum.    
+
+    if(boardEnemy.isTheKingCheckMated(boardEnemy.prohibitedMoves())){
+        evaluation = 1000; // If the move is a checkmate, the evaluation is maximum.
+    }    
+
     return evaluation;
 }
 
-std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves(int movementCount){
+std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves(){
 
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves;
 
@@ -1054,7 +1090,7 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
                     T_Coordinates actualCoord = {i, j};
                     T_Coordinates futureCoord = {k, l};
 
-                    if(isLegal(movementCount, actualCoord, futureCoord)){
+                    if(isLegal(actualCoord, futureCoord)){
                         legalMoves.emplace_back(std::make_pair(actualCoord, futureCoord));
                     }
                 }
@@ -1065,7 +1101,7 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
     return legalMoves;
 } 
 
-std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves, int movementCount){
+std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves){
 
     std::pair<T_Coordinates, T_Coordinates> bestMove;
     int bestMoveEval = -2147483647;
@@ -1073,9 +1109,9 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_
     int bestMoveIndex = 0;
 
     for(int i = 0; i < allLegalMoves.size(); i++){
-        Board duplicateboard(board);
+        Board duplicateboard(board, movementCount);
         duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
-        tempMoveEval = duplicateboard.evaluate(movementCount);
+        tempMoveEval = duplicateboard.evaluate();
         if(tempMoveEval > bestMoveEval){
             bestMoveIndex = i;
             bestMoveEval = tempMoveEval; 

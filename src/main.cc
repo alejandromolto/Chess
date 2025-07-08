@@ -22,7 +22,7 @@ bool nullCoord(T_Coordinates Coord);
 int main(){
     
     //Variables initialization
-    bool AI = true;
+    bool AI = false;
     int width = 1152;
     int height = 648;
     bool matchOver = false;
@@ -63,16 +63,15 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 // GAME LOOP:
         
         bool matchOver = false;
-        int movementCount = 0;
         
         while(!matchOver){
 
-            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves(movementCount);
+            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves();
             
-            if(board.isTheKingCheckMated(movementCount, prohibitedSquares)){    // LOOK FOR CHECKMATE
-                if(board.isTheKingChecked(movementCount, prohibitedSquares)){
+            if(board.isTheKingCheckMated(prohibitedSquares)){    // LOOK FOR CHECKMATE
+                if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
-                    if(movementCount % 2 == 0){ // BLACK WINS
+                    if(board.getMovementCount() % 2 == 0){ // BLACK WINS
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
@@ -95,7 +94,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 // GO BACK TO THE MENU
             }
 
-            if(board.isTheKingChecked(movementCount, prohibitedSquares)){   // LOOK FOR CHECK
+            if(board.isTheKingChecked(prohibitedSquares)){   // LOOK FOR CHECK
                 // CHECKED MESSAGE
             }
 
@@ -115,20 +114,20 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, movementCount, renderer, window);
+                        actualLocation = selectPiece(board, board.getMovementCount(), renderer, window);
 
                         if(nullCoord(actualLocation)){
                             return 0; // DEBUG
                         }
 
-                    }while(!board.isPieceValid(movementCount, actualLocation));
+                    }while(!board.isPieceValid(actualLocation));
 
 
                     do{
-                        printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, movementCount, renderer, window);
+                            futureLocation = selectPiece(board, board.getMovementCount(), renderer, window);
 
                         samecolor = board.haveSameColor(actualLocation, futureLocation); 
                         
@@ -141,7 +140,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     }while(samecolor);
                     
 
-                    validmove = board.isLegal(movementCount, actualLocation, futureLocation);
+                    validmove = board.isLegal(actualLocation, futureLocation);
 
                     if(validmove){
                         board.updateboard(actualLocation, futureLocation);
@@ -150,15 +149,15 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     }
                 }
 
-                if(board.isPawnPromoting(movementCount)){
-                    board.PawnPromotion(movementCount, renderer);
+                if(board.isPawnPromoting()){
+                    board.PawnPromotion(renderer);
 
                 }
 
-                std::cout << board.evaluate(movementCount) << std::endl;
+                std::cout << board.evaluate() << std::endl;
 
                 printBoard(board, width, height, renderer, window); // PRINTING
-                movementCount++;
+                board.setMovementCount(board.getMovementCount()+1);
 
         }
 
@@ -170,8 +169,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
  // CHOOSE BLACK/WHITE
 
-    board.printboard(600, 600, renderer, window);
-    importImageInRender(renderer, "assets/images/blackwhite.png", 2*75, 2*75, 2*75, 75);
+    importImageInRender(renderer, "assets/images/blackwhite.png", (width/3), (height/3), (width/3), (height/3));
     SDL_RenderPresent(renderer);
     bool color = true;
 
@@ -191,11 +189,11 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
             {
                 int mx = e.button.x;
                 int my = e.button.y;
-                if(mx >= 75*2 && mx <= 75*3 && my >= 75*2 && my <= 75*3){
+                if(mx >= width/3 && mx <= width/3 + (width/6) && my >= height/3 && my <= height/3 + (height*2/3)){
                     color = true; // player plays as white
                     waiting = false;
                     break;
-                }else if(mx >= 75*3 && mx <= 75*4 && my >= 75*2 && my <= 75*3){
+                }else if(mx >= width/3 + (width/6) && mx <= width/3 * 2 && my >= height/3 && my <= height*2/3){
                     color = false; // player plays as black
                     waiting = false;
                     break;
@@ -209,16 +207,15 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
     // GAME LOOP:
         
         bool matchOver = false;
-        int movementCount = 0;
         
         while(!matchOver){
 
-            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves(movementCount);
+            std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves();
             
-            if(board.isTheKingCheckMated(movementCount, prohibitedSquares)){    // LOOK FOR CHECKMATE
-                if(board.isTheKingChecked(movementCount, prohibitedSquares)){
+            if(board.isTheKingCheckMated(prohibitedSquares)){    // LOOK FOR CHECKMATE
+                if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
-                    if(movementCount % 2 == 0){ // BLACK WINS
+                    if(board.getMovementCount() % 2 == 0){ // BLACK WINS
                         SDL_DestroyRenderer(renderer);
                         SDL_DestroyWindow(window);
                         SDL_Quit();
@@ -241,7 +238,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                 // GO BACK TO THE MENU
             }
 
-            if(board.isTheKingChecked(movementCount, prohibitedSquares)){   // LOOK FOR CHECK
+            if(board.isTheKingChecked(prohibitedSquares)){   // LOOK FOR CHECK
                 // CHECKED MESSAGE
             }
 
@@ -264,20 +261,20 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, movementCount, renderer, window);
+                        actualLocation = selectPiece(board, board.getMovementCount(), renderer, window);
 
                         if(nullCoord(actualLocation)){
                             return 0; // DEBUG
                         }
 
-                    }while(!board.isPieceValid(movementCount, actualLocation));
+                    }while(!board.isPieceValid(actualLocation));
 
 
                     do{
-                        printBoardAndLegitMoves(board, actualLocation, movementCount, width, height, renderer, window); // PRINTING.
+                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, movementCount, renderer, window);
+                            futureLocation = selectPiece(board, board.getMovementCount(), renderer, window);
 
                         samecolor = board.haveSameColor(actualLocation, futureLocation); 
                         
@@ -289,7 +286,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
                     }while(samecolor);
 
-                    validmove = board.isLegal(movementCount, actualLocation, futureLocation);
+                    validmove = board.isLegal(actualLocation, futureLocation);
 
                     if(validmove){
                         board.updateboard(actualLocation, futureLocation);
@@ -297,14 +294,14 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         // NOT LEGIT
                     }
 
-                    if(board.isPawnPromoting(movementCount)){
-                        board.PawnPromotion(movementCount, renderer);
+                    if(board.isPawnPromoting()){
+                        board.PawnPromotion(renderer);
                     }
                 }else{ // AI MOVING (FUNCTION THAT GENERATES MOVES)
-                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMove(board.generateAllLegalMoves(movementCount), movementCount);
+                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMove(board.generateAllLegalMoves());
                     board.updateboard(bestMove.first, bestMove.second);
-                    if(board.isPawnPromoting(movementCount)){
-                        board.AIPawnPromotion(movementCount);
+                    if(board.isPawnPromoting()){
+                        board.AIPawnPromotion();
                     }
                     validmove = true;
                 }
@@ -314,7 +311,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                 printBoard(board, width, height, renderer, window); 
                 }
                     
-                movementCount++;
+                board.setMovementCount(board.getMovementCount()+1);
         }
 
         return 0;
@@ -347,7 +344,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
     importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
 
-    std::vector<T_Coordinates> legitMovesVct = board.legitMoves(movementCount, pieceCoords);
+    std::vector<T_Coordinates> legitMovesVct = board.legitMoves(pieceCoords);
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)

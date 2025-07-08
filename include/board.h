@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
+#include <set>
 
 struct T_Coordinates{ 
     int row;
@@ -20,27 +21,32 @@ class Board{
     private:
         int board[8][8];
         bool matchOver;
+        int movementCount = 0;
     public:
         Board();
-        Board(int board[8][8]);
+        Board(int board[8][8], int movementCount);
         int (*getboard())[8] { return board; };
+        int getMovementCount(){ return movementCount; };
+        void setMovementCount(int movementCount);
         void setboard(int board[8][8]);
         void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   
         void updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation);
-        bool isThreatened(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation);
-        bool isLegit(int movementCount, T_Coordinates actualLocation, T_Coordinates futurelocation);
-        bool isTheKingCheckMated(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
-        bool isPieceValid(int movementCount, T_Coordinates pieceCoords);
-        std::vector<T_Coordinates> prohibitedMoves(int movementCount);
-        std::vector<T_Coordinates> legitMoves(int movementCount, T_Coordinates actualLocation);
-        bool isTheKingChecked(int movementCount, std::vector<T_Coordinates> prohibitedSquares);
-        bool isPawnPromoting(int movementCount);
-        void PawnPromotion(int movementCount, SDL_Renderer* renderer);
-        void AIPawnPromotion(int movementCount);
+        bool isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocation);
+        bool isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation);
+        bool isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation);
+        bool isTheKingCheckMated(std::vector<T_Coordinates> prohibitedSquares);
+        bool isPieceValid(T_Coordinates pieceCoords);
+        std::vector<T_Coordinates> prohibitedMoves();
+        std::vector<T_Coordinates> legitMoves(T_Coordinates actualLocation);
+        std::set<T_Coordinates> controlledSquares();
+        bool isTheKingChecked(std::vector<T_Coordinates> prohibitedSquares);
+        bool isPawnPromoting();
+        void PawnPromotion(SDL_Renderer* renderer);
+        void AIPawnPromotion();
         bool haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation);
-        int evaluateMaterial(int movementCount);
-        std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves(int movementCount);
-        std::pair<T_Coordinates, T_Coordinates> bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves, int movementCount);
+        int evaluate();
+        std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves();
+        std::pair<T_Coordinates, T_Coordinates> bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves);
 };
 
 #endif
