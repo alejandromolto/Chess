@@ -7,12 +7,6 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-bool Board::whiteCanCastleLong   = true;
-bool Board::whiteCanCastleShort  = true;
-bool Board::blackCanCastleLong  = true;
-bool Board::blackCanCastleShort  = true;
-
-
 Board::Board(){
 
     int chessBoard[8][8] = {
@@ -180,14 +174,14 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
     }else{ // Castling.
 
-        if(actualLocation.col == 1046 && futurelocation.row == 10 && futurelocation.col == 10){ // Queenside (long) castle
-            if(movementCount%2==0){
+        if(actualLocation.col == 1046){ // Queenside (long) castle
+            if(futurelocation.row ==10 && futurelocation.col == 10){ // White
                 board[7][2] = board[7][4]; // King e1 -> c1
                 board[7][4] = 0;
 
                 board[7][3] = board[7][0]; // Rook a1 -> d1
                 board[7][0] = 0;                
-            }else{
+            }else if(futurelocation.row ==-10 && futurelocation.col == -10){ // Black
                 board[0][2] = board[0][4]; // King e8 -> c8
                 board[0][4] = 0;
 
@@ -195,14 +189,14 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
                 board[0][0] = 0;      
             }
 
-        }else if(actualLocation.col == 54027 && futurelocation.row == 10 && futurelocation.col == 10){  // Kingside (short) castle
-            if(movementCount%2==0){
+        }else if(actualLocation.col == 54027){  // Kingside (short) castle
+            if(futurelocation.row ==10 && futurelocation.col == 10){ // White
                 board[7][6] = board[7][4]; // King e1 -> g1
                 board[7][4] = 0;
 
                 board[7][5] = board[7][7]; // Rook h1 -> f1
                 board[7][7] = 0;
-            }else{
+            }else if(futurelocation.row ==-10 && futurelocation.col == -10){ // Black
                 board[0][6] = board[0][4]; // King e8 -> g8
                 board[0][4] = 0;
 

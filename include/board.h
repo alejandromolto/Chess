@@ -22,10 +22,10 @@ class Board{
         int board[8][8];
         bool matchOver;
         int movementCount = 0;
-        static bool whiteCanCastleLong ;
-        static bool whiteCanCastleShort;
-        static bool blackCanCastleLong;
-        static bool blackCanCastleShort;
+        bool whiteCanCastleLong = true;
+        bool whiteCanCastleShort = true;
+        bool blackCanCastleLong = true;
+        bool blackCanCastleShort = true;
     public:
         Board();
         Board(int board[8][8], int movementCount);

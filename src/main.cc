@@ -15,7 +15,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 T_Coordinates coordsTranslator(int row, char col);
-T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
+T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
 bool nullCoord(T_Coordinates Coord);
 
 int main(){
@@ -113,7 +113,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, board.getMovementCount(), renderer, window);
+                        actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
 
                         if(nullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -126,8 +126,30 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getMovementCount(), renderer, window);
-
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), renderer, window);
+                                if(futureLocation.row == 245713){ // castling
+                                    if(futureLocation.col == 1046){
+                                        if(board.getMovementCount()%2==0){
+                                            actualLocation = futureLocation;
+                                            futureLocation = {10, 10};
+                                            break;
+                                        }else{
+                                            actualLocation = futureLocation;
+                                            futureLocation = {-10, -10};
+                                            break;
+                                        }
+                                    }else if(futureLocation.col == 54027){
+                                        if(board.getMovementCount()%2==0){
+                                            actualLocation = futureLocation;
+                                            futureLocation = {10, 10};
+                                            break;
+                                        }else{
+                                            actualLocation = futureLocation;
+                                            futureLocation = {-10, -10};
+                                            break;
+                                        }
+                                    }
+                                }
                         samecolor = board.haveSameColor(actualLocation, futureLocation); 
                         
 
@@ -260,7 +282,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, board.getMovementCount(), renderer, window);
+                        actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
 
                         if(nullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -273,8 +295,30 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getMovementCount(), renderer, window);
-
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), renderer, window);
+                                if(futureLocation.row == 245713){ // castling
+                                    if(futureLocation.col == 1046){
+                                        if(board.getMovementCount()%2==0){
+                                            actualLocation = futureLocation;
+                                            futureLocation = {10, 10};
+                                            break;
+                                        }else{
+                                            actualLocation = futureLocation;
+                                            futureLocation = {-10, -10};
+                                            break;
+                                        }
+                                    }else if(futureLocation.col == 54027){
+                                        if(board.getMovementCount()%2==0){
+                                            actualLocation = futureLocation;
+                                            futureLocation = {10, 10};
+                                            break;
+                                        }else{
+                                            actualLocation = futureLocation;
+                                            futureLocation = {-10, -10};
+                                            break;
+                                        }
+                                    }
+                                }
                         samecolor = board.haveSameColor(actualLocation, futureLocation); 
                         
 
@@ -343,6 +387,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
     importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
 
+    // Legal moves (except castling)
     std::vector<T_Coordinates> legitMovesVct = board.legitMoves(pieceCoords);
     for (int i = 0; i < 8; i++)
     {
@@ -362,6 +407,59 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
                 rect.w = 600 / 8;
                 rect.h = 600 / 8;
                 SDL_RenderFillRect(renderer, &rect);
+            
+            } 
+        }
+    }
+
+    // Castling
+    if(board.getboard()[pieceCoords.row][pieceCoords.col]%10==2){
+        if(movementCount%2==0 && pieceCoords.row==7 && pieceCoords.col==4){
+
+            T_Coordinates tempCoord1Long = {245713, 1046};
+            T_Coordinates tempCoord1Short = {245713, 54027};
+            T_Coordinates tempCoord2 = {10 , 10};
+
+            if(board.isLegit(tempCoord1Long, tempCoord2)){ // White long    
+                SDL_Rect rect;
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                rect.y = 7 * 600 / 8;
+                rect.x = 2 * 600 / 8;
+                rect.w = 600 / 8;
+                rect.h = 600 / 8;
+                SDL_RenderFillRect(renderer, &rect);      
+            }          
+            if(board.isLegit(tempCoord1Short, tempCoord2)){ // White short
+                SDL_Rect rect;
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                rect.y = 7 * 600 / 8;
+                rect.x = 6 * 600 / 8;
+                rect.w = 600 / 8;
+                rect.h = 600 / 8;
+                SDL_RenderFillRect(renderer, &rect);  
+            }
+        }else if(movementCount%2!=0 && pieceCoords.row ==0 && pieceCoords.col==4){
+            T_Coordinates tempCoord1Long = {245713, 1046};
+            T_Coordinates tempCoord1Short = {245713, 54027};
+            T_Coordinates tempCoord2 = {-10 , -10}; 
+
+            if(board.isLegit(tempCoord1Long, tempCoord2)){ // Black long
+                SDL_Rect rect;
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                rect.y = 0;
+                rect.x = 2 * 600 / 8;
+                rect.w = 600 / 8;
+                rect.h = 600 / 8;
+                SDL_RenderFillRect(renderer, &rect);
+            }  
+            if(board.isLegit(tempCoord1Short, tempCoord2)){ // Black short
+                SDL_Rect rect;
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                rect.y = 0;
+                rect.x = 6 * 600 / 8;
+                rect.w = 600 / 8;
+                rect.h = 600 / 8;
+                SDL_RenderFillRect(renderer, &rect);  
             }
         }
     }
@@ -369,7 +467,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 SDL_RenderPresent(renderer);
 }
 
-T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer, SDL_Window *window){
+T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window){
 
     bool waiting = true;
     SDL_Event e;
@@ -390,6 +488,35 @@ T_Coordinates selectPiece(Board board, int movementCount, SDL_Renderer *renderer
             {
                 int mx = e.button.x;
                 int my = e.button.y;
+
+                if(kingClicked){
+                    T_Coordinates longCastle = {245713, 1046};
+                    T_Coordinates shortCastle = {245713, 54027};
+                    T_Coordinates white = {10, 10};
+                    T_Coordinates black = {-10, -10};
+
+                    if(board.isLegit(longCastle, white)){ // white long
+                        if(mx/75 >= 2 && mx/75 < 3 && my/75 >= 7 && my/75 < 8){
+                        return longCastle;
+                        }
+                    }                   
+                    if(board.isLegit(longCastle, black)){ // black long
+                        if(mx/75 >= 2 && mx/75 < 3 && my/75 >= 0 && my/75 < 1){
+                        return longCastle;
+                        }
+                    }                   
+                    if(board.isLegit(shortCastle, white)){ // white short
+                        if(mx/75 >= 6 && mx/75 < 7 && my/75 >= 7 && my/75 < 8){
+                        return shortCastle;
+                        }
+                    }                   
+                    if(board.isLegit(shortCastle, black)){ // black short
+                        if(mx/75 >= 6 && mx/75 < 7 && my/75 >= 0 && my/75 < 1){
+                        return shortCastle;
+                        }
+                    }
+                }
+                
                 if(mx/75 >= 0 && mx/75 < 8 && my/75 >= 0 && my/75 < 8){
                     T_Coordinates returnPiece;
                     returnPiece.col = mx / 75;
@@ -483,3 +610,4 @@ return false;
 TODO:
     Make the AI stronger.
 */
+    
