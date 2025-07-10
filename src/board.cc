@@ -4,7 +4,14 @@
 #include <ctime>
 #include <vector>
 #include <set>
+#include <algorithm>
 #include <SDL2/SDL.h>
+
+bool Board::whiteCanCastleLong   = true;
+bool Board::whiteCanCastleShort  = true;
+bool Board::blackCanCastleLong  = true;
+bool Board::blackCanCastleShort  = true;
+
 
 Board::Board(){
 
@@ -135,10 +142,76 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window
 
 void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
-    //This function modifies the board state based on the player's move.
+    //This function modifies the board state based on the player's move. This function does not verify that the movement is Legal, it just performs it.
 
-    board[futurelocation.row][futurelocation.col] = board[actualLocation.row][actualLocation.col];
-    board[actualLocation.row][actualLocation.col] = 0;
+    if(actualLocation.row != 245713){ // Standard move.
+
+        switch(board[actualLocation.row][actualLocation.col]%10){
+            case 2: // KING
+                if(board[actualLocation.row][actualLocation.col]/10 == 1){
+                    whiteCanCastleLong = false;
+                    whiteCanCastleShort = false;
+                }else{
+                    blackCanCastleLong = false;
+                    blackCanCastleShort = false;
+                }
+                break;
+            case 4: // ROOK
+                if(board[actualLocation.row][actualLocation.col]/10 == 1){
+                    if(actualLocation.col == 1){
+                        whiteCanCastleLong = false;
+                    }else if(actualLocation.col == 7){
+                        whiteCanCastleShort = false;
+                    }
+                }else{
+                  if(actualLocation.col == 1){
+                        blackCanCastleLong = false;
+                    }else if(actualLocation.col == 7){
+                        blackCanCastleShort = false;   
+                    }
+                }
+                break;
+            default:
+                break;
+        }   
+
+        board[futurelocation.row][futurelocation.col] = board[actualLocation.row][actualLocation.col];
+        board[actualLocation.row][actualLocation.col] = 0;
+
+    }else{ // Castling.
+
+        if(actualLocation.col == 1046 && futurelocation.row == 10 && futurelocation.col == 10){ // Queenside (long) castle
+            if(movementCount%2==0){
+                board[7][2] = board[7][4]; // King e1 -> c1
+                board[7][4] = 0;
+
+                board[7][3] = board[7][0]; // Rook a1 -> d1
+                board[7][0] = 0;                
+            }else{
+                board[0][2] = board[0][4]; // King e8 -> c8
+                board[0][4] = 0;
+
+                board[0][3] = board[0][0]; // Rook a8 -> d8
+                board[0][0] = 0;      
+            }
+
+        }else if(actualLocation.col == 54027 && futurelocation.row == 10 && futurelocation.col == 10){  // Kingside (short) castle
+            if(movementCount%2==0){
+                board[7][6] = board[7][4]; // King e1 -> g1
+                board[7][4] = 0;
+
+                board[7][5] = board[7][7]; // Rook h1 -> f1
+                board[7][7] = 0;
+            }else{
+                board[0][6] = board[0][4]; // King e8 -> g8
+                board[0][4] = 0;
+
+                board[0][5] = board[0][7]; // Rook h8 -> f8
+                board[0][7] = 0;
+            }
+        }
+
+    }
 
 
 }
@@ -246,9 +319,122 @@ bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
 bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
+    //This function checks whether the move is legitimate or not.
+
     bool isItLegit = false;
 
-    //This function checks whether the move is legitimate or not.
+    // CASTLING.
+
+    if(actualLocation.row==245713){ //Castling.
+
+        // COLOR CHECK. 
+
+        if(futurelocation.col == 10 && futurelocation.row == 10){ // white
+            if(movementCount%2!=0){
+                return false;
+            }
+        }else if(futurelocation.col == -10 && futurelocation.row == -10){ // black
+            if(movementCount%2==0){
+                return false;
+            }            
+        }
+
+
+        // 1. CANT CASTLE IF YOU ARE IN CHECK.
+
+        if(isTheKingChecked(prohibitedMoves())){
+            return false;
+        }
+
+        // 2. CANT CASTLE IF YOU HAVE MOVED ANY PIECE INVOLVED. VARIABLE CHECK.
+
+        if(movementCount%2==0){ // white
+            if(actualLocation.col==1046){ //long
+                if(!whiteCanCastleLong){
+                    return false;
+                }
+            }else if(actualLocation.col==54027){ // short
+                if(!whiteCanCastleShort){
+                    return false;
+                }
+            }
+        }else{ // black
+            if(actualLocation.col==1046){ //long
+                if(!blackCanCastleLong){
+                    return false;
+                }
+            }else if(actualLocation.col==54027){ // short
+                if(!blackCanCastleShort){
+                    return false;
+                }
+            }
+        }
+    
+        // 3. CANT CASTLE IF YOUR KING WILL CASTLE THROUGH A CHECK
+        // 4. THERE CANT BE ANY PIECES IN BETWEEN.
+
+
+        if(movementCount%2==0){ // white
+            if(actualLocation.col==1046){ //long
+
+                std::vector <T_Coordinates> prohibitedSquares = prohibitedMoves();
+                T_Coordinates target1 = {7, 1};
+                T_Coordinates target2 = {7, 2};
+                T_Coordinates target3 = {7, 3};
+                
+                if( 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target2) != prohibitedSquares.end() || 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target3) != prohibitedSquares.end() || 
+                board[target1.row][target1.col] != 00 || board[target2.row][target2.col] != 00 || board[target3.row][target3.col] != 00){
+                    return false;
+                }
+
+                
+            }else if(actualLocation.col==54027){ // short
+
+                std::vector <T_Coordinates> prohibitedSquares = prohibitedMoves();
+                T_Coordinates target1 = {7, 5};
+                T_Coordinates target2 = {7, 6};
+
+                if(
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target1) != prohibitedSquares.end() || 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target2) != prohibitedSquares.end() || 
+                board[target1.row][target1.col] != 00 || board[target2.row][target2.col] != 00){
+                    return false;
+            }
+
+            }
+        }else{ // black
+            if(actualLocation.col==1046){ //long
+
+                std::vector <T_Coordinates> prohibitedSquares = prohibitedMoves();
+                T_Coordinates target1 = {0, 1};
+                T_Coordinates target2 = {0, 2};
+                T_Coordinates target3 = {0, 3};
+
+                if( 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target2) != prohibitedSquares.end() || 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target3) != prohibitedSquares.end() || 
+                board[target1.row][target1.col] != 00 || board[target2.row][target2.col] != 00 || board[target3.row][target3.col] != 00){
+                    return false;
+            }
+                            
+            }else if(actualLocation.col==54027){ // short
+                std::vector <T_Coordinates> prohibitedSquares = prohibitedMoves();
+                T_Coordinates target1 = {0, 5};
+                T_Coordinates target2 = {0, 6};
+
+                if(
+                    std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target1) != prohibitedSquares.end() || 
+                std::find(prohibitedSquares.begin(), prohibitedSquares.end(), target2) != prohibitedSquares.end() ||
+                board[target1.row][target1.col] != 00 || board[target2.row][target2.col] != 00){
+                    return false;
+                }                
+            }
+        }
+
+        return true;
+    }
 
     //FIRST PHASE: GENERAL CHECK.
 

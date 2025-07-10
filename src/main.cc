@@ -9,7 +9,6 @@
 #include "include/utils.h"
 #include "include/board.h"
 
-
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
