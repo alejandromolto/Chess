@@ -1278,6 +1278,24 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
         }
     }
 
+    T_Coordinates longCastle = {245713, 1046};
+    T_Coordinates shortCastle = {245713, 54027};
+    T_Coordinates white = {10, 10};
+    T_Coordinates black = {-10, -10};
+
+    if (isLegal(longCastle, white)){ // white long
+        legalMoves.emplace_back(std::make_pair(longCastle, white));        
+    }
+    if (isLegal(longCastle, black)){ // black long
+        legalMoves.emplace_back(std::make_pair(longCastle, black));        
+    }
+    if (isLegal(shortCastle, white)){ // white short
+        legalMoves.emplace_back(std::make_pair(shortCastle, white));        
+    }
+    if (isLegal(shortCastle, black)){ // black short
+        legalMoves.emplace_back(std::make_pair(shortCastle, black));        
+    }
+
     return legalMoves;
 } 
 
