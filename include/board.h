@@ -26,6 +26,8 @@ class Board{
         bool whiteCanCastleShort = true;
         bool blackCanCastleLong = true;
         bool blackCanCastleShort = true;
+        T_Coordinates enPassantTarget;
+        std::vector<Board> match;
     public:
         Board();
         Board(int board[8][8], int movementCount);

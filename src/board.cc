@@ -24,6 +24,7 @@ Board::Board(){
 
     movementCount = 0;
 
+
 }
 
 Board::Board(int board[8][8], int movementCount){
@@ -140,7 +141,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
     if(actualLocation.row != 245713){ // Standard move.
 
-        switch(board[actualLocation.row][actualLocation.col]%10){
+        switch(board[actualLocation.row][actualLocation.col]%10){ // Castling purposes
             case 2: // KING
                 if(board[actualLocation.row][actualLocation.col]/10 == 1){
                     whiteCanCastleLong = false;
@@ -169,8 +170,31 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
                 break;
         }   
 
-        board[futurelocation.row][futurelocation.col] = board[actualLocation.row][actualLocation.col];
+
+        board[futurelocation.row][futurelocation.col] = board[actualLocation.row][actualLocation.col]; // Standard move.
         board[actualLocation.row][actualLocation.col] = 0;
+
+        if(board[futurelocation.row][futurelocation.col]%10==1 && abs(actualLocation.row-futurelocation.row) == 2){ // Pawn moving two squares at once (Enabling en passant).
+            if(movementCount%2==0){
+                enPassantTarget.row = futurelocation.row+1;
+                enPassantTarget.col = futurelocation.col;
+            }else{
+                enPassantTarget.row = futurelocation.row-1;
+                enPassantTarget.col = futurelocation.col;
+            }
+        }else if(enPassantTarget.row == futurelocation.row && enPassantTarget.col == futurelocation.col){ // En passant.
+            
+            if(movementCount%2==0){
+                board[enPassantTarget.row+1][enPassantTarget.col] = 0;
+            }else{
+                board[enPassantTarget.row-1][enPassantTarget.col] = 0;
+            }
+            
+            enPassantTarget = {-1, -1}; 
+
+        }else{
+            enPassantTarget = {-1, -1}; 
+        }
 
     }else{ // Castling.
 
@@ -481,6 +505,32 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation){
     int dx = futurelocation.col - actualLocation.col;
     int dy = futurelocation.row - actualLocation.row;
 
+
+    // EN PASSANT
+        // WHITE PAWNS
+        if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 == 0 &&
+            futurelocation == enPassantTarget && 
+            (actualLocation.col==enPassantTarget.col-1 || actualLocation.col==enPassantTarget.col+1) &&
+            actualLocation.row == futurelocation.row + 1 && abs(futurelocation.col - actualLocation.col) == 1 &&
+            board[futurelocation.row][futurelocation.col]==0 &&
+            board[futurelocation.row + 1][futurelocation.col] / 10 == 0 && board[futurelocation.row + 1][futurelocation.col] % 10 == 1
+            ){
+            
+            return true;
+        }
+
+        // BLACK PAWNS
+        if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 != 0 &&
+            futurelocation == enPassantTarget && 
+            (actualLocation.col==enPassantTarget.col-1 || actualLocation.col==enPassantTarget.col+1) &&
+            actualLocation.row == futurelocation.row - 1 && abs(futurelocation.col - actualLocation.col) == 1 &&
+            board[futurelocation.row][futurelocation.col]==0 &&
+            board[futurelocation.row - 1][futurelocation.col] / 10 == 1 && board[futurelocation.row - 1][futurelocation.col] % 10 == 1
+            ){
+            
+            return true;
+        }
+
     // WHITE PAWNS (Moving up the board)
     if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 == 0) {
         if ((dx == 0 && dy == -1 && board[futurelocation.row][futurelocation.col] % 10 == 0) ||
@@ -492,6 +542,7 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation){
             board[futurelocation.row][futurelocation.col] / 10 == 0)) {
             isItLegit = true;
         }
+        
         return isItLegit;
     }
 
@@ -873,6 +924,8 @@ std::vector<T_Coordinates> Board::prohibitedMoves(){
 }
 
 std::vector<T_Coordinates> Board::legitMoves(T_Coordinates actualLocation){
+
+    // This functon can be used when the legit moves that are not legal (Moves that leave the king on check) must be visualized.
 
     std::vector<T_Coordinates> legitMoves;
 
