@@ -182,7 +182,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
                 enPassantTarget.row = futurelocation.row-1;
                 enPassantTarget.col = futurelocation.col;
             }
-        }else if(enPassantTarget.row == futurelocation.row && enPassantTarget.col == futurelocation.col){ // En passant.
+        }else if(enPassantTarget.row == futurelocation.row && enPassantTarget.col == futurelocation.col && board[actualLocation.row][actualLocation.col]%10==1){ // En passant.
             
             if(movementCount%2==0){
                 board[enPassantTarget.row+1][enPassantTarget.col] = 0;
