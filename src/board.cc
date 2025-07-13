@@ -2,6 +2,7 @@
 #include "include/board.h"
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -232,6 +233,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
     }
 
 
+    flattenBoardAndAppend();
 }
 
 bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocation){
@@ -1199,6 +1201,61 @@ void Board::PawnPromotion(SDL_Renderer* renderer){
 
 
 
+}
+
+std::vector<int> Board::flattenBoardAndAppend(){
+    
+    std::vector<int> flatBoard;
+    flatBoard.reserve(64); // This reserves capacity for 64 integers. (8x8 board)
+    
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            flatBoard.push_back(board[i][j]);
+        }
+    }
+
+    history.push_back(flatBoard);
+    return flatBoard;
+
+}
+
+void Board::exportGametoFile( std::string filename){
+    std::ofstream file(filename, std::ios::out | std::ios::app);
+
+    if(file.is_open()){
+        
+        // GAME HEADER 
+
+        file << "\n" << "# [GAME]" << "\n";
+
+        // Boards
+        for(int k = 0; k < history.size(); k++){
+            
+            int board[8][8];
+            int cont = 0;
+
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    board[i][j] = history[k][cont++];
+                }    
+            }
+
+             for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    file << board[i][j];
+                    if(j < 7){
+                        file << " ";
+                    }
+
+                }
+                file << "\n";
+            }
+            file << "\n";      
+
+        }
+
+
+    }
 }
 
 void Board::AIPawnPromotion(){
