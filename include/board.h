@@ -27,12 +27,12 @@ class Board{
         bool blackCanCastleLong = true;
         bool blackCanCastleShort = true;
         T_Coordinates enPassantTarget;
-        std::vector<Board> match;
+        std::vector<std::vector<int>> history;
     public:
         Board();
         Board(int board[8][8], int movementCount);
-        int (*getboard())[8] { return board; };
-        int getMovementCount(){ return movementCount; };
+        int (*getboard())[8] { return board; }
+        int getMovementCount(){ return movementCount; }
         void setMovementCount(int movementCount);
         void setboard(int board[8][8]);
         void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   
@@ -53,6 +53,10 @@ class Board{
         int evaluate();
         std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves();
         std::pair<T_Coordinates, T_Coordinates> bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves);
+        std::vector<int> flattenBoardAndAppend();
+        void exportGametoFile(std::string filename);
+        void importGametoBoard(std::string filename, int numgame);
+
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -1220,13 +1221,14 @@ std::vector<int> Board::flattenBoardAndAppend(){
 }
 
 void Board::exportGametoFile( std::string filename){
+
     std::ofstream file(filename, std::ios::out | std::ios::app);
 
     if(file.is_open()){
         
         // GAME HEADER 
 
-        file << "\n" << "# [GAME]" << "\n";
+        file << "# [GAME]" << "\n";
 
         // Boards
         for(int k = 0; k < history.size(); k++){
@@ -1242,6 +1244,9 @@ void Board::exportGametoFile( std::string filename){
 
              for(int i = 0; i < 8; i++){
                 for(int j = 0; j < 8; j++){
+                    if(board[i][j] < 10){
+                        file << 0;
+                    }
                     file << board[i][j];
                     if(j < 7){
                         file << " ";
@@ -1256,6 +1261,64 @@ void Board::exportGametoFile( std::string filename){
 
 
     }
+}
+
+void Board::importGametoBoard(std::string filename, int numgame){
+
+    // This means that the vector "history" will hold the history of a imported game.
+
+    std::ifstream file(filename, std::ios::in);
+
+    if(file.is_open()){
+
+        std::vector<std::vector <int>> fileHistory;
+        std::vector<int> board;
+        std::string line;
+        int currentgame = -1;
+        int numLineBoard = 0;
+        bool reading = false;
+
+
+
+        while(getline(file,line)){
+            
+            if(reading){
+                if(numLineBoard==8){
+                    fileHistory.push_back(board);
+                    if(line == "# [GAME]"){
+                        reading = false;
+                        numLineBoard = 0;
+                        break;
+                    }else{
+                        numLineBoard=0;
+                        board.clear();
+                    }
+                }else{
+                    std::istringstream iss(line);
+                    int piece;
+                    for (int i = 0; i < 8; ++i) {
+                        iss >> piece;
+                        board.push_back(piece);
+                    }         
+                    numLineBoard++;
+                }
+
+            }
+
+            if(line == "# [GAME]"){
+                if(++currentgame == numgame){
+                    reading = true;
+                }
+            }
+        
+        }
+
+        history = fileHistory;
+        file.close();
+
+
+    }
+
 }
 
 void Board::AIPawnPromotion(){
