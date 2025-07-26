@@ -141,6 +141,11 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
     //This function modifies the board state based on the player's move. This function does not verify that the movement is Legal, it just performs it.
 
+    if(movementCount==0){
+        flattenBoardAndAppend();
+    }
+
+
     if(actualLocation.row != 245713){ // Standard move.
 
         switch(board[actualLocation.row][actualLocation.col]%10){ // Castling purposes
@@ -1283,7 +1288,7 @@ void Board::importGametoBoard(std::string filename, int numgame){
         while(getline(file,line)){
             
             if(reading){
-                if(numLineBoard==8){
+                if(numLineBoard==8){        
                     fileHistory.push_back(board);
                     if(line == "# [GAME]"){
                         reading = false;
@@ -1306,6 +1311,9 @@ void Board::importGametoBoard(std::string filename, int numgame){
             }
 
             if(line == "# [GAME]"){
+                if(reading){
+                    break;
+                }
                 if(++currentgame == numgame){
                     reading = true;
                 }
@@ -1315,7 +1323,6 @@ void Board::importGametoBoard(std::string filename, int numgame){
 
         history = fileHistory;
         file.close();
-
 
     }
 

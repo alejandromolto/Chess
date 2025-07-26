@@ -1,4 +1,3 @@
-
 #include "include/utils.h"
 
 void importImageInRender(SDL_Renderer *renderer, const std::string &route, int x, int y, int width, int height)

@@ -29,6 +29,7 @@ class Board{
         T_Coordinates enPassantTarget;
         std::vector<std::vector<int>> history;
     public:
+        std::vector<std::vector<int>> gethistory(){ return history; }
         Board();
         Board(int board[8][8], int movementCount);
         int (*getboard())[8] { return board; }
