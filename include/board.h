@@ -56,7 +56,7 @@ class Board{
         std::pair<T_Coordinates, T_Coordinates> bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves);
         std::vector<int> flattenBoardAndAppend();
         void exportGametoFile(std::string filename);
-        void importGametoBoard(std::string filename, int numgame);
+        bool importGametoBoard(std::string filename, int numgame);
 
 };
 

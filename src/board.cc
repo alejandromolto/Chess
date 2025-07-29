@@ -1268,10 +1268,11 @@ void Board::exportGametoFile( std::string filename){
     }
 }
 
-void Board::importGametoBoard(std::string filename, int numgame){
+bool Board::importGametoBoard(std::string filename, int numgame){
 
     // This means that the vector "history" will hold the history of a imported game.
 
+    bool imported = false;
     std::ifstream file(filename, std::ios::in);
 
     if(file.is_open()){
@@ -1282,7 +1283,6 @@ void Board::importGametoBoard(std::string filename, int numgame){
         int currentgame = -1;
         int numLineBoard = 0;
         bool reading = false;
-
 
 
         while(getline(file,line)){
@@ -1304,6 +1304,7 @@ void Board::importGametoBoard(std::string filename, int numgame){
                     for (int i = 0; i < 8; ++i) {
                         iss >> piece;
                         board.push_back(piece);
+                        imported = true;
                     }         
                     numLineBoard++;
                 }
@@ -1321,8 +1322,14 @@ void Board::importGametoBoard(std::string filename, int numgame){
         
         }
 
+    if(imported){
         history = fileHistory;
         file.close();
+        return true;
+    }else{
+        return false;
+    }
+
 
     }
 
