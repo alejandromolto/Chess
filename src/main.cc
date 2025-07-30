@@ -12,7 +12,7 @@
 
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
-int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
+int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
@@ -21,8 +21,9 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_
 bool nullCoord(T_Coordinates Coord);
 int howMuchGames(std::string filename);
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
+bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 
-int main(){
+int main(){ 
     
     //Variables initialization
     int width = 1152;
@@ -47,7 +48,7 @@ int main(){
     }else if(option == 1){
         singleplayerloop(board, renderer, window, width, height);
     }else if(option == 2){
-        twoplayerloop(board, renderer, window, width, height);
+        twoplayerloop(board, renderer, window, width, height, "chessMatches.txt");
     }else if(option == 3){
         reviewMatchs(board, renderer, window, width, height, "chessMatches.txt");
     }
@@ -63,7 +64,7 @@ int main(){
     return 0;
 }
 
-int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height){
+int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
 // GAME LOOP:
         
@@ -77,18 +78,22 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
+                        if(downloadConfirmation(renderer, width, height)){
+                            board.exportGametoFile(filename);
+                        }
                         return -1;
                     }else{ // WHITE WINS
-                        board.exportGametoFile("chessMatches.txt");
-                        reviewMatchs(board, renderer, window, width, height, "chessMatches.txt");
+                        if(downloadConfirmation(renderer, width, height)){
+                            board.exportGametoFile(filename);
+                        }                        
                         return 1;
                     }
 
                 }else{
                     // STALEMATE
-                    SDL_DestroyRenderer(renderer);
-                    SDL_DestroyWindow(window);
-                    SDL_Quit();
+                    if(downloadConfirmation(renderer, width, height)){
+                        board.exportGametoFile(filename);
+                    }
                     return 2    ;
                 }
                 matchOver = true;
@@ -373,7 +378,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
     // GET MATCH
 
     
-    int matchpointer = chooseMatch(renderer, window, width, height, filename);
+    int matchpointer = chooseMatch(renderer, window, width, height, filename) - 1;
 
         if(matchpointer == -1 || matchpointer > howMuchGames(filename)){
         return;
@@ -392,8 +397,9 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
     std::cout << board.gethistory().size();
 
 
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 600+10, 600-20, 20, 20);
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 600+30, 600-20, 20, 20);
+    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height); // Match background
+    importImageInRender(renderer, "assets/images/Leftarrow.png", 600+10, 600-200, 200, 200);
+    importImageInRender(renderer, "assets/images/Rightarrow.png", 600+210, 600-200, 200, 200);
 
 
         while(true){
@@ -408,12 +414,9 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 }
             }            
             
-            std::cout << "board number" << boardpointer << std::endl;
-            std::cout << "before print board" << std::endl;
             board.setboard(gameBoard);
             board.printboard(600, 600, renderer, window);
             SDL_RenderPresent(renderer);
-            std::cout << "after print board" << std::endl;
 
             bool waiting = true;
             SDL_Event e;
@@ -431,16 +434,18 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                         int mx = e.button.x;
                         int my = e.button.y;
 
-                        if(mx > 600+10 && mx < 600+30 && my > 600-20 && my < 600){
+                        if (mx > 600 + 10 && mx < 600 + 10 + 200 && my > 600 - 200 && my < 600 - 200 + 200)
+                        {
                             boardpointer--;
                             waiting = false;
                             break;
-                        }else if(mx > 600+30 && mx < 600+50 && my > 600-20 && my < 600){
+                        }
+                        else if (mx > 600 + 210 && mx < 600 + 210 + 200 && my > 600 - 200 && my < 600 - 200 + 200)
+                        {
                             boardpointer++;
                             waiting = false;
                             break;
                         }
-
                     }
                 }
             }
@@ -461,8 +466,9 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
     board.printboard(600, 600, renderer, window);
 
     // Strips (A-H) and (1-8) 
-    importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
-    importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
+    importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
+    importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
+
 
     SDL_RenderPresent(renderer);
 }
@@ -476,8 +482,8 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     board.printboard(600, 600, renderer, window);
 
     // Strips (A-H) and (1-8) 
-    importImageInRender(renderer, "assets/images/whitepawn.png", 0, 600, 600, 120);
-    importImageInRender(renderer, "assets/images/whitepawn.png", 600, 0, 120, 600);
+    importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
+    importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
 
     // Legal moves (except castling)
     std::vector<T_Coordinates> legitMovesVct = board.legitMoves(pieceCoords);
@@ -726,7 +732,8 @@ int howMuchGames(std::string filename){
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
     importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height);
-	int ngames = howMuchGames(filename) - 1;
+	int ngames = howMuchGames(filename);
+
 
     for(int i = 0; i < 10; i++){
         importImageInRender(renderer,
@@ -813,6 +820,44 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
 return 0;
 
 }
+
+bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
+    importImageInRender(renderer, "assets/images/downloadboard.png", width/2 - 200, height/2 - 200, 400, 400);
+    importImageInRender(renderer, "assets/images/yes.png", width/2 - 200, height/2 + 50, 100, 100);
+    importImageInRender(renderer, "assets/images/no.png", width/2 +  50, height/2 + 50, 100, 100);
+    SDL_RenderPresent(renderer);
+
+    bool waiting = true;
+    SDL_Event e;
+
+    while (waiting)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                return -1;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            {
+                int mx = e.button.x;
+                int my = e.button.y;
+
+                if (mx > width/2 - 200 && mx < width/2 - 200+100 && my > height/2 + 50 && my < height/2 + 50 + 100)
+                {
+                    return true; // yes.
+                }
+                else if (mx > width/2 + 50 && mx < width/2 + 50+100 && my > height/2 + 50 && my < height/2 + 50 + 100)
+                {
+                    return false; // no.
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 
 /*
 TODO:
