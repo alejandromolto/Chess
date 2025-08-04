@@ -27,7 +27,7 @@ int main(){
     
     //Variables initialization
     int width = 1152;
-    int height = 648;
+    int height = 680;
     bool matchOver = false;
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -348,14 +348,13 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         board.PawnPromotion(renderer);
                     }
                 }else{ // AI MOVING (FUNCTION THAT GENERATES MOVES)
-                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMove(board.generateAllLegalMoves());
+                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMoveWithMinimax(3, -2147483647, +2147483647);
                     board.updateboard(bestMove.first, bestMove.second);
                     if(board.isPawnPromoting()){
                         board.AIPawnPromotion();
                     }
                     validmove = true;
                 }
-
                 // PRINTING
 
                 printBoard(board, width, height, renderer, window); 
@@ -460,8 +459,14 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
     // Board decoration.
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, windowwidth, windowheight);
-    
+    SDL_Rect rect;
+    SDL_SetRenderDrawColor(renderer, 84, 84, 84, 255); // blanco 
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = windowwidth;
+    rect.h = windowheight;
+    SDL_RenderFillRect(renderer, &rect);
+
     // Chess board.
     board.printboard(600, 600, renderer, window);
 
@@ -476,7 +481,13 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
 
     // Board decoration.
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, windowwidth, windowheight);
+    SDL_Rect rect;
+    SDL_SetRenderDrawColor(renderer, 84, 84, 84, 255); // blanco 
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = windowwidth;
+    rect.h = windowheight;
+    SDL_RenderFillRect(renderer, &rect);
     
     // Chess board.
     board.printboard(600, 600, renderer, window);
@@ -643,9 +654,9 @@ return nullcord;
 
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
     importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
-    importImageInRender(renderer, "assets/images/singleplayer.png", width/3, height/8 * 4, width/6, height/8);
-    importImageInRender(renderer, "assets/images/twoplayers.png", width/2, height/8 * 4, width/6, height/8);
-    importImageInRender(renderer, "assets/images/reviewgames.png", width/3, height/8 * 5, width/3, height/8);
+    importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
+    importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
+    importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
     SDL_RenderPresent(renderer);
 
     bool waiting = true;
@@ -664,12 +675,12 @@ int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
             {
                 int mx = e.button.x;
                 int my = e.button.y;
-                if (mx > width/3 && mx < width/2 && my > height/8 * 4 && my < height/8 * 5) {
-                    return 1; // Single player
-                } else if (mx > width/2 && mx < width/3 * 2 && my > height/8 * 4 && my < height/8 * 5) {
-                    return 2; // Two players
-                } else if (mx > width/3 && mx < width/3 * 2 && my > height/8 * 5 && my < height/8 * 6) {
-                    return 3; // Review matches
+                if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+                    return 1;
+                } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+                    return 2;
+                } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
+                    return 3;
                 }
             }
         }
@@ -731,21 +742,23 @@ int howMuchGames(std::string filename){
 
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height);
-	int ngames = howMuchGames(filename);
-
+    importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
+    int ngames = howMuchGames(filename);
 
     for(int i = 0; i < 10; i++){
+        std::string numberfile = "assets/images/";
+        numberfile += std::to_string((i+1));
+        numberfile += ".png";
         importImageInRender(renderer,
-            "assets/images/provisionalImage.jpeg",
-            width/4 + (width/4)*(i%2) + 5*(i%2),
+            numberfile,
+            width/4 + (width/4)*(i%2) + 5*(i%2) + 45,
             (height/6)*(i/2) + height/6 + 5*(i/2),
             width/8,
             height/12);
 
         if(i < ngames){
             SDL_Rect greenSquare;
-            greenSquare.x = width/4 + (width/4)*(i%2) + 5*(i%2);
+            greenSquare.x = width/4 + (width/4)*(i%2) + 5*(i%2) + 45;
             greenSquare.y = (height/6)*(i/2) + height/6 + 5*(i/2);
             greenSquare.w = width/8;
             greenSquare.h = height/12;
@@ -754,8 +767,7 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
             SDL_RenderFillRect(renderer, &greenSquare);
         }
     }
-	SDL_RenderPresent(renderer);
-
+    SDL_RenderPresent(renderer);
 
     bool waiting = true;
     SDL_Event e;
@@ -773,52 +785,31 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
                 int mx = e.button.x;
                 int my = e.button.y;
 
-                if (mx > width/4 && mx < width/4 + width/8 && my > height/6 && my < height/6 + height/12)
-                {
+                if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height/6 && my < height/6 + height/12 && ngames > 0)
                     return 1;
-                }
-                else if (mx > width/2 + 5 && mx < width/2 + 5 + width/8 && my > height/6 && my < height/6 + height/12)
-                {
+                else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height/6 && my < height/6 + height/12 && ngames > 1)
                     return 2;
-                }
-                else if (mx > width/4 && mx < width/4 + width/8 && my > height/3 + 5 && my < height/3 + 5 + height/12)
-                {
+                else if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height/3 + 5 && my < height/3 + 5 + height/12 && ngames > 2)
                     return 3;
-                }
-                else if (mx > width/2 + 5 && mx < width/2 + 5 + width/8 && my > height/3 + 5 && my < height/3 + 5 + height/12)
-                {
+                else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height/3 + 5 && my < height/3 + 5 + height/12 && ngames > 3)
                     return 4;
-                }
-                else if (mx > width/4 && mx < width/4 + width/8 && my > height/2 + 10 && my < height/2 + 10 + height/12)
-                {
+                else if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height/2 + 10 && my < height/2 + 10 + height/12 && ngames > 4)
                     return 5;
-                }
-                else if (mx > width/2 + 5 && mx < width/2 + 5 + width/8 && my > height/2 + 10 && my < height/2 + 10 + height/12)
-                {
+                else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height/2 + 10 && my < height/2 + 10 + height/12 && ngames > 5)
                     return 6;
-                }
-                else if (mx > width/4 && mx < width/4 + width/8 && my > height*2/3 + 15 && my < height*2/3 + 15 + height/12)
-                {
+                else if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height*2/3 + 15 && my < height*2/3 + 15 + height/12 && ngames > 6)
                     return 7;
-                }
-                else if (mx > width/2 + 5 && mx < width/2 + 5 + width/8 && my > height*2/3 + 15 && my < height*2/3 + 15 + height/12)
-                {
+                else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height*2/3 + 15 && my < height*2/3 + 15 + height/12 && ngames > 7) 
                     return 8;
-                }
-                else if (mx > width/4 && mx < width/4 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12)
-                {
+                else if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12  && ngames > 8)
                     return 9;
-                }
-                else if (mx > width/2 + 5 && mx < width/2 + 5 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12)
-                {
+                else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12 && ngames > 1)
                     return 10;
-                }
             }
         }
     }
 
-return 0;
-
+    return 0;
 }
 
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){

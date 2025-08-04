@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
+
 Board::Board(){
 
     int chessBoard[8][8] = {
@@ -61,9 +62,9 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window
     for (int j = 0; j < 8; j++) {
         for (int i = 0; i < 8; i++) {
                 if ((i + j) % 2 == 0) {
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // blanco
+                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // blanco 
                 }else {
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // negro
+                    SDL_SetRenderDrawColor(renderer, 56, 52, 52, 255); // negro 
                 }
                    
                 rect.x = i * blockwidth;
@@ -141,7 +142,11 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
     //This function modifies the board state based on the player's move. This function does not verify that the movement is Legal, it just performs it.
 
-    int square = board[actualLocation.row][actualLocation.col];
+    int square = 0;
+
+    if(actualLocation.row > 0 && actualLocation.row < 8 && actualLocation.col > 0 && actualLocation.col < 8){
+        square = board[actualLocation.row][actualLocation.col];
+    }
 
     if(movementCount==0){
         flattenBoardAndAppend();
@@ -150,7 +155,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
     if(actualLocation.row != 245713){ // Standard move.
 
-        switch(board[actualLocation.row][actualLocation.col]%10){ // Castling purposes
+        switch(board[actualLocation.row][actualLocation.col]%10){ // Castling purposes (Some moves disable the possibility to castle)
             case 2: // KING
                 if(board[actualLocation.row][actualLocation.col]/10 == 1){
                     whiteCanCastleLong = false;
@@ -1371,16 +1376,19 @@ bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureloca
 int Board::evaluate(){
 
 
+    // The convention for the evaluating function is:
+    // +: White (Max evaluation for white is 1000)
+    // -: Black (Max evaluation for black is -1000)
+
     int evaluation = 0;
 
     // 1. EVALUATE MATERIAL.
     // This criteria simply evaluates the material that each player has.
 
     int materialEvaluationSum = 0;
-    int sumSign = !(static_cast<bool>(movementCount % 2));
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
-            if(board[i][j]/10 == sumSign){
+            if(board[i][j]/10 == 1){
                 if(board[i][j]%10==1){
                     materialEvaluationSum+=1;
                 }else if(board[i][j]%10==6){
@@ -1411,37 +1419,101 @@ int Board::evaluate(){
     // 2. MOBILITY
     // This criteria evaluates the number of legal moves that the two players have.
 
+    int mobilityEvaluationSum;
     Board boardEnemy = Board(board, movementCount+1);
-    int mobilityEvaluationSum = generateAllLegalMoves().size() - boardEnemy.generateAllLegalMoves().size();
+
+    if(movementCount%2==0){ 
+        mobilityEvaluationSum = generateAllLegalMoves().size() - boardEnemy.generateAllLegalMoves().size(); // If white moving
+    }else{ 
+        mobilityEvaluationSum = boardEnemy.generateAllLegalMoves().size() - generateAllLegalMoves().size(); // If black moving
+    }
+
     
     // 3. KING SAFETY
-    // This criteria evaluates: blablabla
+    // This criteria evaluates the number of pawns the king has to protect it, especially in castling positions.
 
-
+    
 
     // 4. CENTER CONTROL.
 
-    
+    int centerEvaluationSum = 0;
+    for(int i = 3; i < 5; i++){
+        for(int j = 3; j < 5; j++){
+            if(board[i][j]/10 == 1){
+                if(board[i][j]%10==1){
+                    centerEvaluationSum+=1;
+                }else if(board[i][j]%10==6){
+                    centerEvaluationSum+=3;
+                }else if(board[i][j]%10==3){
+                    centerEvaluationSum+=3;
+                }else if(board[i][j]%10==4){
+                    centerEvaluationSum+=5;
+                }else if(board[i][j]%10==5){
+                    centerEvaluationSum+=9;                    
+                }
+            }else{
+                if(board[i][j]%10==1){
+                    centerEvaluationSum-=1;
+                }else if(board[i][j]%10==6){
+                    centerEvaluationSum-=3;
+                }else if(board[i][j]%10==3){
+                    centerEvaluationSum-=3;
+                }else if(board[i][j]%10==4){
+                    centerEvaluationSum-=5;
+                }else if(board[i][j]%10==5){
+                    centerEvaluationSum-=9;                    
+                }                
+            }
+        }
+    }    
 
-    // 5. PIECE DEVELOPMENT.
+    int outercenterEvaluationSum = 0;
+    for(int i = 2; i < 6; i++){
+        for(int j = 2; j < 6; j++){
+            if(board[i][j]/10 == 1){
+                if(board[i][j]%10==1){
+                    outercenterEvaluationSum+=1;
+                }else if(board[i][j]%10==6){
+                    outercenterEvaluationSum+=3;
+                }else if(board[i][j]%10==3){
+                    outercenterEvaluationSum+=3;
+                }else if(board[i][j]%10==4){
+                    outercenterEvaluationSum+=5;
+                }else if(board[i][j]%10==5){
+                    outercenterEvaluationSum+=9;                    
+                }
+            }else{
+                if(board[i][j]%10==1){
+                    outercenterEvaluationSum-=1;
+                }else if(board[i][j]%10==6){
+                    outercenterEvaluationSum-=3;
+                }else if(board[i][j]%10==3){
+                    outercenterEvaluationSum-=3;
+                }else if(board[i][j]%10==4){
+                    outercenterEvaluationSum-=5;
+                }else if(board[i][j]%10==5){
+                    outercenterEvaluationSum-=9;                    
+                }                
+            }
+        }
+    }   
+
+    outercenterEvaluationSum =  outercenterEvaluationSum - centerEvaluationSum;
 
 
+    // FINAL CALCULULATION
 
-    // 6. SPACE CONTROLLED.
-
-
-    
-
-
-    // FINAL CALCULUS
-
-    evaluation = materialEvaluationSum + mobilityEvaluationSum*0.1;
+    evaluation = materialEvaluationSum*2 + mobilityEvaluationSum*0.4 + centerEvaluationSum*0.2 + outercenterEvaluationSum*0.1;
 
     // LAST CRITERIA
     // This criteria states that if the king of the other color is checkmated, the points are the maximum.    
 
-    if(boardEnemy.isTheKingCheckMated(boardEnemy.prohibitedMoves())){
-        evaluation = 1000; // If the move is a checkmate, the evaluation is maximum.
+    if(boardEnemy.isTheKingCheckMated(boardEnemy.prohibitedMoves())){ // If the move is a checkmate, the evaluation is maximum.
+        if(movementCount%2==0){
+            evaluation = 1000; 
+        }else{
+            evaluation = -1000;
+        }
     }    
 
     return evaluation;
@@ -1451,6 +1523,7 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
 
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves;
 
+    // Generate all natural moves that are legal (One piece moves from point A to point B)
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
             for(int k = 0; k < 8; k++){
@@ -1467,6 +1540,7 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
         }
     }
 
+    // Add castling moves.
     T_Coordinates longCastle = {245713, 1046};
     T_Coordinates shortCastle = {245713, 54027};
     T_Coordinates white = {10, 10};
@@ -1485,31 +1559,157 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
         legalMoves.emplace_back(std::make_pair(shortCastle, black));        
     }
 
+    // Return the vector with all the legal moves.
     return legalMoves;
 } 
 
-std::pair<T_Coordinates, T_Coordinates> Board::bestMove(std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves){
+std::pair<T_Coordinates, T_Coordinates> Board::bestMove(){
+
+    std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves = generateAllLegalMoves();
 
     std::pair<T_Coordinates, T_Coordinates> bestMove;
     int bestMoveEval = -2147483647;
     int tempMoveEval = 0;
     int bestMoveIndex = 0;
 
-    for(int i = 0; i < allLegalMoves.size(); i++){
-        Board duplicateboard(board, movementCount);
-        duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
-        tempMoveEval = duplicateboard.evaluate();
-        if(tempMoveEval > bestMoveEval){
-            bestMoveIndex = i;
-            bestMoveEval = tempMoveEval; 
+    // Evaluates every move. (If its black it reverses the value)
+    if(movementCount%2==0){
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            Board duplicateboard(board, movementCount);
+            duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
+            tempMoveEval = duplicateboard.evaluate();
+            if(tempMoveEval > bestMoveEval){
+                bestMoveIndex = i;
+                bestMoveEval = tempMoveEval; 
+            }
         }
+    }else{
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            Board duplicateboard(board, movementCount);
+            duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
+            tempMoveEval = -duplicateboard.evaluate();
+            if(tempMoveEval > bestMoveEval){
+                bestMoveIndex = i;
+                bestMoveEval = tempMoveEval; 
+            }
+        }        
     }
 
 
+    // Returns the best evaluated move.
     return allLegalMoves[bestMoveIndex];
 }
 
+std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, int alpha, int beta) {
+    std::vector<std::pair<T_Coordinates, T_Coordinates>> legalMoves = generateAllLegalMoves();
+    std::pair<T_Coordinates, T_Coordinates> bestMove;
+
+    int bestScore;
+
+    if (movementCount % 2 == 0) { // MAX (blancas)
+        bestScore = -2147483647;
+
+        for (int i = 0; i < legalMoves.size(); i++) {
+            Board boardCopy(board, movementCount);
+            boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+            int score = boardCopy.mini(depth - 1, alpha, beta);
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = legalMoves[i];
+            }
+
+            if (bestScore > alpha) {
+                alpha = bestScore;
+            }
+
+            if (alpha >= beta) {
+                break; 
+            }
+        }
+
+    } else { // MIN (negras)
+        bestScore = 2147483647;
+
+        for (int i = 0; i < legalMoves.size(); i++) {
+            Board boardCopy(board, movementCount);
+            boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+            int score = boardCopy.maxi(depth - 1, alpha, beta);
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestMove = legalMoves[i];
+            }
+
+            if (bestScore < beta) {
+                beta = bestScore;
+            }
+
+            if (alpha >= beta) {
+                break;
+            }
+        }
+    }
+
+    return bestMove;
+}
+
+int Board::maxi(int depth, int alpha, int beta){
+    std::cout << "maxi" << std::endl;
+    if(depth == 0){
+        return evaluate();
+    }
+
+    int maximum = -2147483647;
+    std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves = generateAllLegalMoves();
+
+    for(int i = 0; i < legalMoves.size(); i++){
+        Board boardCopy(board, movementCount);
+        boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+        int score = boardCopy.mini(depth - 1, alpha, beta);
+        if(score>maximum){
+            maximum = score;
+        }
+        if(maximum>alpha){
+            alpha = maximum;
+        }
+        if(alpha>=beta){
+            break;
+        }
+    }
+    return maximum;
+}
+
+int Board::mini(int depth, int alpha, int beta){
+    std::cout << "mini" << std::endl;
+
+    if(depth == 0){
+        return evaluate();
+    }
+
+    int minimum = 2147483647;
+    std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves = generateAllLegalMoves();
+
+    for(int i = 0; i < legalMoves.size(); i++){
+        Board boardCopy(board, movementCount);
+        boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+        int score = boardCopy.maxi(depth - 1, alpha, beta);
+        if(score<minimum){
+            minimum = score;
+        }
+        if(minimum<beta){
+            beta = minimum;
+        }
+        if(alpha>=beta){
+            break;
+        }
+    }
+    return minimum;
+}
+
+
 /*
 TODO:
+
     Make the evaluate function evaluate different characteristics like pawn promotion, center control
 */
