@@ -11,7 +11,7 @@
 #include "include/board.h"
 
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
-int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height);
+int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
@@ -22,6 +22,8 @@ bool nullCoord(T_Coordinates Coord);
 int howMuchGames(std::string filename);
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
+void PawnPromotion(Board& board, SDL_Renderer* renderer);
+
 
 int main(){ 
     
@@ -46,7 +48,7 @@ int main(){
     if(option == -1){
         return 0;
     }else if(option == 1){
-        singleplayerloop(board, renderer, window, width, height);
+        singleplayerloop(board, renderer, window, width, height, "chessMatches.txt");
     }else if(option == 2){
         twoplayerloop(board, renderer, window, width, height, "chessMatches.txt");
     }else if(option == 3){
@@ -178,8 +180,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 }
 
                 if(board.isPawnPromoting()){
-                    board.PawnPromotion(renderer);
-
+                    PawnPromotion(board, renderer);
                 }
 
                 std::cout << board.evaluate() << std::endl;
@@ -193,7 +194,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 }
 
-int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height){
+int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
  // CHOOSE BLACK/WHITE
 
@@ -244,23 +245,23 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
-                        SDL_DestroyRenderer(renderer);
-                        SDL_DestroyWindow(window);
-                        SDL_Quit();
+                        if(downloadConfirmation(renderer, width, height)){
+                            board.exportGametoFile(filename);
+                        }
                         return -1;
                     }else{ // WHITE WINS
-                        SDL_DestroyRenderer(renderer);
-                        SDL_DestroyWindow(window);
-                        SDL_Quit();
+                        if(downloadConfirmation(renderer, width, height)){
+                            board.exportGametoFile(filename);
+                        }
                         return 1;
                     }
 
                 }else{
                     // STALEMATE
-                    SDL_DestroyRenderer(renderer);
-                    SDL_DestroyWindow(window);
-                    SDL_Quit();
-                    return 2    ;
+                        if(downloadConfirmation(renderer, width, height)){
+                            board.exportGametoFile(filename);
+                        }
+                        return 2;
                 }
                 matchOver = true;
                 // GO BACK TO THE MENU
@@ -345,10 +346,10 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     }
 
                     if(board.isPawnPromoting()){
-                        board.PawnPromotion(renderer);
+                        PawnPromotion(board, renderer);
                     }
                 }else{ // AI MOVING (FUNCTION THAT GENERATES MOVES)
-                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMoveWithMinimax(3, -2147483647, +2147483647);
+                    std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMoveWithMinimax(2, -2147483647, +2147483647);
                     board.updateboard(bestMove.first, bestMove.second);
                     if(board.isPawnPromoting()){
                         board.AIPawnPromotion();
@@ -372,7 +373,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
     // REVIEW BACKGROUND
 
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     // GET MATCH
 
@@ -396,7 +397,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
     std::cout << board.gethistory().size();
 
 
-    importImageInRender(renderer, "assets/images/provisionalImage.jpeg", 0, 0, width, height); // Match background
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height); // Match background
     importImageInRender(renderer, "assets/images/Leftarrow.png", 600+10, 600-200, 200, 200);
     importImageInRender(renderer, "assets/images/Rightarrow.png", 600+210, 600-200, 200, 200);
 
@@ -459,13 +460,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
     // Board decoration.
-    SDL_Rect rect;
-    SDL_SetRenderDrawColor(renderer, 84, 84, 84, 255); // blanco 
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = windowwidth;
-    rect.h = windowheight;
-    SDL_RenderFillRect(renderer, &rect);
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, windowwidth, windowheight);
 
     // Chess board.
     board.printboard(600, 600, renderer, window);
@@ -481,13 +476,8 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
 
     // Board decoration.
-    SDL_Rect rect;
-    SDL_SetRenderDrawColor(renderer, 84, 84, 84, 255); // blanco 
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = windowwidth;
-    rect.h = windowheight;
-    SDL_RenderFillRect(renderer, &rect);
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, windowwidth, windowheight);
+
     
     // Chess board.
     board.printboard(600, 600, renderer, window);
@@ -847,6 +837,115 @@ bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
     }
 
     return false;
+}
+
+void PawnPromotion(Board& board, SDL_Renderer* renderer){
+
+    T_Coordinates pawnCoords{-1, -1};
+    int movementCount = board.getMovementCount();
+
+    if(movementCount%2==0){
+        for(int i = 0; i < 8; i++){
+            if(board.getboard()[0][i]%10==1){
+                pawnCoords.row = 0;
+                pawnCoords.col = i;
+                break;
+            }
+        }
+    }else{
+        for(int i = 0; i < 8; i++){
+            if(board.getboard()[7][i]%10==1){
+                pawnCoords.row = 7;
+                pawnCoords.col = i;
+                break;
+            }
+        }       
+    }
+
+    if(pawnCoords.row >= 0){
+        if(movementCount%2==0){ // WHITE PIECES
+
+            int x = pawnCoords.col * 75;
+            int y = pawnCoords.row * 75;
+            int w = 75; 
+            int h = 300;
+
+            importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
+            SDL_RenderPresent(renderer);
+
+            SDL_Event e;
+            bool promotion = false;
+            while (SDL_WaitEvent(&e) && !promotion) {
+                if (e.type == SDL_QUIT){
+                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
+                        switch(e.button.y/75){
+                            case 0: 
+                                board.PawnPromotion(pawnCoords, (((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+3));    // QUEEN
+                                promotion = true;
+                                break;
+                            case 1:
+                                board.PawnPromotion(pawnCoords, (((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+6));    // KNIGHT
+                                promotion = true;
+                                break;
+                            case 2:
+                                board.PawnPromotion(pawnCoords, ((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+4);    // ROOK
+                                promotion = true;
+                                break;
+                            case 3:
+                                board.PawnPromotion(pawnCoords, (((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+5));    // BISHOP
+                                promotion = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+        }else{ // BLACK PIECES
+            int x = pawnCoords.col * 75;
+            int y = (pawnCoords.row - 3) * 75; // To adjust to the display.
+            int w = 100; 
+            int h = 300;
+
+            importImageInRender(renderer, "assets/image/pawnpromotion.png", x, y, w, h);
+            SDL_RenderPresent(renderer);
+            SDL_Event e;
+            bool promotion = false;
+            while (SDL_WaitEvent(&e) && !promotion) {
+                if (e.type == SDL_QUIT){
+                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
+                        switch(e.button.y/75){
+                            case 4: 
+                                board.PawnPromotion(pawnCoords,((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+3);    // QUEEN
+                                promotion = true;
+                                break;
+                            case 5:
+                                board.PawnPromotion(pawnCoords, ((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+6);    // KNIGHT
+                                promotion = true;
+                                break;
+                            case 6:
+                                board.PawnPromotion(pawnCoords, ((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+4);    // ROOK
+                                promotion = true;
+                                break;
+                            case 7:
+                                board.PawnPromotion(pawnCoords, ((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+5);    // BISHOP
+                                promotion = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+ 
+    }
+
+
+
 }
 
 

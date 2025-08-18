@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-
 Board::Board(){
 
     int chessBoard[8][8] = {
@@ -1106,114 +1105,8 @@ bool Board::isPawnPromoting(){
 
 }
 
-void Board::PawnPromotion(SDL_Renderer* renderer){
-
-    T_Coordinates pawnCoords{-1, -1};
-
-    if(movementCount%2==0){
-        for(int i = 0; i < 8; i++){
-            if(board[0][i]%10==1){
-                pawnCoords.row = 0;
-                pawnCoords.col = i;
-                break;
-            }
-        }
-    }else{
-        for(int i = 0; i < 8; i++){
-            if(board[7][i]%10==1){
-                pawnCoords.row = 7;
-                pawnCoords.col = i;
-                break;
-            }
-        }       
-    }
-
-    if(pawnCoords.row >= 0){
-        if(movementCount%2==0){ // WHITE PIECES
-
-            int x = pawnCoords.col * 75;
-            int y = pawnCoords.row * 75;
-            int w = 75; 
-            int h = 300;
-
-            importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
-            SDL_RenderPresent(renderer);
-
-            std::cout << "PRESENTED" << std::endl;
-
-            SDL_Event e;
-            bool promotion = false;
-            while (SDL_WaitEvent(&e) && !promotion) {
-                if (e.type == SDL_QUIT){
-                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
-                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
-                        switch(e.button.y/75){
-                            case 0: 
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+3;    // QUEEN
-                                promotion = true;
-                                break;
-                            case 1:
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+6;    // KNIGHT
-                                promotion = true;
-                                break;
-                            case 2:
-                              board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+4;    // ROOK
-                              promotion = true;
-                                break;
-                            case 3:
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+5;    // BISHOP
-                                promotion = true;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-
-        }else{ // BLACK PIECES
-            int x = pawnCoords.col * 75;
-            int y = (pawnCoords.row - 3) * 75; // To adjust to the display.
-            int w = 100; 
-            int h = 300;
-
-            importImageInRender(renderer, "assets/image/pawnpromotion.png", x, y, w, h);
-            SDL_RenderPresent(renderer);
-            SDL_Event e;
-            bool promotion = false;
-            while (SDL_WaitEvent(&e) && !promotion) {
-                if (e.type == SDL_QUIT){
-                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
-                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
-                        switch(e.button.y/75){
-                            case 4: 
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+3;    // QUEEN
-                                promotion = true;
-                                break;
-                            case 5:
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+6;    // KNIGHT
-                                promotion = true;
-                                break;
-                            case 6:
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+4;    // ROOK
-                                promotion = true;
-                                break;
-                            case 7:
-                                board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col]/10)*10)+5;    // BISHOP
-                                promotion = true;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
- 
-    }
-
-
-
+void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue){
+    board[pawnCoords.row][pawnCoords.col] = NewValue;
 }
 
 std::vector<int> Board::flattenBoardAndAppend(){
@@ -1400,7 +1293,7 @@ int Board::evaluate(){
                 }else if(board[i][j]%10==5){
                     materialEvaluationSum+=9;                    
                 }
-            }else{
+            }else if(board[i][j]/10 == 0 && !(board[i][j] == 0)){
                 if(board[i][j]%10==1){
                     materialEvaluationSum-=1;
                 }else if(board[i][j]%10==6){
@@ -1451,7 +1344,7 @@ int Board::evaluate(){
                 }else if(board[i][j]%10==5){
                     centerEvaluationSum+=9;                    
                 }
-            }else{
+            }else if(board[i][j]/10 == 0 && !(board[i][j] == 0)){
                 if(board[i][j]%10==1){
                     centerEvaluationSum-=1;
                 }else if(board[i][j]%10==6){
@@ -1482,7 +1375,7 @@ int Board::evaluate(){
                 }else if(board[i][j]%10==5){
                     outercenterEvaluationSum+=9;                    
                 }
-            }else{
+            }else if(board[i][j]/10 == 0 && !(board[i][j] == 0)){
                 if(board[i][j]%10==1){
                     outercenterEvaluationSum-=1;
                 }else if(board[i][j]%10==6){
@@ -1503,7 +1396,7 @@ int Board::evaluate(){
 
     // FINAL CALCULULATION
 
-    evaluation = materialEvaluationSum*2 + mobilityEvaluationSum*0.4 + centerEvaluationSum*0.2 + outercenterEvaluationSum*0.1;
+    evaluation = materialEvaluationSum*2 + mobilityEvaluationSum + centerEvaluationSum + outercenterEvaluationSum;
 
     // LAST CRITERIA
     // This criteria states that if the king of the other color is checkmated, the points are the maximum.    
@@ -1563,43 +1456,6 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
     return legalMoves;
 } 
 
-std::pair<T_Coordinates, T_Coordinates> Board::bestMove(){
-
-    std::vector<std::pair<T_Coordinates,T_Coordinates>> allLegalMoves = generateAllLegalMoves();
-
-    std::pair<T_Coordinates, T_Coordinates> bestMove;
-    int bestMoveEval = -2147483647;
-    int tempMoveEval = 0;
-    int bestMoveIndex = 0;
-
-    // Evaluates every move. (If its black it reverses the value)
-    if(movementCount%2==0){
-        for(int i = 0; i < allLegalMoves.size(); i++){
-            Board duplicateboard(board, movementCount);
-            duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
-            tempMoveEval = duplicateboard.evaluate();
-            if(tempMoveEval > bestMoveEval){
-                bestMoveIndex = i;
-                bestMoveEval = tempMoveEval; 
-            }
-        }
-    }else{
-        for(int i = 0; i < allLegalMoves.size(); i++){
-            Board duplicateboard(board, movementCount);
-            duplicateboard.updateboard(allLegalMoves[i].first, allLegalMoves[i].second);
-            tempMoveEval = -duplicateboard.evaluate();
-            if(tempMoveEval > bestMoveEval){
-                bestMoveIndex = i;
-                bestMoveEval = tempMoveEval; 
-            }
-        }        
-    }
-
-
-    // Returns the best evaluated move.
-    return allLegalMoves[bestMoveIndex];
-}
-
 std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, int alpha, int beta) {
     std::vector<std::pair<T_Coordinates, T_Coordinates>> legalMoves = generateAllLegalMoves();
     std::pair<T_Coordinates, T_Coordinates> bestMove;
@@ -1612,6 +1468,7 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, in
         for (int i = 0; i < legalMoves.size(); i++) {
             Board boardCopy(board, movementCount);
             boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+            boardCopy.movementCount = boardCopy.movementCount + 1; 
             int score = boardCopy.mini(depth - 1, alpha, beta);
 
             if (score > bestScore) {
@@ -1634,6 +1491,7 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, in
         for (int i = 0; i < legalMoves.size(); i++) {
             Board boardCopy(board, movementCount);
             boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+            boardCopy.movementCount = boardCopy.movementCount + 1; 
             int score = boardCopy.maxi(depth - 1, alpha, beta);
 
             if (score < bestScore) {
@@ -1666,6 +1524,7 @@ int Board::maxi(int depth, int alpha, int beta){
     for(int i = 0; i < legalMoves.size(); i++){
         Board boardCopy(board, movementCount);
         boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+        boardCopy.movementCount = boardCopy.movementCount + 1; 
         int score = boardCopy.mini(depth - 1, alpha, beta);
         if(score>maximum){
             maximum = score;
@@ -1693,6 +1552,7 @@ int Board::mini(int depth, int alpha, int beta){
     for(int i = 0; i < legalMoves.size(); i++){
         Board boardCopy(board, movementCount);
         boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
+        boardCopy.movementCount = boardCopy.movementCount + 1; 
         int score = boardCopy.maxi(depth - 1, alpha, beta);
         if(score<minimum){
             minimum = score;
@@ -1706,7 +1566,6 @@ int Board::mini(int depth, int alpha, int beta){
     }
     return minimum;
 }
-
 
 /*
 TODO:
