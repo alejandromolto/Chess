@@ -10,19 +10,23 @@
 #include "include/utils.h"
 #include "include/board.h"
 
+// Main screen.
 int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
+
+// InGame related functions.
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
+T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
+void PawnPromotion(Board& board, SDL_Renderer* renderer);
+bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
-T_Coordinates coordsTranslator(int row, char col);
-T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
-bool nullCoord(T_Coordinates Coord);
-int howMuchGames(std::string filename);
+bool isNullCoord(T_Coordinates Coord); // Complementary
+
+// Review related functions.
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
-void PawnPromotion(Board& board, SDL_Renderer* renderer);
+void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
+int howManyGames(std::string filename); // Complementary
 
 
 int main(){ 
@@ -66,9 +70,50 @@ int main(){
     return 0;
 }
 
+int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
+
+    // Returns the option chosen by the user.
+
+    importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
+    importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
+    importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
+    SDL_RenderPresent(renderer);
+
+    bool waiting = true;
+    SDL_Event e;
+
+    while (waiting)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                waiting = false;
+                return -1;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            {
+                int mx = e.button.x;
+                int my = e.button.y;
+                if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+                    return 1;
+                } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+                    return 2;
+                } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
+                    return 3;
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
-// GAME LOOP:
+    // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
+    // GAME LOOP:
         
         bool matchOver = false;
         
@@ -124,7 +169,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     do{
                         actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
 
-                        if(nullCoord(actualLocation)){
+                        if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
                         }
 
@@ -196,7 +241,8 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
- // CHOOSE BLACK/WHITE
+    // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
+    // CHOOSE BLACK/WHITE
 
     importImageInRender(renderer, "assets/images/blackwhite.png", (width/3), (height/3), (width/3), (height/3));
     SDL_RenderPresent(renderer);
@@ -292,7 +338,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     do{
                         actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
 
-                        if(nullCoord(actualLocation)){
+                        if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
                         }
 
@@ -355,8 +401,8 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         board.AIPawnPromotion();
                     }
                     validmove = true;
-                }
-                // PRINTING
+                }   
+                // PRINTING 
 
                 printBoard(board, width, height, renderer, window); 
                 }
@@ -370,7 +416,6 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
 void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
-
     // REVIEW BACKGROUND
 
     importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
@@ -380,7 +425,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
     
     int matchpointer = chooseMatch(renderer, window, width, height, filename) - 1;
 
-        if(matchpointer == -1 || matchpointer > howMuchGames(filename)){
+        if(matchpointer == -1 || matchpointer > howManyGames(filename)){
         return;
     }
 
@@ -568,6 +613,8 @@ SDL_RenderPresent(renderer);
 
 T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window){
 
+    // Returns the coordinates of the piece chosen or a special code (-1, -1) if no piece was chosen.
+
     bool waiting = true;
     SDL_Event e;
 
@@ -642,74 +689,17 @@ return nullcord;
 
 }
 
-int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
-    importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
-    importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
-    importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
-    importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
-    SDL_RenderPresent(renderer);
+bool isNullCoord(T_Coordinates Coord){
 
-    bool waiting = true;
-    SDL_Event e;
+    // Returns if the cordinate is null or not.
 
-    while (waiting)
-    {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-            {
-                waiting = false;
-                return -1;
-            }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-            {
-                int mx = e.button.x;
-                int my = e.button.y;
-                if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-                    return 1;
-                } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-                    return 2;
-                } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
-                    return 3;
-                }
-            }
-        }
-    }
-
-    return -1;
-}
-
-T_Coordinates coordsTranslator(int row, char col){
-    
-    T_Coordinates coordinates;
-
-    switch(col){
-        case 'a': coordinates.col = 0; break;
-        case 'b': coordinates.col = 1; break;
-        case 'c': coordinates.col = 2; break;
-        case 'd': coordinates.col = 3; break;
-        case 'e': coordinates.col = 4; break;
-        case 'f': coordinates.col = 5; break;
-        case 'g': coordinates.col = 6; break;
-        case 'h': coordinates.col = 7; break;
-    }
-
-    coordinates.row = 8 - row;
-
-    return coordinates;
-}
-
-bool nullCoord(T_Coordinates Coord){
-
-    if(Coord.col == -1 && Coord.row == -1){
-        return true;
-    }
-
-return false;
+    return (Coord.col == -1 && Coord.row == -1);
 
 }
 
-int howMuchGames(std::string filename){
+int howManyGames(std::string filename){
+
+    // Returns how many games does the file have.
 
     std::ifstream file(filename);
 
@@ -732,8 +722,10 @@ int howMuchGames(std::string filename){
 
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
+    // It returns the match chosen by the user (1-10, not 0-9).
+
     importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
-    int ngames = howMuchGames(filename);
+    int ngames = howManyGames(filename);
 
     for(int i = 0; i < 10; i++){
         std::string numberfile = "assets/images/";
@@ -803,6 +795,9 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
 }
 
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
+    
+    // It returns if the user wants to store the game in the file or not.
+    
     importImageInRender(renderer, "assets/images/downloadboard.png", width/2 - 200, height/2 - 200, 400, 400);
     importImageInRender(renderer, "assets/images/yes.png", width/2 - 200, height/2 + 50, 100, 100);
     importImageInRender(renderer, "assets/images/no.png", width/2 +  50, height/2 + 50, 100, 100);
@@ -949,8 +944,11 @@ void PawnPromotion(Board& board, SDL_Renderer* renderer){
 }
 
 
-/*
-TODO:
-    Make the AI stronger.
+/* 
+TODO: 
+() ERASE GAMES FROM FILE
+() CHOOSE COLOR BACKGROUND
+() WRITE DOCUMENTATION
+
 */
     

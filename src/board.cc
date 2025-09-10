@@ -1322,12 +1322,7 @@ int Board::evaluate(){
     }
 
     
-    // 3. KING SAFETY
-    // This criteria evaluates the number of pawns the king has to protect it, especially in castling positions.
-
-    
-
-    // 4. CENTER CONTROL.
+    // 3. CENTER CONTROL.
 
     int centerEvaluationSum = 0;
     for(int i = 3; i < 5; i++){
@@ -1416,7 +1411,8 @@ std::vector<std::pair<T_Coordinates,T_Coordinates>> Board::generateAllLegalMoves
 
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves;
 
-    // Generate all natural moves that are legal (One piece moves from point A to point B)
+    // Generate all natural moves that are legal (One piece moves from point A to point B, En-passant included)
+
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
             for(int k = 0; k < 8; k++){
@@ -1567,8 +1563,3 @@ int Board::mini(int depth, int alpha, int beta){
     return minimum;
 }
 
-/*
-TODO:
-
-    Make the evaluate function evaluate different characteristics like pawn promotion, center control
-*/
