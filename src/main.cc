@@ -27,7 +27,7 @@ bool isNullCoord(T_Coordinates Coord); // Complementary
 int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
 int howManyGames(std::string filename); // Complementary
-
+void emptyFile(std::string filename);
 
 int main(){ 
     
@@ -420,12 +420,20 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
     // GET MATCH
 
-    
+    if(howManyGames(filename) == 0){
+        return;
+    }
+
     int matchpointer = chooseMatch(renderer, window, width, height, filename) - 1;
 
         if(matchpointer == -1 || matchpointer > howManyGames(filename)){
-        return;
-    }
+            return;
+        }
+        
+        if(matchpointer == -3){
+            emptyFile(filename);
+            return;
+        }
 
 
     // GET BOARD
@@ -727,7 +735,11 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
 
     // It returns the match chosen by the user (1-10, not 0-9).
 
+
+    // PRINTING ON THE SCREEN
     importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/deleteFiles.png", width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)));
+
     int ngames = howManyGames(filename);
 
     for(int i = 0; i < 10; i++){
@@ -753,6 +765,9 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
         }
     }
     SDL_RenderPresent(renderer);
+
+
+    // TAKING USER INPUT
 
     bool waiting = true;
 
@@ -791,6 +806,10 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
                     return 9;
                 else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12 && ngames > 1)
                     return 10;
+                else if(mx >= width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && mx < width - std::max(20, width/64) &&
+                    my >= height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && my < height - std::max(20, width/64)) {
+                    return -2;
+                }
             }
     }
 
@@ -954,12 +973,16 @@ void PawnPromotion(Board& board, SDL_Renderer* renderer){
         }
 }
 
+void emptyFile(std::string filename){
+    std::ofstream ofs(filename, std::ios::trunc);
+}   
+
 /* 
 TODO: 
 (X) Make a surrender button
 (X) Unify all the input user code as a function that returns the mx and my
 () Include options.
-() ERASE GAMES FROM FILE function
+(X) ERASE GAMES FROM FILE function (especial output for choose match then special action then special action in review games)
 () USE width and height consistently (I think some methods/functions use pixels directly)
 () Maybe turn the main.cc into a class?
 () WRITE DOCUMENTATION
