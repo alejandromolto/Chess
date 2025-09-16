@@ -507,11 +507,11 @@ void printBoard(Board board, int width, int height, SDL_Renderer *renderer, SDL_
     importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     // Chess board.
-    board.printboard(600, 600, renderer, window);
+    board.printboard((width*600)/1152, (height*600)/680, renderer, window);
 
     // Strips (A-H) and (1-8) 
-    importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
-    importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
+    importImageInRender(renderer, "assets/images/letterBar.png", 0, (height*600)/680, (width*600)/1152, (height*80)/680);
+    importImageInRender(renderer, "assets/images/numberBar.png", (width*600)/1152, 0, (width*80)/1152, (height*600)/680);
 
     // Forfeit button
     importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
@@ -526,14 +526,17 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 
     
     // Chess board.
-    board.printboard(600, 600, renderer, window);
+    board.printboard((width*600)/1152, (height*600)/680, renderer, window);
 
     // Strips (A-H) and (1-8) 
-    importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
-    importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
+    importImageInRender(renderer, "assets/images/letterBar.png", 0, (height*600)/680, (width*600)/1152, (height*80)/680);
+    importImageInRender(renderer, "assets/images/numberBar.png", (width*600)/1152, 0, (width*80)/1152, (height*600)/680);
 
     // Forfeit button
     importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
+
+    int squareW = (width*600)/1152/8;
+    int squareH = (height*600)/680/8;
 
     // Legal moves (except castling)
     std::vector<T_Coordinates> legitMovesVct = board.legitMoves(pieceCoords);
@@ -550,10 +553,10 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             {
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20);
-                rect.y = i * 600 / 8;
-                rect.x = j * 600 / 8;
-                rect.w = 600 / 8;
-                rect.h = 600 / 8;
+                rect.y = i * squareH;
+                rect.x = j * squareW;
+                rect.w = squareW;
+                rect.h = squareH;
                 SDL_RenderFillRect(renderer, &rect);
             
             } 
@@ -571,19 +574,19 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if(board.isLegit(tempCoord1Long, tempCoord2)){ // White long    
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
-                rect.y = 7 * 600 / 8;
-                rect.x = 2 * 600 / 8;
-                rect.w = 600 / 8;
-                rect.h = 600 / 8;
+                rect.y = 7 * squareH;
+                rect.x = 2 * squareW;
+                rect.w = squareW;
+                rect.h = squareH;
                 SDL_RenderFillRect(renderer, &rect);      
             }          
             if(board.isLegit(tempCoord1Short, tempCoord2)){ // White short
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
-                rect.y = 7 * 600 / 8;
-                rect.x = 6 * 600 / 8;
-                rect.w = 600 / 8;
-                rect.h = 600 / 8;
+                rect.y = 7 * squareH;
+                rect.x = 6 * squareW;
+                rect.w = squareW;
+                rect.h = squareH;
                 SDL_RenderFillRect(renderer, &rect);  
             }
         }else if(movementCount%2!=0 && pieceCoords.row ==0 && pieceCoords.col==4){
@@ -595,18 +598,18 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
                 rect.y = 0;
-                rect.x = 2 * 600 / 8;
-                rect.w = 600 / 8;
-                rect.h = 600 / 8;
+                rect.x = 2 * squareW;
+                rect.w = squareW;
+                rect.h = squareH;
                 SDL_RenderFillRect(renderer, &rect);
             }  
             if(board.isLegit(tempCoord1Short, tempCoord2)){ // Black short
                 SDL_Rect rect;
                 SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
                 rect.y = 0;
-                rect.x = 6 * 600 / 8;
-                rect.w = 600 / 8;
-                rect.h = 600 / 8;
+                rect.x = 6 * squareW;
+                rect.w = squareW;
+                rect.h = squareH;
                 SDL_RenderFillRect(renderer, &rect);  
             }
         }
@@ -639,6 +642,10 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int 
             }else{
 
 
+                int squareW = width * 600 / 1152 / 8;  // This lines serves the purpose of giving scalability to the project.
+                int squareH = height * 600 / 680 / 8; 
+
+
                 if(kingClicked){
                     T_Coordinates longCastle = {245713, 1046};
                     T_Coordinates shortCastle = {245713, 54027};
@@ -646,31 +653,31 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int 
                     T_Coordinates black = {-10, -10};
 
                     if(board.isLegit(longCastle, white)){ // white long
-                        if(mx/75 >= 2 && mx/75 < 3 && my/75 >= 7 && my/75 < 8){
+                        if(mx/squareW >= 2 && mx/squareW < 3 && my/squareH >= 7 && my/squareH < 8){
                         return longCastle;
                         }
                     }                   
                     if(board.isLegit(longCastle, black)){ // black long
-                        if(mx/75 >= 2 && mx/75 < 3 && my/75 >= 0 && my/75 < 1){
+                        if(mx/squareW >= 2 && mx/squareW < 3 && my/squareH >= 0 && my/squareH < 1){
                         return longCastle;
                         }
                     }                   
                     if(board.isLegit(shortCastle, white)){ // white short
-                        if(mx/75 >= 6 && mx/75 < 7 && my/75 >= 7 && my/75 < 8){
+                        if(mx/squareW >= 6 && mx/squareW < 7 && my/squareH >= 7 && my/squareH < 8){
                         return shortCastle;
                         }
                     }                   
                     if(board.isLegit(shortCastle, black)){ // black short
-                        if(mx/75 >= 6 && mx/75 < 7 && my/75 >= 0 && my/75 < 1){
+                        if(mx/squareW >= 6 && mx/squareW < 7 && my/squareH >= 0 && my/squareH < 1){
                         return shortCastle;
                         }
                     }
                 }
                 
-                if(mx/75 >= 0 && mx/75 < 8 && my/75 >= 0 && my/75 < 8){ // Standard case.
+                if(mx/squareW >= 0 && mx/squareW < 8 && my/squareH >= 0 && my/squareH < 8){ // Standard case.
                     T_Coordinates returnPiece;
-                    returnPiece.col = mx / 75;
-                    returnPiece.row = my / 75;
+                    returnPiece.col = mx / squareW;
+                    returnPiece.row = my / squareH;
                     return returnPiece;
                 }else if(mx >= (width*527)/864 && mx < (width*527)/864 + (width*328)/864 && my >= (height*364)/510 && my < (height*364)/510 + (height*141)/510){ // Forfeit button
                     T_Coordinates forfeitcord;
@@ -983,7 +990,7 @@ TODO:
 (X) Unify all the input user code as a function that returns the mx and my
 () Include options.
 (X) ERASE GAMES FROM FILE function (especial output for choose match then special action then special action in review games)
-() USE width and height consistently (I think some methods/functions use pixels directly)
+(X) USE width and height consistently (I think some methods/functions use pixels directly)
 () Maybe turn the main.cc into a class?
 () WRITE DOCUMENTATION
 
