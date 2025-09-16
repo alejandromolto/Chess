@@ -11,12 +11,12 @@
 #include "include/board.h"
 
 // Main screen.
-int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
+int mainmenu(int width, int height, SDL_Renderer* renderer);
 
 // InGame related functions.
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window);
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer *renderer, SDL_Window *window);
 void PawnPromotion(Board& board, SDL_Renderer* renderer);
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
@@ -24,7 +24,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 bool isNullCoord(T_Coordinates Coord); // Complementary
 
 // Review related functions.
-int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
+int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filename);
 void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
 int howManyGames(std::string filename); // Complementary
 void emptyFile(std::string filename);
@@ -34,7 +34,6 @@ int main(){
     //Variables initialization
     int width = 1152;
     int height = 680;
-    bool matchOver = false;
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = nullptr;
@@ -45,7 +44,7 @@ int main(){
     
     // CODE
 
-    int option = mainmenu(width, height, renderer, window);
+    int option = mainmenu(width, height, renderer);
     
     // Options: Exit, -1. Single play: 1. Two players: 2. Review matches: 3.
     
@@ -68,7 +67,7 @@ int main(){
     return 0;
 }
 
-int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
+int mainmenu(int width, int height, SDL_Renderer* renderer){
 
     // Returns the option chosen by the user.
 
@@ -151,7 +150,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, board.getMovementCount(), width, height ,renderer, window);
+                        actualLocation = selectPiece(board, false, width, height ,renderer, window);
 
                         if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -164,7 +163,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), width, height , renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2,  width, height , renderer, window);
                                 if(futureLocation.row == 245713){ // castling
                                     if(futureLocation.col == 1046){
                                         if(board.getMovementCount()%2==0){
@@ -264,9 +263,8 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
     // GAME LOOP:
         
-        bool matchOver = false;
         
-        while(!matchOver){
+        while(true){
 
             std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves();
             
@@ -292,7 +290,6 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         }
                         return 2;
                 }
-                matchOver = true;
                 // GO BACK TO THE MENU
             }
 
@@ -319,7 +316,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, board.getMovementCount(), width, height ,renderer, window);
+                        actualLocation = selectPiece(board, false, width, height ,renderer, window);
 
                         // forfeit
                         if(actualLocation.row == -2 && actualLocation.col == -2){
@@ -336,7 +333,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), width, height ,renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height ,renderer, window);
 
                                 // forfeit
                                 if(futureLocation.row == -2 && futureLocation.col == -2){
@@ -424,7 +421,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
         return;
     }
 
-    int matchpointer = chooseMatch(renderer, window, width, height, filename) - 1;
+    int matchpointer = chooseMatch(renderer, width, height, filename) - 1;
 
         if(matchpointer == -1 || matchpointer > howManyGames(filename)){
             return;
@@ -493,7 +490,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     }
             }
 
-            if(boardpointer < 0 || boardpointer >= game.size()){
+            if(boardpointer < 0 || boardpointer >= static_cast<int>(game.size())){
                 break;
             }
 
@@ -618,7 +615,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 SDL_RenderPresent(renderer);
 }
 
-T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
 
     // Returns the coordinates of the piece chosen or a special code (-1, -1) if no piece was chosen.
 
@@ -738,7 +735,7 @@ int howManyGames(std::string filename){
 
 }
 
-int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
+int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filename){
 
     // It returns the match chosen by the user (1-10, not 0-9).
 
