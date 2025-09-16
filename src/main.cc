@@ -16,7 +16,7 @@ int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window);
 // InGame related functions.
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window);
+T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window);
 void PawnPromotion(Board& board, SDL_Renderer* renderer);
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
@@ -59,8 +59,6 @@ int main(){
         reviewMatchs(board, renderer, window, width, height, "chessMatches.txt");
     }
 
-    SDL_Delay(500);
-
     // END
 
     SDL_DestroyRenderer(renderer);
@@ -80,32 +78,18 @@ int mainmenu(int width, int height, SDL_Renderer* renderer, SDL_Window* window){
     importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
     SDL_RenderPresent(renderer);
 
-    bool waiting = true;
-    SDL_Event e;
-
-    while (waiting)
-    {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-            {
-                waiting = false;
-                return -1;
-            }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-            {
-                int mx = e.button.x;
-                int my = e.button.y;
-                if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-                    return 1;
-                } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-                    return 2;
-                } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
-                    return 3;
-                }
-            }
-        }
+    SDL_Point click = userInput();
+    if (click.x == -1) return -1;
+    int mx = click.x;
+    int my = click.y;
+    if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+    return 1;
+    } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+    return 2;
+    } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
+    return 3;
     }
+
 
     return -1;
 }
@@ -167,7 +151,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
+                        actualLocation = selectPiece(board, false, board.getMovementCount(), width, height ,renderer, window);
 
                         if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -180,7 +164,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), width, height , renderer, window);
                                 if(futureLocation.row == 245713){ // castling
                                     if(futureLocation.col == 1046){
                                         if(board.getMovementCount()%2==0){
@@ -228,7 +212,6 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     PawnPromotion(board, renderer);
                 }
 
-                std::cout << board.evaluate() << std::endl;
 
                 printBoard(board, width, height, renderer, window); // PRINTING
                 board.setMovementCount(board.getMovementCount()+1);
@@ -242,42 +225,42 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
 
     // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
-    // CHOOSE BLACK/WHITE
+    // CHOOSE WHITE/BLACK white (color = 1/true), black (color = 0/false)
 
-    importImageInRender(renderer, "assets/images/blackwhite.png", (width/3), (height/3), (width/3), (height/3));
+    importImageInRender(renderer, "assets/images/chooseColor.png", 0, 0, (width), (height));    
+    importImageInRender(renderer, "assets/images/blackwhite.png", (width/3), (height/4), (width/3), (height/3));
     SDL_RenderPresent(renderer);
     bool color = true;
 
     bool waiting = true;
-    SDL_Event e;
 
     while (waiting)
     {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
+    
+        SDL_Point click = userInput();
+        if (click.x == -1) return -1;
+        int mx = click.x;
+        int my = click.y;
+
+            if (my == -1 && mx == -1)
             {
                 waiting = false;
                 return 0;
             }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-            {
-                int mx = e.button.x;
-                int my = e.button.y;
-                if(mx >= width/3 && mx <= width/3 + (width/6) && my >= height/3 && my <= height/3 + (height*2/3)){
-                    color = true; // player plays as white
-                    waiting = false;
-                    break;
-                }else if(mx >= width/3 + (width/6) && mx <= width/3 * 2 && my >= height/3 && my <= height*2/3){
-                    color = false; // player plays as black
-                    waiting = false;
-                    break;
-                }
+
+            if(mx >= width/3 && mx <= width/3 + (width/6) && my >= height/4 && my <= height/4 + (height*2/3)){
+                color = true; // player plays as white
+                waiting = false;
+                break;
+            }else if(mx >= width/3 + (width/6) && mx <= width/3 * 2 && my >= height/4 && my <= height*2/3){
+                color = false; // player plays as black
+                waiting = false;
+                break;
             }
-        }
     }
 
-    bool playerMoving = color; // Si el jugador escoje blancas, juega él primero.
+
+    bool playerMoving = color; // If the player choses white, he plays first.
 
     // GAME LOOP:
         
@@ -336,10 +319,14 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, board.getMovementCount(), renderer, window);
+                        actualLocation = selectPiece(board, false, board.getMovementCount(), width, height ,renderer, window);
 
-                        if(isNullCoord(actualLocation)){
-                            return 0; // DEBUG
+                        // forfeit
+                        if(actualLocation.row == -2 && actualLocation.col == -2){
+                            if(downloadConfirmation(renderer, width, height)){
+                                board.exportGametoFile(filename);
+                            }
+                            if(color){ return 1; } else{ return -1; }
                         }
 
                     }while(!board.isPieceValid(actualLocation));
@@ -349,7 +336,18 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, board.getMovementCount(), width, height ,renderer, window);
+
+                                // forfeit
+                                if(futureLocation.row == -2 && futureLocation.col == -2){
+                                    if(downloadConfirmation(renderer, width, height)){
+                                        board.exportGametoFile(filename);
+                                    }
+                                    if(color){ return 1; } else{ return -1; }
+                                }
+
+                                // standard move
+
                                 if(futureLocation.row == 245713){ // castling
                                     if(futureLocation.col == 1046){
                                         if(board.getMovementCount()%2==0){
@@ -439,7 +437,6 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
     board.importGametoBoard(filename, matchpointer);
 
     std::vector <std::vector <int>> game = board.gethistory();
-    std::cout << board.gethistory().size();
 
 
     importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height); // Match background
@@ -463,36 +460,29 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
             board.printboard(600, 600, renderer, window);
             SDL_RenderPresent(renderer);
 
-            bool waiting = true;
-            SDL_Event e;
+                bool waiting = true;
 
             while (waiting)
             {
-                while (SDL_PollEvent(&e))
-                {
-                    if (e.type == SDL_QUIT)
+            
+                SDL_Point click = userInput();
+                int mx = click.x;
+                int my = click.y;
+
+                    if (my == -1 && mx == -1)
                     {
                         return;
                     }
-                    else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-                    {
-                        int mx = e.button.x;
-                        int my = e.button.y;
 
-                        if (mx > 600 + 10 && mx < 600 + 10 + 200 && my > 600 - 200 && my < 600 - 200 + 200)
-                        {
-                            boardpointer--;
-                            waiting = false;
-                            break;
-                        }
-                        else if (mx > 600 + 210 && mx < 600 + 210 + 200 && my > 600 - 200 && my < 600 - 200 + 200)
-                        {
-                            boardpointer++;
-                            waiting = false;
-                            break;
-                        }
+                    if(mx > 600 + 10 && mx < 600 + 10 + 200 && my > 600 - 200 && my < 600 - 200 + 200){
+                    boardpointer--;
+                        waiting = false;
+                        break;
+                    }else if(mx > 600 + 210 && mx < 600 + 210 + 200 && my > 600 - 200 && my < 600 - 200 + 200){
+                        boardpointer++;
+                        waiting = false;
+                    break;
                     }
-                }
             }
 
             if(boardpointer < 0 || boardpointer >= game.size()){
@@ -503,9 +493,10 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 }
 
-void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
+void printBoard(Board board, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
+    
     // Board decoration.
-    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, windowwidth, windowheight);
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     // Chess board.
     board.printboard(600, 600, renderer, window);
@@ -514,14 +505,16 @@ void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *re
     importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
     importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
 
+    // Forfeit button
+    importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
 
     SDL_RenderPresent(renderer);
 }
 
-void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window){
+void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
 
     // Board decoration.
-    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, windowwidth, windowheight);
+    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     
     // Chess board.
@@ -530,6 +523,9 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
     // Strips (A-H) and (1-8) 
     importImageInRender(renderer, "assets/images/letterBar.png", 0, 600, 600, 80);
     importImageInRender(renderer, "assets/images/numberBar.png", 600, 0, 80, 600);
+
+    // Forfeit button
+    importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
 
     // Legal moves (except castling)
     std::vector<T_Coordinates> legitMovesVct = board.legitMoves(pieceCoords);
@@ -611,29 +607,29 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 SDL_RenderPresent(renderer);
 }
 
-T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_Renderer *renderer, SDL_Window *window){
+T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
 
     // Returns the coordinates of the piece chosen or a special code (-1, -1) if no piece was chosen.
 
     bool waiting = true;
-    SDL_Event e;
 
     while (waiting)
     {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
+        SDL_Point click = userInput();
+        if (click.x == -1) return {-1, -1};
+        int mx = click.x;
+        int my = click.y;
+
+            if (mx == -1 && my == -1)
             {
                 waiting = false;
                 T_Coordinates nullcord;
                 nullcord.row = -1;
                 nullcord.col = -1;
                 return nullcord;
-            }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-            {
-                int mx = e.button.x;
-                int my = e.button.y;
+
+            }else{
+
 
                 if(kingClicked){
                     T_Coordinates longCastle = {245713, 1046};
@@ -663,12 +659,20 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_
                     }
                 }
                 
-                if(mx/75 >= 0 && mx/75 < 8 && my/75 >= 0 && my/75 < 8){
+                if(mx/75 >= 0 && mx/75 < 8 && my/75 >= 0 && my/75 < 8){ // Standard case.
                     T_Coordinates returnPiece;
                     returnPiece.col = mx / 75;
                     returnPiece.row = my / 75;
                     return returnPiece;
-                }else{
+                }else if(mx >= (width*527)/864 && mx < (width*527)/864 + (width*328)/864 && my >= (height*364)/510 && my < (height*364)/510 + (height*141)/510){ // Forfeit button
+                    T_Coordinates forfeitcord;
+                    forfeitcord.row = -2;
+                    forfeitcord.col = -2;
+                    return forfeitcord;
+                }else if(false){ // Options button (to implement)
+
+
+                }else{ // Everything else
                     SDL_DestroyRenderer(renderer);
                     SDL_DestroyWindow(window);
                     SDL_Quit();
@@ -679,7 +683,6 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int movementCount, SDL_
                     return nullcord;
                 }
             }
-        }
     }
 
 T_Coordinates nullcord;
@@ -752,20 +755,21 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
     SDL_RenderPresent(renderer);
 
     bool waiting = true;
-    SDL_Event e;
 
     while (waiting)
     {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
+
+        SDL_Point click = userInput();
+        if (click.x == -1) return -1;
+        int mx = click.x;
+        int my = click.y;
+        
+            if (mx == -1 && my == -1)
             {
                 return -1;
             }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            else
             {
-                int mx = e.button.x;
-                int my = e.button.y;
 
                 if (mx > width/4 + 45 && mx < width/4 + 45 + width/8 && my > height/6 && my < height/6 + height/12 && ngames > 0)
                     return 1;
@@ -788,7 +792,6 @@ int chooseMatch(SDL_Renderer* renderer, SDL_Window* window, int width, int heigh
                 else if (mx > width/2 + 50 && mx < width/2 + 50 + width/8 && my > height*5/6 + 20 && my < height*5/6 + 20 + height/12 && ngames > 1)
                     return 10;
             }
-        }
     }
 
     return 0;
@@ -804,21 +807,21 @@ bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
     SDL_RenderPresent(renderer);
 
     bool waiting = true;
-    SDL_Event e;
+
 
     while (waiting)
     {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
+        SDL_Point click = userInput();
+        if (click.x == -1) return -1;
+        int mx = click.x;
+        int my = click.y;
+
+            if (mx == -1 && my == -1)
             {
                 return -1;
             }
-            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+            else
             {
-                int mx = e.button.x;
-                int my = e.button.y;
-
                 if (mx > width/2 - 200 && mx < width/2 - 200+100 && my > height/2 + 50 && my < height/2 + 50 + 100)
                 {
                     return true; // yes.
@@ -827,7 +830,6 @@ bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
                 {
                     return false; // no.
                 }
-            }
         }
     }
 
@@ -868,13 +870,18 @@ void PawnPromotion(Board& board, SDL_Renderer* renderer){
             importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
             SDL_RenderPresent(renderer);
 
-            SDL_Event e;
             bool promotion = false;
-            while (SDL_WaitEvent(&e) && !promotion) {
-                if (e.type == SDL_QUIT){
-                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
-                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
-                        switch(e.button.y/75){
+            while (!promotion) {
+
+                SDL_Point click = userInput();
+                int mx = click.x;
+                int my = click.y;
+        
+                if (mx == -1 && my == -1){
+                    
+                }else{
+                    if (mx >= x && mx < x + w && my >= y && my < y + h) {
+                        switch(my/75){
                             case 0: 
                                 board.PawnPromotion(pawnCoords, (((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+3));    // QUEEN
                                 promotion = true;
@@ -899,20 +906,27 @@ void PawnPromotion(Board& board, SDL_Renderer* renderer){
             }
 
         }else{ // BLACK PIECES
+
             int x = pawnCoords.col * 75;
             int y = (pawnCoords.row - 3) * 75; // To adjust to the display.
             int w = 100; 
             int h = 300;
 
-            importImageInRender(renderer, "assets/image/pawnpromotion.png", x, y, w, h);
+            importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
             SDL_RenderPresent(renderer);
-            SDL_Event e;
+
             bool promotion = false;
-            while (SDL_WaitEvent(&e) && !promotion) {
-                if (e.type == SDL_QUIT){
-                }else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
-                    if (e.button.x >= x && e.button.x < x + w && e.button.y >= y && e.button.y < y + h) {
-                        switch(e.button.y/75){
+            while (!promotion) {
+
+                SDL_Point click = userInput();
+                int mx = click.x;
+                int my = click.y;
+        
+                if (mx == -1 && my == -1){
+                    
+                }else{
+                    if (mx >= x && mx < x + w && my >= y && my < y + h) {
+                        switch(my/75){
                             case 4: 
                                 board.PawnPromotion(pawnCoords,((board.getboard()[pawnCoords.row][pawnCoords.col]/10)*10)+3);    // QUEEN
                                 promotion = true;
@@ -935,20 +949,21 @@ void PawnPromotion(Board& board, SDL_Renderer* renderer){
                     }
                 }
             }
+
         }
- 
-    }
-
-
-
+        }
 }
-
 
 /* 
 TODO: 
-() ERASE GAMES FROM FILE
-() CHOOSE COLOR BACKGROUND
+(X) Make a surrender button
+(X) Unify all the input user code as a function that returns the mx and my
+() Include options.
+() ERASE GAMES FROM FILE function
+() USE width and height consistently (I think some methods/functions use pixels directly)
+() Maybe turn the main.cc into a class?
 () WRITE DOCUMENTATION
+
 
 */
     
