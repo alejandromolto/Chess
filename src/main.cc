@@ -12,11 +12,13 @@
 
 // Main screen.
 int mainmenu(int width, int height, SDL_Renderer* renderer);
+bool optionsmenu(SDL_Renderer* renderer, int &width, int &height);
+void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, int width, int height);
 
 // InGame related functions.
 int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer *renderer, SDL_Window *window);
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height);
 void PawnPromotion(Board& board, SDL_Renderer* renderer);
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
@@ -34,6 +36,7 @@ int main(){
     //Variables initialization
     int width = 1152;
     int height = 680;
+    std::string filename = "chessMatches.txt";
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window = nullptr;
@@ -41,22 +44,40 @@ int main(){
     SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
 
     Board board;
-    
-    // CODE
+    bool running = true;
 
-    int option = mainmenu(width, height, renderer);
+    // CODE
     
-    // Options: Exit, -1. Single play: 1. Two players: 2. Review matches: 3.
+    while(running){
+
+        int option = mainmenu(width, height, renderer);
     
-    if(option == -1){
-        return 0;
-    }else if(option == 1){
-        singleplayerloop(board, renderer, window, width, height, "chessMatches.txt");
-    }else if(option == 2){
-        twoplayerloop(board, renderer, window, width, height, "chessMatches.txt");
-    }else if(option == 3){
-        reviewMatchs(board, renderer, window, width, height, "chessMatches.txt");
+        /* Options: 
+        Exit, -1. 
+        Single play: 1. 
+        Two players: 2. 
+        Review matches: 3.
+
+        */ 
+        
+        if(option == -1){
+            running = false;
+        }else if(option == 1){
+            singleplayerloop(board, renderer, window, width, height, filename);
+        }else if(option == 2){
+            twoplayerloop(board, renderer, window, width, height, filename);
+        }else if(option == 3){
+            reviewMatchs(board, renderer, window, width, height, filename);
+        }else if(option == 4){
+            if(optionsmenu(renderer, width, height)){
+                SDL_DestroyRenderer(renderer);
+                SDL_DestroyWindow(window);
+
+                SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);  
+            }
+        }
     }
+
 
     // END
 
@@ -70,23 +91,29 @@ int main(){
 int mainmenu(int width, int height, SDL_Renderer* renderer){
 
     // Returns the option chosen by the user.
-
     importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
     importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
     importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
+    importImageInRender(renderer, "assets/images/close.png", width - width/50 - width/12, height/50, width/12, width/12);
+    importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width/50) - (width/12) - (width/50) - (width/12), height/50, width/12, width/12);
     SDL_RenderPresent(renderer);
 
     SDL_Point click = userInput();
-    if (click.x == -1) return -1;
+    if (click.x == -1) return -1; // If SDL_QUIT, return -1.
     int mx = click.x;
     int my = click.y;
+
     if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
     return 1;
     } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
     return 2;
     } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
     return 3;
+    } else if (mx > width - (width/50) - (width/12) - (width/50) - (width/12) && mx < width - (width/50) - (width/12) - (width/50) - (width/12) + width/12 && my > height/50 && my < height/50 + width/12) {
+    return 4;
+    } else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12) {
+    return -1;
     }
 
 
@@ -150,7 +177,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, width, height ,renderer, window);
+                        actualLocation = selectPiece(board, false, width, height);
 
                         if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -163,7 +190,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2,  width, height , renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2,  width, height);
                                 if(futureLocation.row == 245713){ // castling
                                     if(futureLocation.col == 1046){
                                         if(board.getMovementCount()%2==0){
@@ -316,7 +343,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, width, height ,renderer, window);
+                        actualLocation = selectPiece(board, false, width, height);
 
                         // forfeit
                         if(actualLocation.row == -2 && actualLocation.col == -2){
@@ -333,7 +360,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height ,renderer, window);
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height);
 
                                 // forfeit
                                 if(futureLocation.row == -2 && futureLocation.col == -2){
@@ -615,7 +642,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 SDL_RenderPresent(renderer);
 }
 
-T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height){
 
     // Returns the coordinates of the piece chosen or a special code (-1, -1) if no piece was chosen.
 
@@ -684,11 +711,7 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, 
                 }else if(false){ // Options button (to implement)
 
 
-                }else{ // Everything else
-                    SDL_DestroyRenderer(renderer);
-                    SDL_DestroyWindow(window);
-                    SDL_Quit();
-                    
+                }else{ // Everything else                    
                     T_Coordinates nullcord;
                     nullcord.row = -1;
                     nullcord.col = -1;
@@ -981,11 +1004,119 @@ void emptyFile(std::string filename){
     std::ofstream ofs(filename, std::ios::trunc);
 }   
 
+void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, int width, int height)
+{
+
+    // Background & Red Cross
+    importImageInRender(renderer, "assets/images/mainbackgroundblurred.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
+
+    // Options
+
+    int x = -10;
+
+
+    // RESOLUTION
+
+    if (optionWidth == 768 && optionHeight == 453) // Small
+    {
+        x = 2;
+    }
+    else if (optionWidth == 1152 && optionHeight == 680) // Medium
+    {
+        x = 6;
+    }
+    else if (optionWidth == 1920 && optionHeight == 1133) // Big
+    {
+        x = 10;
+    }
+
+    importImageInRender(renderer, "assets/images/Resolution.png", (width - (width * 500) / 720) / 2, (height * 395) / 720, (width * 475) / 720, (height * 100) / 720);
+    importImageInRender(renderer, "assets/images/GreySquare.png", ((width / 16) * x) + (width * 40) / 720, (height * 485) / 720, (width * 110) / 720, (width * 110) / 720);
+    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 2 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
+    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 6 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
+    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 10 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
+
+    SDL_RenderPresent(renderer);
+}
+
+bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
+{
+
+    int optionWidth = width;
+    int optionHeight = height;
+
+    renderoptions(renderer, optionWidth, optionHeight, width, height);
+
+    bool running = true;
+
+    while (running)
+    {
+            SDL_Point click = userInput();
+            int mx = click.x;
+            int my = click.y;
+            if (mx == -1 && my == -1)
+            {
+                running = false;
+            }
+            else 
+            {
+
+                if (mx >= width - (width * 72) / 720 - width / 60 && mx <= width - (width * 72) / 720 - width / 60 + (width * 72) / 720 &&
+                    my >= height / 60 && my <= height / 60 + (width * 72) / 720)
+                { // Back to main.
+                    if(width != optionWidth || height != optionHeight){
+                        width = optionWidth;
+                        height = optionHeight; 
+                        return true;   
+                    }else{
+                        return false;
+                    }
+                }
+                else if (mx >= (width / 16) * 2 + (width * 50) / 720 && mx <= (width / 16) * 2 + (width * 50) / 720 + (width * 90) / 720 &&
+                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                { 
+                    optionWidth = 768;
+                    optionHeight = 453;
+                    renderoptions(renderer, optionWidth, optionHeight, width, height);
+                }
+                else if (mx >= (width / 16) * 6 + (width * 50) / 720 && mx <= (width / 16) * 6 + (width * 50) / 720 + (width * 90) / 720 &&
+                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                { 
+
+                    optionWidth = 1152;
+                    optionHeight = 680;
+                    renderoptions(renderer, optionWidth, optionHeight, width, height);
+                }
+                else if (mx >= (width / 16) * 10 + (width * 50) / 720 && mx <= (width / 16) * 10 + (width * 50) / 720 + (width * 90) / 720 &&
+                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                { 
+
+                    optionWidth = 1920;
+                    optionHeight = 1133;
+                    renderoptions(renderer, optionWidth, optionHeight, width, height);
+                }
+            }
+
+            
+    }
+    
+    if(width != optionWidth || height != optionHeight){
+        width = optionWidth;
+        height = optionHeight; 
+        return true;   
+    }else{
+        return false;
+    }
+
+    
+}
+
 /* 
 TODO: 
 (X) Make a surrender button
 (X) Unify all the input user code as a function that returns the mx and my
-() Include options.
+(-) Include options.
 (X) ERASE GAMES FROM FILE function (especial output for choose match then special action then special action in review games)
 (X) USE width and height consistently (I think some methods/functions use pixels directly)
 () Maybe turn the main.cc into a class?
