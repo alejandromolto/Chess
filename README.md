@@ -1,11 +1,15 @@
-# CHESS
-A chess engine built in **C++** using the **SDL library**, featuring a graphical interface.  
-This project is the direct evolution of my earlier project **C Chess**, which was a terminal-only chess engine written in **C**.
-
-![C++](https://img.shields.io/badge/language-C++-blue.svg)  
-![SDL2](https://img.shields.io/badge/library-SDL2-green.svg)  
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)  
-![Contributions Open](https://img.shields.io/badge/contributions-OPEN-brightgreen.svg)  
+<div align="center">
+  <h1>CHESS</h1>
+  <div>A chess engine built in <strong>C++</strong> using the <strong>SDL library</strong>, featuring a graphical interface.</div>
+  <div>This project is the direct evolution of my earlier project <strong>C Chess</strong>, which was a terminal-only chess engine written in <strong>C</strong>.</div>
+<br>
+  <div>
+    <img src="https://img.shields.io/badge/language-C++-blue.svg" alt="C++" style="display:inline-block; margin:2px;">
+    <img src="https://img.shields.io/badge/library-SDL2-green.svg" alt="SDL2" style="display:inline-block; margin:2px;">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="display:inline-block; margin:2px;">
+    <img src="https://img.shields.io/badge/contributions-OPEN-brightgreen.svg" alt="Contributions Open" style="display:inline-block; margin:2px;">
+  </div>
+</div>
 
 
 ---
@@ -39,16 +43,16 @@ This project is the direct evolution of my earlier project **C Chess**, which wa
 
 ## Project Structure
 
-assets
-  images # Images included in the game such  as the backgrounds, the button designs, the pieces, etc...
-  gifs # Gifs used in the readme.
-include
-  utils.h # Utilities header.
-  board.h # Board header.
-src  
-  main.cc # Main code, contains the implementation of the game and the interface.
-  utils.cc # Utility functions mainly related with SDL ouput and input.
-  board.cc # Class containing game logics, export/imports methods and AI related methods.
+assets/
+images/ # Images included in the game, such as backgrounds, button designs, pieces, etc.
+gifs/ # GIFs used in the README.
+include/
+utils.h # Utilities header.
+board.h # Board header.
+src/
+main.cc # Main code, implements the game and interface.
+utils.cc # Utility functions, mainly related to SDL output and input.
+board.cc # Class containing game logic, export/import methods, and AI-related methods.
 
 ---
 
@@ -106,9 +110,10 @@ git push origin feature-name
 
 The objective of this project is **purely educational**.  
 Through it, I learned a lot about:  
-- C++ and the transition from C  
+- C++ and the transition from C
+- OOP Paradigm
 - SDL for graphical interfaces  
 - Basic AI in board games  
-- File handling  
+- File handling
 
 While this project works, it is not fully object-oriented. It follows a more imperative style due to my learning stage at the time. Future projects will be built with stronger OOP principles.
