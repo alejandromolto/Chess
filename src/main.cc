@@ -444,13 +444,11 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
     // GET MATCH
 
-    if(howManyGames(filename) == 0){
-        return;
-    }
+
 
     int matchpointer = chooseMatch(renderer, width, height, filename) - 1;
 
-        if(matchpointer == -1 || matchpointer > howManyGames(filename)){
+        if(matchpointer == -2 || matchpointer > howManyGames(filename)){
             return;
         }
         
@@ -766,6 +764,7 @@ int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filen
     // PRINTING ON THE SCREEN
     importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/deleteFiles.png", width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)));
+    importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
 
     int ngames = howManyGames(filename);
 
@@ -835,7 +834,10 @@ int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filen
                     return 10;
                 else if(mx >= width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && mx < width - std::max(20, width/64) &&
                     my >= height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && my < height - std::max(20, width/64)) {
-                    return -2;
+                    return -2; // delete files
+                }else if(mx >= width - (width * 72) / 720 - width / 60 && mx <= width - (width * 72) / 720 - width / 60 + (width * 72) / 720 &&
+                    my >= height / 60 && my <= height / 60 + (width * 72) / 720){
+                    return -1; // back main
                 }
             }
     }
