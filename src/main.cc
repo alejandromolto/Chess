@@ -850,8 +850,8 @@ bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
     // It returns if the user wants to store the game in the file or not.
     
     importImageInRender(renderer, "assets/images/downloadboard.png", width/2 - 200, height/2 - 200, 400, 400);
-    importImageInRender(renderer, "assets/images/yes.png", width/2 - 200, height/2 + 50, 100, 100);
-    importImageInRender(renderer, "assets/images/no.png", width/2 +  50, height/2 + 50, 100, 100);
+    importImageInRender(renderer, "assets/images/yes.png", width/2 - 150, height/2 + 120, 100, 100);
+    importImageInRender(renderer, "assets/images/no.png", width/2 +  50, height/2 + 120, 100, 100);
     SDL_RenderPresent(renderer);
 
     bool waiting = true;
@@ -870,11 +870,11 @@ bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
             }
             else
             {
-                if (mx > width/2 - 200 && mx < width/2 - 200+100 && my > height/2 + 50 && my < height/2 + 50 + 100)
+                if (mx > width/2 - 150 && mx < width/2 - 150+100 && my > height/2 + 120 && my < height/2 + 120 + 100)
                 {
                     return true; // yes.
                 }
-                else if (mx > width/2 + 50 && mx < width/2 + 50+100 && my > height/2 + 50 && my < height/2 + 50 + 100)
+                else if (mx > width/2 + 50 && mx < width/2 + 50+100 && my > height/2 + 120 && my < height/2 + 120 + 100)
                 {
                     return false; // no.
                 }
@@ -1028,16 +1028,16 @@ void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, in
     {
         x = 6;
     }
-    else if (optionWidth == 1920 && optionHeight == 1133) // Big
+    else if (optionWidth == 1824 && optionHeight == 1026) // Big
     {
         x = 10;
     }
 
-    importImageInRender(renderer, "assets/images/Resolution.png", (width - (width * 500) / 720) / 2, (height * 395) / 720, (width * 475) / 720, (height * 100) / 720);
-    importImageInRender(renderer, "assets/images/GreySquare.png", ((width / 16) * x) + (width * 40) / 720, (height * 485) / 720, (width * 110) / 720, (width * 110) / 720);
-    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 2 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
-    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 6 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
-    importImageInRender(renderer, "assets/images/GreySquare.png", (width / 16) * 10 + (width * 50) / 720, (height * 495) / 720, (width * 90) / 720, (width * 90) / 720);
+    importImageInRender(renderer, "assets/images/resolutionSettings.png", (width - (width * 540) / 720) / 2, (height * 100) / 720, (width * 540) / 720, (height * 180) / 720);
+    importImageInRender(renderer, "assets/images/GreySquare.png", ((width / 16) * x) + (width * 40) / 720, (height * 310) / 720, (width * 110) / 720, (width * 110) / 720);
+    importImageInRender(renderer, "assets/images/smallRes.png", (width / 16) * 2 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
+    importImageInRender(renderer, "assets/images/mediumRes.png", (width / 16) * 6 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
+    importImageInRender(renderer, "assets/images/largeRes.png", (width / 16) * 10 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
 
     SDL_RenderPresent(renderer);
 }
@@ -1076,14 +1076,14 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
                     }
                 }
                 else if (mx >= (width / 16) * 2 + (width * 50) / 720 && mx <= (width / 16) * 2 + (width * 50) / 720 + (width * 90) / 720 &&
-                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                         my >= (height * 320) / 720 && my <= (height * 320) / 720 + (width * 90) / 720)
                 { 
                     optionWidth = 768;
                     optionHeight = 453;
                     renderoptions(renderer, optionWidth, optionHeight, width, height);
                 }
                 else if (mx >= (width / 16) * 6 + (width * 50) / 720 && mx <= (width / 16) * 6 + (width * 50) / 720 + (width * 90) / 720 &&
-                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                         my >= (height * 320) / 720 && my <= (height * 320) / 720 + (width * 90) / 720)
                 { 
 
                     optionWidth = 1152;
@@ -1091,11 +1091,11 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
                     renderoptions(renderer, optionWidth, optionHeight, width, height);
                 }
                 else if (mx >= (width / 16) * 10 + (width * 50) / 720 && mx <= (width / 16) * 10 + (width * 50) / 720 + (width * 90) / 720 &&
-                         my >= (height * 495) / 720 && my <= (height * 495) / 720 + (width * 90) / 720)
+                         my >= (height * 320) / 720 && my <= (height * 320) / 720 + (width * 90) / 720)
                 { 
 
-                    optionWidth = 1920;
-                    optionHeight = 1133;
+                    optionWidth = 1824;
+                    optionHeight = 1026;
                     renderoptions(renderer, optionWidth, optionHeight, width, height);
                 }
             }
@@ -1118,7 +1118,7 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
 TODO: 
 (X) Make a surrender button
 (X) Unify all the input user code as a function that returns the mx and my
-(-) Include options.
+(X) Include options.
 (X) ERASE GAMES FROM FILE function (especial output for choose match then special action then special action in review games)
 (X) USE width and height consistently (I think some methods/functions use pixels directly)
 () Maybe turn the main.cc into a class?

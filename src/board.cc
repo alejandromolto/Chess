@@ -861,9 +861,7 @@ std::vector<T_Coordinates> Board::prohibitedMoves(){
     //This function takes the board and the movementCount and generates a list of squares where the king corresponding to the current colour cant go.
 
     std::vector<T_Coordinates> prohibitedSquares;
-    bool isItLegit;
 
-    int nextMovementCount = movementCount + 1;
 
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
@@ -988,7 +986,7 @@ bool Board::isTheKingChecked(std::vector<T_Coordinates> prohibitedSquares){
 
     //Then check if the king is in any of the checked positions.
 
-    for(int k = 0; k < prohibitedSquares.size(); k++){
+    for(int k = 0; k < static_cast<int>(prohibitedSquares.size()); k++){
         if(prohibitedSquares[k].row == kingrow && prohibitedSquares[k].col == kingcol){
             checked = true;
         }   
@@ -1005,7 +1003,6 @@ bool Board::isTheKingCheckMated(std::vector<T_Coordinates> prohibitedSquares){
     // If its executed with the king being in check and it returns "true" in the value matchOver, it means that the king is checkmated, and it means a victory for the opposing player. 
     // If its executed with the king NOT being in check and it returns "true" in the value matchOver, it means a Stalemate, and therefore a draw. 
 
-    bool isItThreatened;
     bool checked;
     std::vector <T_Coordinates> prohibitedSquaresD;
     int savingMoves = 0;
@@ -1136,7 +1133,7 @@ void Board::exportGametoFile( std::string filename){
         file << "# [GAME]" << "\n";
 
         // Boards
-        for(int k = 0; k < history.size(); k++){
+        for(int k = 0; k < static_cast<int>(history.size()); k++){
             
             int board[8][8];
             int cont = 0;
@@ -1461,7 +1458,7 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, in
     if (movementCount % 2 == 0) { // MAX (blancas)
         bestScore = -2147483647;
 
-        for (int i = 0; i < legalMoves.size(); i++) {
+        for (int i = 0; i < static_cast<int>(legalMoves.size()); i++) {
             Board boardCopy(board, movementCount);
             boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
             boardCopy.movementCount = boardCopy.movementCount + 1; 
@@ -1484,7 +1481,7 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, in
     } else { // MIN (negras)
         bestScore = 2147483647;
 
-        for (int i = 0; i < legalMoves.size(); i++) {
+        for (int i = 0; i < static_cast<int>(legalMoves.size()); i++) {
             Board boardCopy(board, movementCount);
             boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
             boardCopy.movementCount = boardCopy.movementCount + 1; 
@@ -1509,7 +1506,6 @@ std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, in
 }
 
 int Board::maxi(int depth, int alpha, int beta){
-    std::cout << "maxi" << std::endl;
     if(depth == 0){
         return evaluate();
     }
@@ -1517,7 +1513,7 @@ int Board::maxi(int depth, int alpha, int beta){
     int maximum = -2147483647;
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves = generateAllLegalMoves();
 
-    for(int i = 0; i < legalMoves.size(); i++){
+    for(int i = 0; i < static_cast<int>(legalMoves.size()); i++){
         Board boardCopy(board, movementCount);
         boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
         boardCopy.movementCount = boardCopy.movementCount + 1; 
@@ -1536,7 +1532,6 @@ int Board::maxi(int depth, int alpha, int beta){
 }
 
 int Board::mini(int depth, int alpha, int beta){
-    std::cout << "mini" << std::endl;
 
     if(depth == 0){
         return evaluate();
@@ -1545,7 +1540,7 @@ int Board::mini(int depth, int alpha, int beta){
     int minimum = 2147483647;
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves = generateAllLegalMoves();
 
-    for(int i = 0; i < legalMoves.size(); i++){
+    for(unsigned int i = 0; i < static_cast<int>(legalMoves.size()); i++){
         Board boardCopy(board, movementCount);
         boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
         boardCopy.movementCount = boardCopy.movementCount + 1; 
@@ -1563,3 +1558,6 @@ int Board::mini(int depth, int alpha, int beta){
     return minimum;
 }
 
+/*
+() Fix compiler warnings
+*/
