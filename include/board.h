@@ -54,7 +54,7 @@ class Board{
         void setboard(int board[8][8]);
 
         // Functionalities
-        void printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window);   
+        void printboard(int width, int height, SDL_Renderer *renderer);   
         void updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation);
         void PawnPromotion(T_Coordinates pawnCoords, int NewValue);
 
@@ -63,13 +63,13 @@ class Board{
         bool isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation);
         bool isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation);
 
-        // Vector/Set generators
-        std::vector<T_Coordinates> prohibitedMoves();
+        // Vector/Set generators using simple checks.
+        std::vector<T_Coordinates> prohibitedMoves(); 
         std::vector<T_Coordinates> legitMoves(T_Coordinates actualLocation);
         std::set<T_Coordinates> controlledSquares();
 
-        // Checks using those check generalizations
-        bool isTheKingCheckMated(std::vector<T_Coordinates> prohibitedSquares);
+        // Checks using those vectors/sets.
+        bool isTheKingCheckMated();
         bool isTheKingChecked(std::vector<T_Coordinates> prohibitedSquares);
 
         // Import/Export

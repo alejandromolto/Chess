@@ -16,18 +16,18 @@ bool optionsmenu(SDL_Renderer* renderer, int &width, int &height);
 void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, int width, int height);
 
 // InGame related functions.
-int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
-int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename);
+int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename);
+int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename);
 T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height);
 void PawnPromotion(Board& board, SDL_Renderer* renderer);
 bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
-void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
-void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer, SDL_Window *window);
+void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer);
+void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer);
 bool isNullCoord(T_Coordinates Coord); // Complementary
 
 // Review related functions.
 int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filename);
-void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height , std::string filename);
+void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height , std::string filename);
 int howManyGames(std::string filename); // Complementary
 void emptyFile(std::string filename);
 
@@ -63,11 +63,11 @@ int main(){
         if(option == -1){
             running = false;
         }else if(option == 1){
-            singleplayerloop(board, renderer, window, width, height, filename);
+            singleplayerloop(board, renderer, width, height, filename);
         }else if(option == 2){
-            twoplayerloop(board, renderer, window, width, height, filename);
+            twoplayerloop(board, renderer, width, height, filename);
         }else if(option == 3){
-            reviewMatchs(board, renderer, window, width, height, filename);
+            reviewMatchs(board, renderer, width, height, filename);
         }else if(option == 4){
             if(optionsmenu(renderer, width, height)){
                 SDL_DestroyRenderer(renderer);
@@ -120,7 +120,7 @@ int mainmenu(int width, int height, SDL_Renderer* renderer){
     return -1;
 }
 
-int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
+int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename){
 
     // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
     // GAME LOOP:
@@ -131,7 +131,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
             std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves();
             
-            if(board.isTheKingCheckMated(prohibitedSquares)){    // LOOK FOR CHECKMATE
+            if(board.isTheKingCheckMated()){    // LOOK FOR CHECKMATE
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
@@ -168,7 +168,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 T_Coordinates actualLocation;
                 T_Coordinates futureLocation;
                 bool samecolor;
-                printBoard(board, width, height, renderer, window);
+                printBoard(board, width, height, renderer);
                 
                 // MANAGMENT OF THE PIECE CHOOSING.
                 
@@ -178,6 +178,13 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
                     do{
                         actualLocation = selectPiece(board, false, width, height);
+                        
+                        if(actualLocation.row == -2 && actualLocation.col == -2){
+                                    if(downloadConfirmation(renderer, width, height)){
+                                        board.exportGametoFile(filename);
+                                    }
+                                    if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                        }
 
                         if(isNullCoord(actualLocation)){
                             return 0; // DEBUG
@@ -187,10 +194,18 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 
                     do{
-                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
+                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer); // PRINTING.
                         
                         // SECOND PIECE
                             futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2,  width, height);
+            
+                                if(actualLocation.row == -2 && actualLocation.col == -2){ // forfeit
+                                    if(downloadConfirmation(renderer, width, height)){
+                                        board.exportGametoFile(filename);
+                                    }
+                                    if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                                }   
+
                                 if(futureLocation.row == 245713){ // castling
                                     if(futureLocation.col == 1046){
                                         if(board.getMovementCount()%2==0){
@@ -239,7 +254,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
                 }
 
 
-                printBoard(board, width, height, renderer, window); // PRINTING
+                printBoard(board, width, height, renderer); // PRINTING
                 board.setMovementCount(board.getMovementCount()+1);
 
         }
@@ -248,7 +263,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 }
 
-int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
+int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename){
 
     // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
     // CHOOSE WHITE/BLACK white (color = 1/true), black (color = 0/false)
@@ -295,7 +310,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
             std::vector <T_Coordinates> prohibitedSquares = board.prohibitedMoves();
             
-            if(board.isTheKingCheckMated(prohibitedSquares)){    // LOOK FOR CHECKMATE
+            if(board.isTheKingCheckMated()){    // LOOK FOR CHECKMATE
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
@@ -335,7 +350,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                 
                 // PRINTING
 
-                printBoard(board, width, height, renderer, window);
+                printBoard(board, width, height, renderer);
 
                 // MOVING.
 
@@ -357,7 +372,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
 
                     do{
-                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer, window); // PRINTING.
+                        printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer); // PRINTING.
                         
                         // SECOND PIECE
                             futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height);
@@ -426,7 +441,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
                 }   
                 // PRINTING 
 
-                printBoard(board, width, height, renderer, window); 
+                printBoard(board, width, height, renderer); 
                 }
                     
                 board.setMovementCount(board.getMovementCount()+1);
@@ -436,7 +451,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, SDL_Window* window, in
 
 }
 
-void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int width, int height, std::string filename){
+void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, std::string filename){
 
     // REVIEW BACKGROUND
 
@@ -487,7 +502,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
             }            
             
             board.setboard(gameBoard);
-            board.printboard(600, 600, renderer, window);
+            board.printboard(600, 600, renderer);
             SDL_RenderPresent(renderer);
 
                 bool waiting = true;
@@ -523,13 +538,13 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, SDL_Window* window, int w
 
 }
 
-void printBoard(Board board, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
+void printBoard(Board board, int width, int height, SDL_Renderer *renderer){
     
     // Board decoration.
     importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     // Chess board.
-    board.printboard((width*600)/1152, (height*600)/680, renderer, window);
+    board.printboard((width*600)/1152, (height*600)/680, renderer);
 
     // Strips (A-H) and (1-8) 
     importImageInRender(renderer, "assets/images/letterBar.png", 0, (height*600)/680, (width*600)/1152, (height*80)/680);
@@ -541,14 +556,14 @@ void printBoard(Board board, int width, int height, SDL_Renderer *renderer, SDL_
     SDL_RenderPresent(renderer);
 }
 
-void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int width, int height, SDL_Renderer *renderer, SDL_Window *window){
+void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int width, int height, SDL_Renderer *renderer){
 
     // Board decoration.
     importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
 
     
     // Chess board.
-    board.printboard((width*600)/1152, (height*600)/680, renderer, window);
+    board.printboard((width*600)/1152, (height*600)/680, renderer);
 
     // Strips (A-H) and (1-8) 
     importImageInRender(renderer, "assets/images/letterBar.png", 0, (height*600)/680, (width*600)/1152, (height*80)/680);

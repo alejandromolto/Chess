@@ -50,7 +50,7 @@ void Board::setMovementCount(int movementCount){
     this->movementCount = movementCount;
 }
 
-void Board::printboard(int width, int height, SDL_Renderer *renderer, SDL_Window *window) {   
+void Board::printboard(int width, int height, SDL_Renderer *renderer) {   
 
     SDL_Rect rect;
     int blockwidth = width / 8;
@@ -296,9 +296,9 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
     }
 
 
-    if(movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1 ||
-    movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 && 
-    board[futurelocation.row][futurelocation.col] % 10 != 0){
+    if((movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1) ||
+    (movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 && 
+    board[futurelocation.row][futurelocation.col] % 10 != 0)){
         return false;
     }
 
@@ -504,9 +504,9 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation){
 
     // Is the piece moving to a square occupied by a piece of its own color?
 
-    if(movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1 ||
-    movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 && 
-    board[futurelocation.row][futurelocation.col] % 10 != 0){
+    if((movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1 )||
+    (movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 && 
+    board[futurelocation.row][futurelocation.col] % 10 != 0)){
 
         return false;
 
@@ -953,7 +953,6 @@ std::vector<T_Coordinates> Board::legitMoves(T_Coordinates actualLocation){
             legitMoves.push_back(futureLocation);
         }
 
-
         }
     }
 
@@ -996,7 +995,7 @@ return checked;
 
 }
 
-bool Board::isTheKingCheckMated(std::vector<T_Coordinates> prohibitedSquares){
+bool Board::isTheKingCheckMated(){
 
     //This function checks if there exists a legal move such that the king is not in check. It can therefore indicate two different situations:
 
@@ -1219,15 +1218,16 @@ bool Board::importGametoBoard(std::string filename, int numgame){
         
         }
 
-    if(imported){
-        history = fileHistory;
-        file.close();
-        return true;
+        if(imported){
+            history = fileHistory;
+            file.close();
+            return true;
+        }else{
+            return false;
+        }
+        
     }else{
         return false;
-    }
-
-
     }
 
 }
@@ -1393,7 +1393,7 @@ int Board::evaluate(){
     // LAST CRITERIA
     // This criteria states that if the king of the other color is checkmated, the points are the maximum.    
 
-    if(boardEnemy.isTheKingCheckMated(boardEnemy.prohibitedMoves())){ // If the move is a checkmate, the evaluation is maximum.
+    if(boardEnemy.isTheKingCheckMated()){ // If the move is a checkmate, the evaluation is maximum.
         if(movementCount%2==0){
             evaluation = 1000; 
         }else{
@@ -1540,7 +1540,7 @@ int Board::mini(int depth, int alpha, int beta){
     int minimum = 2147483647;
     std::vector<std::pair<T_Coordinates,T_Coordinates>> legalMoves = generateAllLegalMoves();
 
-    for(unsigned int i = 0; i < static_cast<int>(legalMoves.size()); i++){
+    for(int i = 0; i < static_cast<int>(legalMoves.size()); i++){
         Board boardCopy(board, movementCount);
         boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
         boardCopy.movementCount = boardCopy.movementCount + 1; 
@@ -1558,6 +1558,3 @@ int Board::mini(int depth, int alpha, int beta){
     return minimum;
 }
 
-/*
-() Fix compiler warnings
-*/
