@@ -842,7 +842,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
                 rect.w = squareW;
                 rect.h = squareH;
 
-                SDL_SetRenderDrawColor(renderer, 65, 105, 225, 100);
+                SDL_SetRenderDrawColor(renderer, 24, 87, 110, 125);
                 SDL_RenderFillRect(renderer, &rect);
             }
         }
@@ -861,7 +861,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if (board.isLegit(tempCoord1Long, tempCoord2))
             { // White long
                 SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                SDL_SetRenderDrawColor(renderer, 27, 79, 10, 100);
                 rect.y = 7 * squareH;
                 rect.x = 2 * squareW;
                 rect.w = squareW;
@@ -871,7 +871,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if (board.isLegit(tempCoord1Short, tempCoord2))
             { // White short
                 SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                SDL_SetRenderDrawColor(renderer, 27, 79, 10, 100);
                 rect.y = 7 * squareH;
                 rect.x = 6 * squareW;
                 rect.w = squareW;
@@ -888,7 +888,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if (board.isLegit(tempCoord1Long, tempCoord2))
             { // Black long
                 SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                SDL_SetRenderDrawColor(renderer, 27, 79, 10, 100);
                 rect.y = 0;
                 rect.x = 2 * squareW;
                 rect.w = squareW;
@@ -898,7 +898,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if (board.isLegit(tempCoord1Short, tempCoord2))
             { // Black short
                 SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
+                SDL_SetRenderDrawColor(renderer, 27, 79, 10, 100);
                 rect.y = 0;
                 rect.x = 6 * squareW;
                 rect.w = squareW;
