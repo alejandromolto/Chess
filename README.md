@@ -13,15 +13,20 @@
 
 ---  
 
-## Table of Contents  
+## Table of Contents
+
 1. [Features](#features)  
 2. [Project Structure](#project-structure)  
 3. [Requirements](#requirements)  
-4. [Usage](#usage)  
-5. [Contributions](#contributions)  
-6. [About](#about)  
-7. [Licence](#licence)  
-
+4. [Installation](#installation) 
+5. [Gameplay Overview](#gameplay-overview)  
+   5.1 [Main Menu](#main-menu)  
+   5.2 [Single Player](#single-player)  
+   5.3 [Multiplayer](#multiplayer)  
+   5.4 [Review Games Mode](#review-games-mode)  
+6. [Contributions](#contributions)  
+7. [About](#about)  
+8. [Licence](#licence)
 ---  
 
 ## Features 
@@ -55,12 +60,38 @@
 ---  
 
 ## Requirements 
+- Ubuntu
 - C++17 or higher   
 - SDL2    
 
 ---
 
-## Usage
+## Installation
+Here are the instruction to download, compile and run the code:
+
+1. To install the tools and libraries needed:
+
+```bash
+sudo apt update
+sudo apt install -y git build-essential pkg-config libsdl2-dev libsdl2-image-dev
+```
+
+2. To clone the repo:
+```bash
+git clone https://github.com/alejandromolto/Chess.git
+cd Chess
+```
+3. To compile:
+```bash
+make clean
+```
+4. To run the game:
+```bash
+./chess_game
+```
+---
+
+## Gameplay Overview
 
 ### Main Menu
 The **Main Menu** is the starting point of the application. From here, you can navigate to different modes or review previous games.  
