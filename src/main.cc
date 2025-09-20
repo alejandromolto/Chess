@@ -47,6 +47,7 @@ int main(){
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
     SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     Board board;
     bool running = true;
@@ -420,6 +421,9 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
 
                         // forfeit
                         if(actualLocation.row == -2 && actualLocation.col == -2){
+                            if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                board.exportGametoFile(filename);
+                            }
                             if(color){ return 1; } else{ return -1; }
                         }
 
@@ -449,6 +453,9 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
 
                                 // forfeit
                                 if(futureLocation.row == -2 && futureLocation.col == -2){
+                                if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                    board.exportGametoFile(filename);
+                                }
                                     if(color){ return 1; } else{ return -1; }
                                 }
 
@@ -660,14 +667,15 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
             if (std::find(legitMovesVct.begin(), legitMovesVct.end(), tempCoord) != legitMovesVct.end())
             {
                 SDL_Rect rect;
-                SDL_SetRenderDrawColor(renderer, 135, 206, 235, 20);
                 rect.y = i * squareH;
                 rect.x = j * squareW;
                 rect.w = squareW;
                 rect.h = squareH;
+
+                SDL_SetRenderDrawColor(renderer, 65, 105, 225, 100);
                 SDL_RenderFillRect(renderer, &rect);
-            
-            } 
+            }
+
         }
     }
 
