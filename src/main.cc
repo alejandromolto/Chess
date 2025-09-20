@@ -91,6 +91,8 @@ int main()
                 SDL_DestroyWindow(window);
 
                 SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
             }
         }
     }
