@@ -10,26 +10,31 @@
 #include "include/utils.h"
 #include "include/board.h"
 
-// Main screen.
+// Menus.
 int mainmenu(int width, int height, SDL_Renderer* renderer);
 bool optionsmenu(SDL_Renderer* renderer, int &width, int &height);
 void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, int width, int height);
 
-// InGame related functions.
+// Main scenes
 int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, std::string filename);
-T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height);
+void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height , std::string filename);
+
+// InGame related functions.
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer* renderer);
 void PawnPromotion(Board& board, SDL_Renderer* renderer);
-bool downloadConfirmation(SDL_Renderer* renderer, int width, int height);
 void printBoard(Board board, int windowwidth, int windowheight, SDL_Renderer *renderer);
 void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movementCount, int windowwidth, int windowheight, SDL_Renderer *renderer);
 bool isNullCoord(T_Coordinates Coord); // Complementary
 
 // Review related functions.
 int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filename);
-void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height , std::string filename);
-int howManyGames(std::string filename); // Complementary
 void emptyFile(std::string filename);
+int howManyGames(std::string filename); // Complementary
+
+//Other
+bool userConfirmation(SDL_Renderer* renderer, int width, int height, std::string imageToConfirm);
+
 
 int main(){ 
     
@@ -90,31 +95,34 @@ int main(){
 
 int mainmenu(int width, int height, SDL_Renderer* renderer){
 
-    // Returns the option chosen by the user.
-    importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
-    importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
-    importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
-    importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
-    importImageInRender(renderer, "assets/images/close.png", width - width/50 - width/12, height/50, width/12, width/12);
-    importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width/50) - (width/12) - (width/50) - (width/12), height/50, width/12, width/12);
-    SDL_RenderPresent(renderer);
+    while(true){
+        // Returns the option chosen by the user.
+        importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
+        importImageInRender(renderer, "assets/images/singleplayer.png", width/3 - 20, height/8 * 3, width/6, width/6);
+        importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
+        importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
+        importImageInRender(renderer, "assets/images/close.png", width - width/50 - width/12, height/50, width/12, width/12);
+        importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width/50) - (width/12) - (width/50) - (width/12), height/50, width/12, width/12);
+        SDL_RenderPresent(renderer);
 
-    SDL_Point click = userInput();
-    if (click.x == -1) return -1; // If SDL_QUIT, return -1.
-    int mx = click.x;
-    int my = click.y;
+        SDL_Point click = userInput();
+        if (click.x == -1) return -1; // If SDL_QUIT, return -1.
+        int mx = click.x;
+        int my = click.y;
 
-    if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-    return 1;
-    } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-    return 2;
-    } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
-    return 3;
-    } else if (mx > width - (width/50) - (width/12) - (width/50) - (width/12) && mx < width - (width/50) - (width/12) - (width/50) - (width/12) + width/12 && my > height/50 && my < height/50 + width/12) {
-    return 4;
-    } else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12) {
-    return -1;
+        if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+        return 1;
+        } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
+        return 2;
+        } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
+        return 3;
+        } else if (mx > width - (width/50) - (width/12) - (width/50) - (width/12) && mx < width - (width/50) - (width/12) - (width/50) - (width/12) + width/12 && my > height/50 && my < height/50 + width/12) {
+        return 4;
+        } else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12) {
+        return -1;
+        }
     }
+
 
 
     return -1;
@@ -135,12 +143,12 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, st
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
-                        if(downloadConfirmation(renderer, width, height)){
+                        if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                             board.exportGametoFile(filename);
                         }
                         return -1;
                     }else{ // WHITE WINS
-                        if(downloadConfirmation(renderer, width, height)){
+                        if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                             board.exportGametoFile(filename);
                         }                        
                         return 1;
@@ -148,7 +156,7 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, st
 
                 }else{
                     // STALEMATE
-                    if(downloadConfirmation(renderer, width, height)){
+                    if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                         board.exportGametoFile(filename);
                     }
                     return 2    ;
@@ -177,13 +185,34 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, st
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, width, height);
                         
-                        if(actualLocation.row == -2 && actualLocation.col == -2){
-                                    if(downloadConfirmation(renderer, width, height)){
-                                        board.exportGametoFile(filename);
-                                    }
+                        /*
+                            Little confusing loop. It takes the piece that the user is selecting, but in case the user chooses to forfeit
+                            or go back to the menu it handles that logic too. The selectPiece is taking the user inputs both for the game logic
+                            and for the scenes managing.
+                        */ 
+
+                        do{
+                            actualLocation = selectPiece(board, false, width, height, renderer);
+
+                            if(actualLocation.col == -1 && actualLocation.row == -1){
+                                if(userConfirmation(renderer, width, height, "assets/images/matchEnd.png")){
+                                    if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                    board.exportGametoFile(filename);
+                                }
                                     if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                                }else{
+                                    printBoard(board, width, height, renderer);
+                                }
+                            }
+
+                        }while(actualLocation.col == -1 && actualLocation.row == -1);
+
+                        if(actualLocation.row == -2 && actualLocation.col == -2){
+                            if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                board.exportGametoFile(filename);
+                            }
+                            if(board.getMovementCount()%2){ return -1; } else{ return 1; }
                         }
 
                         if(isNullCoord(actualLocation)){
@@ -197,10 +226,24 @@ int twoplayerloop(Board board, SDL_Renderer* renderer, int width, int height, st
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2,  width, height);
-            
+                        do{
+                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height, renderer);
+
+                            if(futureLocation.col == -1 && futureLocation.row == -1){
+                                if(userConfirmation(renderer, width, height, "assets/images/matchEnd.png")){
+                                    if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                    board.exportGametoFile(filename);
+                                    }
+                                    if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                                }else{
+                                    printBoard(board, width, height, renderer);
+                                }
+                            }
+
+                         }while(futureLocation.col == -1 && futureLocation.row == -1);
+                                        
                                 if(actualLocation.row == -2 && actualLocation.col == -2){ // forfeit
-                                    if(downloadConfirmation(renderer, width, height)){
+                                    if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                                         board.exportGametoFile(filename);
                                     }
                                     if(board.getMovementCount()%2){ return -1; } else{ return 1; }
@@ -314,12 +357,12 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
                 if(board.isTheKingChecked(prohibitedSquares)){
                     // CHECKMATE
                     if(board.getMovementCount() % 2 == 0){ // BLACK WINS
-                        if(downloadConfirmation(renderer, width, height)){
+                        if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                             board.exportGametoFile(filename);
                         }
                         return -1;
                     }else{ // WHITE WINS
-                        if(downloadConfirmation(renderer, width, height)){
+                        if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                             board.exportGametoFile(filename);
                         }
                         return 1;
@@ -327,7 +370,7 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
 
                 }else{
                     // STALEMATE
-                        if(downloadConfirmation(renderer, width, height)){
+                        if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
                             board.exportGametoFile(filename);
                         }
                         return 2;
@@ -358,13 +401,25 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
                     // FIRST PIECE
 
                     do{
-                        actualLocation = selectPiece(board, false, width, height);
+                        do{
+                            actualLocation = selectPiece(board, false, width, height, renderer);
+
+                            if(actualLocation.col == -1 && actualLocation.row == -1){
+                                if(userConfirmation(renderer, width, height, "assets/images/matchEnd.png")){
+                                    if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                    board.exportGametoFile(filename);
+                                }
+                                    if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                                }else{
+                                    printBoard(board, width, height, renderer);
+                                }
+                            }
+
+                        }while(actualLocation.col == -1 && actualLocation.row == -1);
+
 
                         // forfeit
                         if(actualLocation.row == -2 && actualLocation.col == -2){
-                            if(downloadConfirmation(renderer, width, height)){
-                                board.exportGametoFile(filename);
-                            }
                             if(color){ return 1; } else{ return -1; }
                         }
 
@@ -375,13 +430,25 @@ int singleplayerloop(Board board, SDL_Renderer* renderer, int width, int height,
                         printBoardAndLegitMoves(board, actualLocation, board.getMovementCount(), width, height, renderer); // PRINTING.
                         
                         // SECOND PIECE
-                            futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height);
+
+                                do{
+                                    futureLocation = selectPiece(board, board.getboard()[actualLocation.row][actualLocation.col]%10==2, width, height, renderer);
+
+                                    if(futureLocation.col == -1 && futureLocation.row == -1){
+                                        if(userConfirmation(renderer, width, height, "assets/images/matchEnd.png")){
+                                            if(userConfirmation(renderer, width, height, "assets/images/downloadboard.png")){
+                                            board.exportGametoFile(filename);
+                                            }
+                                            if(board.getMovementCount()%2){ return -1; } else{ return 1; }
+                                        }else{
+                                            printBoard(board, width, height, renderer);
+                                        }
+                                    }
+
+                                }while(futureLocation.col == -1 && futureLocation.row == -1);
 
                                 // forfeit
                                 if(futureLocation.row == -2 && futureLocation.col == -2){
-                                    if(downloadConfirmation(renderer, width, height)){
-                                        board.exportGametoFile(filename);
-                                    }
                                     if(color){ return 1; } else{ return -1; }
                                 }
 
@@ -455,11 +522,9 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, st
 
     // REVIEW BACKGROUND
 
-    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/GreySquare.png", 0, 0, width, height);
 
     // GET MATCH
-
-
 
     int matchpointer = chooseMatch(renderer, width, height, filename) - 1;
 
@@ -484,7 +549,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, st
     std::vector <std::vector <int>> game = board.gethistory();
 
 
-    importImageInRender(renderer, "assets/images/playingBackground.png", 0, 0, width, height); // Match background
+    importImageInRender(renderer, "assets/images/GreySquare.png", 0, 0, width, height); // Match background
     importImageInRender(renderer, "assets/images/Leftarrow.png", 600+10, 600-200, 200, 200);
     importImageInRender(renderer, "assets/images/Rightarrow.png", 600+210, 600-200, 200, 200);
 
@@ -553,6 +618,9 @@ void printBoard(Board board, int width, int height, SDL_Renderer *renderer){
     // Forfeit button
     importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
 
+    // Exit button
+    importImageInRender(renderer, "assets/images/back.png", width - width/50 - width/12, height/50, width/12, width/12);
+
     SDL_RenderPresent(renderer);
 }
 
@@ -571,6 +639,9 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 
     // Forfeit button
     importImageInRender(renderer, "assets/images/surrendButton.png", (width*527)/864, (height*364)/510, (width*328)/864, (height*141)/510);
+
+    // Exit button
+    importImageInRender(renderer, "assets/images/back.png", width - width/50 - width/12, height/50, width/12, width/12);
 
     int squareW = (width*600)/1152/8;
     int squareH = (height*600)/680/8;
@@ -655,7 +726,7 @@ void printBoardAndLegitMoves(Board board, T_Coordinates pieceCoords, int movemen
 SDL_RenderPresent(renderer);
 }
 
-T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height){
+T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer* renderer){
 
     // Returns the coordinates of the piece chosen or a special code (-1, -1) if no piece was chosen.
 
@@ -717,18 +788,21 @@ T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height){
                     returnPiece.row = my / squareH;
                     return returnPiece;
                 }else if(mx >= (width*527)/864 && mx < (width*527)/864 + (width*328)/864 && my >= (height*364)/510 && my < (height*364)/510 + (height*141)/510){ // Forfeit button
-                    T_Coordinates forfeitcord;
-                    forfeitcord.row = -2;
-                    forfeitcord.col = -2;
-                    return forfeitcord;
-                }else if(false){ // Options button (to implement)
-
-
-                }else{ // Everything else                    
-                    T_Coordinates nullcord;
-                    nullcord.row = -1;
-                    nullcord.col = -1;
-                    return nullcord;
+                    
+                    if(userConfirmation(renderer, width, height, "assets/images/forfeit.png")){
+                        T_Coordinates forfeitcord;
+                        forfeitcord.row = -2;
+                        forfeitcord.col = -2;
+                        return forfeitcord;
+                    }else{
+                        printBoard(board, width, height, renderer);
+                    }
+  
+                }else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12){ // Exit button
+                    T_Coordinates exitcord;
+                    exitcord.row = -1;
+                    exitcord.col = -1;
+                    return exitcord;                   
                 }
             }
     }
@@ -860,11 +934,11 @@ int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filen
     return 0;
 }
 
-bool downloadConfirmation(SDL_Renderer* renderer, int width, int height){
+bool userConfirmation(SDL_Renderer* renderer, int width, int height, std::string imageToConfirm){
     
     // It returns if the user wants to store the game in the file or not.
     
-    importImageInRender(renderer, "assets/images/downloadboard.png", width/2 - 200, height/2 - 200, 400, 400);
+    importImageInRender(renderer, imageToConfirm, width/2 - 200, height/2 - 200, 400, 400);
     importImageInRender(renderer, "assets/images/yes.png", width/2 - 150, height/2 + 120, 100, 100);
     importImageInRender(renderer, "assets/images/no.png", width/2 +  50, height/2 + 120, 100, 100);
     SDL_RenderPresent(renderer);
@@ -1027,6 +1101,11 @@ void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, in
     // Background & Red Cross
     importImageInRender(renderer, "assets/images/mainbackgroundblurred.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
+    importImageInRender(renderer, "assets/images/linkTreeLogo.png", width - width/50 - width/24, height - width/24 - height/50, width/24, width/24);    
+    importImageInRender(renderer, "assets/images/linkedinLogo.png", width - width/50 - width/24 - width/50 - width/24, height - width/24 - height/50, width/24, width/24);
+
+
+
 
     // Options
 
@@ -1112,9 +1191,18 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
                     optionWidth = 1824;
                     optionHeight = 1026;
                     renderoptions(renderer, optionWidth, optionHeight, width, height);
-                }
-            }
+                    
+                }else if(mx > width - (width/50) - (width/24) && mx < width - (width/50) && 
+                        my > height - width/24 - height/50 && my < height - height/50) {
+                    system("xdg-open https://linktr.ee/alejandromolto");
 
+                }else if(mx > width - (width/50) - (width/24) - (width/50) - (width/24) && 
+                        mx < width - (width/50) - (width/24) - (width/50) && 
+                        my > height - width/24 - height/50 && my < height - height/50) {
+                    system("xdg-open https://linkedin.com/in/alejandromolto");
+                }
+
+            }
             
     }
     
