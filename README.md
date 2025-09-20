@@ -58,23 +58,28 @@
 - C++17 or higher   
 - SDL2    
 
----  
+---
 
-## Usage  
+## Usage
 
-### Main Menu 
-![Main Menu GIF](./docs/gifs/main-menu.gif)  
+### Main Menu
+The **Main Menu** is the starting point of the application. From here, you can navigate to different modes or review previous games.  
+![Main Menu](assets/gifs/mainMenu.gif)
 
-### Single Player 
-![Single Player GIF](./docs/gifs/single-player.gif)  
+### Single Player
+In **Single Player** mode, you play against the AI. Use the interface to make moves, and the AI will respond according to the game rules.  
+![Single Player](assets/gifs/singlePlayer.gif)
 
-### Multiplayer 
-![Multiplayer GIF](./docs/gifs/multiplayer.gif)  
+### Multiplayer
+The **Multiplayer** mode allows two players to play on the same device. Players take turns making moves until the game ends.  
+![Two Players](assets/gifs/twoPlayers.gif)
 
-### Review Games Mode 
-![Review Games GIF](./docs/gifs/review-games.gif)    
+### Review Games Mode
+The **Review Games Mode** lets you go through previously completed games. Analyze moves and learn strategies by replaying each step.  
+![Review Games](assets/gifs/review.gif)
 
----  
+---
+
 
 ## Contributions  
 Contributions are welcome and greatly appreciated, whether it's a bug fix or a new mechanic. To contribute, follow these steps:  
