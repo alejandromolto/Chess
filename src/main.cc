@@ -95,7 +95,6 @@ int main(){
 }
 
 int mainmenu(int width, int height, SDL_Renderer* renderer){
-
     while(true){
         // Returns the option chosen by the user.
         importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
@@ -103,29 +102,27 @@ int mainmenu(int width, int height, SDL_Renderer* renderer){
         importImageInRender(renderer, "assets/images/twoplayers.png", width/2 + width/24 - 20, height/8 * 3, width/6, width/6);
         importImageInRender(renderer, "assets/images/reviewgames.png", width/3 - 20, height/8 * 6, width*3/8, height/5);
         importImageInRender(renderer, "assets/images/close.png", width - width/50 - width/12, height/50, width/12, width/12);
-        importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width/50) - (width/12) - (width/50) - (width/12), height/50, width/12, width/12);
-        SDL_RenderPresent(renderer);
+        importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width/50) - (width/12) - (width/50) - (width/12), height/50, 100, 100);
 
+        SDL_RenderPresent(renderer);
         SDL_Point click = userInput();
         if (click.x == -1) return -1; // If SDL_QUIT, return -1.
+
         int mx = click.x;
         int my = click.y;
 
         if (mx > width/3 - 20 && mx < width/3 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-        return 1;
+            return 1;
         } else if (mx > width/2 + width/24 - 20 && mx < width/2 + width/24 - 20 + width/6 && my > height/8 * 3 && my < height/8 * 3 + width/6) {
-        return 2;
+            return 2;
         } else if (mx > width/3 - 20 && mx < width/3 - 20 + width*3/8 && my > height/8 * 6 && my < height/8 * 6 + height/5) {
-        return 3;
-        } else if (mx > width - (width/50) - (width/12) - (width/50) - (width/12) && mx < width - (width/50) - (width/12) - (width/50) - (width/12) + width/12 && my > height/50 && my < height/50 + width/12) {
-        return 4;
+            return 3;
+        } else if (mx > width - (width/50) - (width/12) - (width/50) - (width/12) && mx < width - (width/50) - (width/12) - (width/50) - (width/12) + 100 && my > height/50 && my < height/50 + 100) {
+            return 4;
         } else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12) {
-        return -1;
+            return -1;
         }
     }
-
-
-
     return -1;
 }
 
@@ -529,7 +526,7 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, st
 
     // REVIEW BACKGROUND
 
-    importImageInRender(renderer, "assets/images/GreySquare.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height);
 
     // GET MATCH
 
@@ -556,9 +553,10 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, st
     std::vector <std::vector <int>> game = board.gethistory();
 
 
-    importImageInRender(renderer, "assets/images/GreySquare.png", 0, 0, width, height); // Match background
+    importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height); // Match background
     importImageInRender(renderer, "assets/images/Leftarrow.png", 600+10, 600-200, 200, 200);
     importImageInRender(renderer, "assets/images/Rightarrow.png", 600+210, 600-200, 200, 200);
+    importImageInRender(renderer, "assets/images/back.png", width - width/50 - width/12, height/50, width/12, width/12);
 
 
         while(true){
@@ -599,6 +597,8 @@ void reviewMatchs(Board board, SDL_Renderer* renderer, int width, int height, st
                         boardpointer++;
                         waiting = false;
                     break;
+                    }else if (mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12){
+                        return;
                     }
             }
 
@@ -861,7 +861,7 @@ int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filen
     // PRINTING ON THE SCREEN
     importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/deleteFiles.png", width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)), std::max(100, std::min(width/8, height/8)));
-    importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
+    importImageInRender(renderer, "assets/images/back.png", width - width/50 - width/12, height/50, width/12, width/12);
 
     int ngames = howManyGames(filename);
 
@@ -932,8 +932,7 @@ int chooseMatch(SDL_Renderer* renderer, int width, int height, std::string filen
                 else if(mx >= width - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && mx < width - std::max(20, width/64) &&
                     my >= height - std::max(20, width/64) - std::max(100, std::min(width/8, height/8)) && my < height - std::max(20, width/64)) {
                     return -2; // delete files
-                }else if(mx >= width - (width * 72) / 720 - width / 60 && mx <= width - (width * 72) / 720 - width / 60 + (width * 72) / 720 &&
-                    my >= height / 60 && my <= height / 60 + (width * 72) / 720){
+                }else if(mx > width - width/50 - width/12 && mx < width - width/50 - width/12 + width/12 && my > height/50 && my < height/50 + width/12){
                     return -1; // back main
                 }
             }
@@ -1107,7 +1106,7 @@ void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, in
 {
 
     // Background & Red Cross
-    importImageInRender(renderer, "assets/images/mainbackgroundblurred.png", 0, 0, width, height);
+    importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
     importImageInRender(renderer, "assets/images/linkTreeLogo.png", width - width/50 - width/24, height - width/24 - height/50, width/24, width/24);    
     importImageInRender(renderer, "assets/images/linkedinLogo.png", width - width/50 - width/24 - width/50 - width/24, height - width/24 - height/50, width/24, width/24);
@@ -1135,7 +1134,7 @@ void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, in
         x = 10;
     }
 
-    importImageInRender(renderer, "assets/images/resolutionSettings.png", (width - (width * 540) / 720) / 2, (height * 100) / 720, (width * 540) / 720, (height * 180) / 720);
+    importImageInRender(renderer, "assets/images/screenSize.png", (width - (width * 540) / 720) / 2, (height * 100) / 720, (width * 540) / 720, (height * 180) / 720);
     importImageInRender(renderer, "assets/images/GreySquare.png", ((width / 16) * x) + (width * 40) / 720, (height * 310) / 720, (width * 110) / 720, (width * 110) / 720);
     importImageInRender(renderer, "assets/images/smallRes.png", (width / 16) * 2 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
     importImageInRender(renderer, "assets/images/mediumRes.png", (width / 16) * 6 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
@@ -1223,18 +1222,4 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height)
     }
 
     
-}
-
-/* 
-TODO: 
-(X) Make a surrender button
-(X) Unify all the input user code as a function that returns the mx and my
-(X) Include options.
-(X) ERASE GAMES FROM FILE function (especial output for choose match then special action then special action in review games)
-(X) USE width and height consistently (I think some methods/functions use pixels directly)
-() Maybe turn the main.cc into a class?
-() WRITE DOCUMENTATION
-
-
-*/
-    
+}    
