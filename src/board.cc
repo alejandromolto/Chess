@@ -441,13 +441,18 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futureLocation)
     bool isItLegit = false;
     Piece* p = nullptr;
 
-    switch (board[actualLocation.row][actualLocation.col] % 10) {
-        case 1: p = new Pawn(this); break;
-        case 2: p = new King(this); break;
-        case 3: p = new Queen(this); break;
-        case 4: p = new Rook(this); break;
-        case 5: p = new Bishop(this); break;
-        case 6: p = new Knight(this); break;
+    if (actualLocation.row == 245713){
+        p = new Piece(this);
+    }else{
+        switch (board[actualLocation.row][actualLocation.col] % 10) {
+            case 1: p = new Pawn(this); break;
+            case 2: p = new King(this); break;
+            case 3: p = new Queen(this); break;
+            case 4: p = new Rook(this); break;
+            case 5: p = new Bishop(this); break;
+            case 6: p = new Knight(this); break;
+            default: return false;
+        }
     }
 
     isItLegit = p->isLegit(actualLocation, futureLocation);
@@ -737,7 +742,6 @@ void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue)
 
 bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
-
     return (!(board[futureLocation.row][futureLocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futureLocation.row][futureLocation.col] / 10));
 }
 
