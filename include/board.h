@@ -6,16 +6,9 @@
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <set>
+#include "piece.h"
 
-struct T_Coordinates{ 
-    int row;
-    int col; 
 
-    bool operator==(const T_Coordinates& other) const {
-        return row == other.row && col == other.col;
-    }
-    
-};
 
 class Board{
     private:

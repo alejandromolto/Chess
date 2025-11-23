@@ -8,6 +8,15 @@
 #include <set>
 #include <algorithm>
 #include <SDL2/SDL.h>
+#include "piece.h"
+#include "pawn.h"
+#include "bishop.h"
+#include "knight.h"
+#include "king.h"
+#include "queen.h"
+#include "rook.h"
+
+
 
 Board::Board()
 {
@@ -164,7 +173,7 @@ void Board::printboard(int width, int height, SDL_Renderer *renderer)
     }
 }
 
-void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation)
+void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
 
     // This function modifies the board state based on the player's move. This function does not verify that the movement is Legal, it just performs it.
@@ -226,23 +235,23 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
             break;
         }
 
-        board[futurelocation.row][futurelocation.col] = board[actualLocation.row][actualLocation.col]; // Standard move.
+        board[futureLocation.row][futureLocation.col] = board[actualLocation.row][actualLocation.col]; // Standard move.
         board[actualLocation.row][actualLocation.col] = 0;
 
-        if (board[futurelocation.row][futurelocation.col] % 10 == 1 && abs(actualLocation.row - futurelocation.row) == 2)
+        if (board[futureLocation.row][futureLocation.col] % 10 == 1 && abs(actualLocation.row - futureLocation.row) == 2)
         { // Pawn moving two squares at once (Enabling en passant).
             if (movementCount % 2 == 0)
             {
-                enPassantTarget.row = futurelocation.row + 1;
-                enPassantTarget.col = futurelocation.col;
+                enPassantTarget.row = futureLocation.row + 1;
+                enPassantTarget.col = futureLocation.col;
             }
             else
             {
-                enPassantTarget.row = futurelocation.row - 1;
-                enPassantTarget.col = futurelocation.col;
+                enPassantTarget.row = futureLocation.row - 1;
+                enPassantTarget.col = futureLocation.col;
             }
         }
-        else if (enPassantTarget.row == futurelocation.row && enPassantTarget.col == futurelocation.col && square % 10 == 1)
+        else if (enPassantTarget.row == futureLocation.row && enPassantTarget.col == futureLocation.col && square % 10 == 1)
         { // En passant.
 
             if (movementCount % 2 == 0)
@@ -266,7 +275,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
 
         if (actualLocation.col == 1046)
         { // Queenside (long) castle
-            if (futurelocation.row == 10 && futurelocation.col == 10)
+            if (futureLocation.row == 10 && futureLocation.col == 10)
             {                              // White
                 board[7][2] = board[7][4]; // King e1 -> c1
                 board[7][4] = 0;
@@ -274,7 +283,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
                 board[7][3] = board[7][0]; // Rook a1 -> d1
                 board[7][0] = 0;
             }
-            else if (futurelocation.row == -10 && futurelocation.col == -10)
+            else if (futureLocation.row == -10 && futureLocation.col == -10)
             {                              // Black
                 board[0][2] = board[0][4]; // King e8 -> c8
                 board[0][4] = 0;
@@ -285,7 +294,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
         }
         else if (actualLocation.col == 54027)
         { // Kingside (short) castle
-            if (futurelocation.row == 10 && futurelocation.col == 10)
+            if (futureLocation.row == 10 && futureLocation.col == 10)
             {                              // White
                 board[7][6] = board[7][4]; // King e1 -> g1
                 board[7][4] = 0;
@@ -293,7 +302,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
                 board[7][5] = board[7][7]; // Rook h1 -> f1
                 board[7][7] = 0;
             }
-            else if (futurelocation.row == -10 && futurelocation.col == -10)
+            else if (futureLocation.row == -10 && futureLocation.col == -10)
             {                              // Black
                 board[0][6] = board[0][4]; // King e8 -> g8
                 board[0][4] = 0;
@@ -307,7 +316,7 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futurelocati
     flattenBoardAndAppend();
 }
 
-bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocation)
+bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
 
     bool isItThreatened = false;
@@ -324,7 +333,7 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
         board[actualLocation.row][actualLocation.col] % 10 == 6)
     {
 
-        isItThreatened = isLegit(actualLocation, futurelocation);
+        isItThreatened = isLegit(actualLocation, futureLocation);
     }
 
     // Now, if the piece is a pawn, some special rules need to be added.
@@ -336,12 +345,12 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
         return false;
     }
 
-    if (futurelocation.col > 7 || futurelocation.col < 0 || futurelocation.row > 7 || futurelocation.row < 0)
+    if (futureLocation.col > 7 || futureLocation.col < 0 || futureLocation.row > 7 || futureLocation.row < 0)
     {
         return false;
     }
 
-    if (actualLocation.col == futurelocation.col && actualLocation.row == futurelocation.row)
+    if (actualLocation.col == futureLocation.col && actualLocation.row == futureLocation.row)
     {
         return false;
     }
@@ -357,9 +366,9 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
         return false;
     }
 
-    if ((movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1) ||
-        (movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 &&
-         board[futurelocation.row][futurelocation.col] % 10 != 0))
+    if ((movementCount % 2 == 0 && board[futureLocation.row][futureLocation.col] / 10 == 1) ||
+        (movementCount % 2 != 0 && board[futureLocation.row][futureLocation.col] / 10 == 0 &&
+         board[futureLocation.row][futureLocation.col] % 10 != 0))
     {
         return false;
     }
@@ -367,8 +376,8 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
     // SPECIAL RULES.
     // The position is threatened by a pawn only if its diagonal
 
-    int dx = futurelocation.col - actualLocation.col;
-    int dy = futurelocation.row - actualLocation.row;
+    int dx = futureLocation.col - actualLocation.col;
+    int dy = futureLocation.row - actualLocation.row;
 
     if (board[actualLocation.row][actualLocation.col] % 10 == 1)
     {
@@ -394,13 +403,13 @@ bool Board::isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocat
     return isItThreatened;
 }
 
-bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation)
+bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
 
     // This function checks whether the move is legal or not, that is, checks if its legit and then checks if it leaves the king on check.
 
 
-    bool isLegalVar = isLegit(actualLocation, futurelocation);
+    bool isLegalVar = isLegit(actualLocation, futureLocation);
 
     if (!isLegalVar)
     {
@@ -409,7 +418,7 @@ bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation)
     else
     {
         Board duplicateBoard(board, getMovementCount());
-        duplicateBoard.updateboard(actualLocation, futurelocation);
+        duplicateBoard.updateboard(actualLocation, futureLocation);
 
         if (duplicateBoard.isTheKingChecked(duplicateBoard.prohibitedMoves()))
         {
@@ -424,7 +433,7 @@ bool Board::isLegal(T_Coordinates actualLocation, T_Coordinates futurelocation)
     return isLegalVar;
 }
 
-bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation)
+bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
 
     // This function checks whether the move is legitimate or not.
@@ -438,14 +447,14 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation)
 
         // COLOR CHECK.
 
-        if (futurelocation.col == 10 && futurelocation.row == 10)
+        if (futureLocation.col == 10 && futureLocation.row == 10)
         { // white
             if (movementCount % 2 != 0)
             {
                 return false;
             }
         }
-        else if (futurelocation.col == -10 && futurelocation.row == -10)
+        else if (futureLocation.col == -10 && futureLocation.row == -10)
         { // black
             if (movementCount % 2 == 0)
             {
@@ -581,14 +590,14 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation)
         return false;
     }
 
-    if (futurelocation.col > 7 || futurelocation.col < 0 || futurelocation.row > 7 || futurelocation.row < 0)
+    if (futureLocation.col > 7 || futureLocation.col < 0 || futureLocation.row > 7 || futureLocation.row < 0)
     {
         return false;
     }
 
     // Is the piece moving at all?
 
-    if (actualLocation.col == futurelocation.col && actualLocation.row == futurelocation.row)
+    if (actualLocation.col == futureLocation.col && actualLocation.row == futureLocation.row)
     {
         return false;
     }
@@ -610,28 +619,22 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation)
 
     // Is the piece moving to a square occupied by a piece of its own color?
 
-    if ((movementCount % 2 == 0 && board[futurelocation.row][futurelocation.col] / 10 == 1) ||
-        (movementCount % 2 != 0 && board[futurelocation.row][futurelocation.col] / 10 == 0 &&
-         board[futurelocation.row][futurelocation.col] % 10 != 0))
+    if ((movementCount % 2 == 0 && board[futureLocation.row][futureLocation.col] / 10 == 1) ||
+        (movementCount % 2 != 0 && board[futureLocation.row][futureLocation.col] / 10 == 0 &&
+         board[futureLocation.row][futureLocation.col] % 10 != 0))
     {
 
         return false;
     }
 
-    // SECOND PHASE: SPECIFIC CHECK.
-    isItLegit = false;
-
-    int dx = futurelocation.col - actualLocation.col;
-    int dy = futurelocation.row - actualLocation.row;
-
     // EN PASSANT
     // WHITE PAWNS
     if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 == 0 &&
-        futurelocation == enPassantTarget &&
+        futureLocation == enPassantTarget &&
         (actualLocation.col == enPassantTarget.col - 1 || actualLocation.col == enPassantTarget.col + 1) &&
-        actualLocation.row == futurelocation.row + 1 && abs(futurelocation.col - actualLocation.col) == 1 &&
-        board[futurelocation.row][futurelocation.col] == 0 &&
-        board[futurelocation.row + 1][futurelocation.col] / 10 == 0 && board[futurelocation.row + 1][futurelocation.col] % 10 == 1)
+        actualLocation.row == futureLocation.row + 1 && abs(futureLocation.col - actualLocation.col) == 1 &&
+        board[futureLocation.row][futureLocation.col] == 0 &&
+        board[futureLocation.row + 1][futureLocation.col] / 10 == 0 && board[futureLocation.row + 1][futureLocation.col] % 10 == 1)
     {
 
         return true;
@@ -639,398 +642,31 @@ bool Board::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation)
 
     // BLACK PAWNS
     if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 != 0 &&
-        futurelocation == enPassantTarget &&
+        futureLocation == enPassantTarget &&
         (actualLocation.col == enPassantTarget.col - 1 || actualLocation.col == enPassantTarget.col + 1) &&
-        actualLocation.row == futurelocation.row - 1 && abs(futurelocation.col - actualLocation.col) == 1 &&
-        board[futurelocation.row][futurelocation.col] == 0 &&
-        board[futurelocation.row - 1][futurelocation.col] / 10 == 1 && board[futurelocation.row - 1][futurelocation.col] % 10 == 1)
+        actualLocation.row == futureLocation.row - 1 && abs(futureLocation.col - actualLocation.col) == 1 &&
+        board[futureLocation.row][futureLocation.col] == 0 &&
+        board[futureLocation.row - 1][futureLocation.col] / 10 == 1 && board[futureLocation.row - 1][futureLocation.col] % 10 == 1)
     {
 
         return true;
     }
 
-    // WHITE PAWNS (Moving up the board)
-    if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 == 0)
-    {
-        if ((dx == 0 && dy == -1 && board[futurelocation.row][futurelocation.col] % 10 == 0) ||
-            (dx == 0 && dy == -2 && actualLocation.row == 6 &&
-             board[futurelocation.row][futurelocation.col] % 10 == 0 &&
-             board[actualLocation.row - 1][actualLocation.col] % 10 == 0) ||
-            ((dx == 1 || dx == -1) && dy == -1 &&
-             board[futurelocation.row][futurelocation.col] % 10 != 0 &&
-             board[futurelocation.row][futurelocation.col] / 10 == 0))
-        {
-            isItLegit = true;
-        }
+    //SECOND PHASE: SPECIFIC CHECK
 
-        return isItLegit;
+    Piece* p = nullptr;
+
+    switch (board[actualLocation.row][actualLocation.col] % 10) {
+        case 1: p = new Pawn(board, movementCount); break;
+        case 2: p = new King(board, movementCount); break;
+        case 3: p = new Queen(board, movementCount); break;
+        case 4: p = new Rook(board, movementCount); break;
+        case 5: p = new Bishop(board, movementCount); break;
+        case 6: p = new Knight(board, movementCount); break;
     }
 
-    // BLACK PAWNS (Moving down the board)
-    if (board[actualLocation.row][actualLocation.col] % 10 == 1 && movementCount % 2 != 0)
-    {
-        if ((dx == 0 && dy == 1 && board[futurelocation.row][futurelocation.col] % 10 == 0) ||
-            (dx == 0 && dy == 2 && actualLocation.row == 1 &&
-             board[futurelocation.row][futurelocation.col] % 10 == 0 &&
-             board[actualLocation.row + 1][actualLocation.col] % 10 == 0) ||
-            ((dx == 1 || dx == -1) && dy == 1 &&
-             board[futurelocation.row][futurelocation.col] % 10 != 0 &&
-             board[futurelocation.row][futurelocation.col] / 10 != 0))
-        {
-            isItLegit = true;
-        }
-        return isItLegit;
-    }
-
-    // KING (moving everywhere)
-    if (board[actualLocation.row][actualLocation.col] % 10 == 2)
-    {
-        if (dx >= -1 && dx <= 1 && dy >= -1 && dy <= 1)
-        {
-            isItLegit = true;
-            return isItLegit;
-        }
-    }
-
-    // KNIGHT (moving in L)
-    if (board[actualLocation.row][actualLocation.col] % 10 == 6)
-    {
-        if ((abs(dx) == 2 && abs(dy) == 1) || (abs(dx) == 1 && abs(dy) == 2))
-        {
-            isItLegit = true;
-            return isItLegit;
-        }
-    }
-
-    // ROOK (moving straight)
-
-    if (board[actualLocation.row][actualLocation.col] % 10 == 4)
-    {
-
-        if ((dx != 0 && dy == 0) || (dx == 0 && dy != 0))
-        {
-
-            if (dx == 1 || dx == -1 || dy == 1 || dy == -1)
-            {
-                isItLegit = true;
-                return isItLegit;
-            }
-
-            // #1 (The rook is moving to the right)
-            if (dx > 0)
-            {
-                for (int i = actualLocation.col + 1; i < futurelocation.col; i++)
-                {
-                    if ((board[actualLocation.row][i] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-
-                // #2 (The rook is moving to the left)
-            }
-            else if (dx < 0)
-            {
-                for (int i = futurelocation.col + 1; i < actualLocation.col; i++)
-                {
-                    if ((board[actualLocation.row][i] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-
-            // vertical movement
-            // #3 (The rook is moving down)
-            if (dy > 0)
-            {
-                for (int j = actualLocation.row + 1; j < futurelocation.row; j++)
-                {
-                    if ((board[j][actualLocation.col] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                    // #4(The rook is moving up)
-                }
-            }
-            else if (dy < 0)
-            {
-                for (int j = actualLocation.row - 1; j > futurelocation.row; j--)
-                {
-                    if ((board[j][actualLocation.col] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-        }
-    }
-
-    // BISHOP (moving diagonally)
-
-    if (board[actualLocation.row][actualLocation.col] % 10 == 5)
-    {
-
-        if (abs(dx) == abs(dy))
-        {
-
-            if (abs(dx) == 1)
-            {
-                isItLegit = true;
-                return isItLegit;
-            }
-
-            // #1: moving to the second quadrant
-            if (dx < 0 && dy < 0)
-            {
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row + i][futurelocation.col + i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-                // #2: moving to the first quadrant
-            }
-            else if (dx > 0 && dy < 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row + i][futurelocation.col - i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-                // #3: moving to the third quadrant
-            }
-            else if (dx < 0 && dy > 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row - i][futurelocation.col + i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-                // #4: moving to the fourth quadrant
-            }
-            else if (dx > 0 && dy > 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row - i][futurelocation.col - i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-        }
-        else
-        {
-            isItLegit = false;
-            return isItLegit;
-        }
-    }
-
-    // QUEEN (moving both diagonaly and straight)
-
-    if (board[actualLocation.row][actualLocation.col] % 10 == 3)
-    {
-
-        // If its moving like a rook (same code).
-
-        if ((dx != 0 && dy == 0) || (dx == 0 && dy != 0))
-        {
-
-            if (dx == 1 || dx == -1 || dy == 1 || dy == -1)
-            {
-                isItLegit = true;
-                return isItLegit;
-            }
-
-            if (dx > 0)
-            {
-                for (int i = actualLocation.col + 1; i < futurelocation.col; i++)
-                {
-                    if ((board[actualLocation.row][i] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-            else if (dx < 0)
-            {
-                for (int i = futurelocation.col + 1; i < actualLocation.col; i++)
-                {
-                    if ((board[actualLocation.row][i] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-
-            if (dy > 0)
-            {
-                for (int j = actualLocation.row + 1; j < futurelocation.row; j++)
-                {
-                    if ((board[j][actualLocation.col] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-            else if (dy < 0)
-            {
-                for (int j = actualLocation.row - 1; j > futurelocation.row; j--)
-                {
-                    if ((board[j][actualLocation.col] % 10) == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-        }
-
-        // If its moving like a bishop (same code).
-
-        if (abs(dx) == abs(dy))
-        {
-
-            if (abs(dx) == 1)
-            {
-                isItLegit = true;
-                return isItLegit;
-            }
-
-            if (dx < 0 && dy < 0)
-            {
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row + i][futurelocation.col + i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-            else if (dx > 0 && dy < 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row + i][futurelocation.col - i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-            else if (dx < 0 && dy > 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row - i][futurelocation.col + i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-            else if (dx > 0 && dy > 0)
-            {
-
-                for (int i = 1; i < (abs(dx)); i++)
-                {
-                    if (board[futurelocation.row - i][futurelocation.col - i] == 0)
-                    {
-                        isItLegit = true;
-                    }
-                    else
-                    {
-                        isItLegit = false;
-                        return isItLegit;
-                    }
-                }
-            }
-        }
-    }
-
+    isItLegit = p->isLegit(actualLocation, futureLocation);
+    delete p;
     return isItLegit;
 }
 
@@ -1075,17 +711,17 @@ std::vector<T_Coordinates> Board::prohibitedMoves()
                         actualLocation.row = i;
                         actualLocation.col = j;
 
-                        T_Coordinates futurelocation;
-                        futurelocation.row = k;
-                        futurelocation.col = t;
+                        T_Coordinates futureLocation;
+                        futureLocation.row = k;
+                        futureLocation.col = t;
 
                         setMovementCount(getMovementCount() + 1);
 
-                        if (isThreatened(actualLocation, futurelocation))
+                        if (isThreatened(actualLocation, futureLocation))
                         { //... checks if its legit or not...
                             T_Coordinates tempCoord;
-                            tempCoord.row = futurelocation.row;
-                            tempCoord.col = futurelocation.col; // ...and the legit ones are saved in an array.
+                            tempCoord.row = futureLocation.row;
+                            tempCoord.col = futureLocation.col; // ...and the legit ones are saved in an array.
                             prohibitedSquares.push_back(tempCoord);
                         }
 
@@ -1105,17 +741,17 @@ std::vector<T_Coordinates> Board::prohibitedMoves()
                         actualLocation.row = i;
                         actualLocation.col = j;
 
-                        T_Coordinates futurelocation;
-                        futurelocation.row = k;
-                        futurelocation.col = t;
+                        T_Coordinates futureLocation;
+                        futureLocation.row = k;
+                        futureLocation.col = t;
 
                         setMovementCount(getMovementCount() + 1);
 
-                        if (isThreatened(actualLocation, futurelocation))
+                        if (isThreatened(actualLocation, futureLocation))
                         { //... checks if its legit or not...
                             T_Coordinates tempCoord;
-                            tempCoord.row = futurelocation.row;
-                            tempCoord.col = futurelocation.col; // ...and the legit ones are saved in an array.
+                            tempCoord.row = futureLocation.row;
+                            tempCoord.col = futureLocation.col; // ...and the legit ones are saved in an array.
                             prohibitedSquares.push_back(tempCoord);
                         }
 
@@ -1132,7 +768,7 @@ std::vector<T_Coordinates> Board::prohibitedMoves()
 std::vector<T_Coordinates> Board::legitMoves(T_Coordinates actualLocation)
 {
 
-    // This functon can be used when the legit moves that are not legal (Moves that leave the king on check) must be visualized.
+    // This functon can be used when the legit moves that are bothe legal and not legal (Moves that leave the king on check) must be visualized.
 
     std::vector<T_Coordinates> legitMoves;
 
@@ -1233,13 +869,13 @@ bool Board::isTheKingCheckMated()
                         T_Coordinates actualLocation;
                         actualLocation.row = i;
                         actualLocation.col = j;
-                        T_Coordinates futurelocation;
-                        futurelocation.row = k;
-                        futurelocation.col = t;
+                        T_Coordinates futureLocation;
+                        futureLocation.row = k;
+                        futureLocation.col = t;
 
-                        if (isThreatened(actualLocation, futurelocation))
+                        if (isThreatened(actualLocation, futureLocation))
                         {                                                          // ... and checks if its legit or not. If the movement is legit...
-                            board2.updateboard(actualLocation, futurelocation);    //... we perform it in a duplicated board...
+                            board2.updateboard(actualLocation, futureLocation);    //... we perform it in a duplicated board...
                             prohibitedSquaresD = board2.prohibitedMoves();         //... we calculate the checked squares in that duplicate board..
                             checked = board2.isTheKingChecked(prohibitedSquaresD); //... and we look if the king is still checked.
 
@@ -1263,15 +899,15 @@ bool Board::isTheKingCheckMated()
                         T_Coordinates actualLocation;
                         actualLocation.row = i;
                         actualLocation.col = j;
-                        T_Coordinates futurelocation;
-                        futurelocation.row = k;
-                        futurelocation.col = t;
+                        T_Coordinates futureLocation;
+                        futureLocation.row = k;
+                        futureLocation.col = t;
 
                         board2.setboard(board);
 
-                        if (isThreatened(actualLocation, futurelocation))
+                        if (isThreatened(actualLocation, futureLocation))
                         {                                                          // ... and checks if its legit or not. If the movement is legit...
-                            board2.updateboard(actualLocation, futurelocation);    //... we perform it in a duplicated board...
+                            board2.updateboard(actualLocation, futureLocation);    //... we perform it in a duplicated board...
                             prohibitedSquaresD = board2.prohibitedMoves();         //... we calculate the checked squares in that duplicate board..
                             checked = board2.isTheKingChecked(prohibitedSquaresD); //... and we look if the king is still checked.
 
@@ -1313,23 +949,14 @@ void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue)
     board[pawnCoords.row][pawnCoords.col] = NewValue;
 }
 
-std::vector<int> Board::flattenBoardAndAppend()
+
+bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
 
-    std::vector<int> flatBoard;
-    flatBoard.reserve(64); // This reserves capacity for 64 integers. (8x8 board)
-
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            flatBoard.push_back(board[i][j]);
-        }
-    }
-
-    history.push_back(flatBoard);
-    return flatBoard;
+    return (!(board[futureLocation.row][futureLocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futureLocation.row][futureLocation.col] / 10));
 }
+
+// export
 
 void Board::exportGametoFile(std::string filename)
 {
@@ -1461,6 +1088,26 @@ bool Board::importGametoBoard(std::string filename, int numgame)
     }
 }
 
+std::vector<int> Board::flattenBoardAndAppend()
+{
+
+    std::vector<int> flatBoard;
+    flatBoard.reserve(64); // This reserves capacity for 64 integers. (8x8 board)
+
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            flatBoard.push_back(board[i][j]);
+        }
+    }
+
+    history.push_back(flatBoard);
+    return flatBoard;
+}
+
+// ai
+
 void Board::AIPawnPromotion()
 {
 
@@ -1492,12 +1139,6 @@ void Board::AIPawnPromotion()
     }
 
     board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col] / 10) * 10 + 3);
-}
-
-bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation)
-{
-
-    return (!(board[futurelocation.row][futurelocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futurelocation.row][futurelocation.col] / 10));
 }
 
 int Board::evaluate()
