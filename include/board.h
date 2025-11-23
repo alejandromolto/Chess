@@ -45,6 +45,11 @@ class Board{
         int getMovementCount(){ return movementCount; }
         void setMovementCount(int movementCount);
         void setboard(int board[8][8]);
+        bool getWhiteCanCastleLong(){ return whiteCanCastleLong; }
+        bool getWhiteCanCastleShort(){ return whiteCanCastleShort; }
+        bool getBlackCanCastleLong(){ return blackCanCastleLong; }
+        bool getBlackCanCastleShort(){ return blackCanCastleShort; }
+        T_Coordinates getEnPassantTarget(){return enPassantTarget; }
 
         // Functionalities
         void printboard(int width, int height, SDL_Renderer *renderer);   

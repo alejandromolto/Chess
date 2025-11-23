@@ -7,6 +7,8 @@
 #include <vector>
 #include <set>
 
+class Board;
+
 struct T_Coordinates{ 
     int row;
     int col; 
@@ -21,10 +23,16 @@ class Piece{
     protected:
         int board[8][8];
         int movementCount;
+        bool whiteCanCastleLong = true;
+        bool whiteCanCastleShort = true;
+        bool blackCanCastleLong = true;
+        bool blackCanCastleShort = true;
+        T_Coordinates enPassantTarget;        
+        Board* boardObj;
     public:
 
         // Constructor
-        Piece(int board[8][8], int movementCount);
+        Piece(Board* boardObj);
         void setboard(int board[8][8]);
 
         // Main method

@@ -193,7 +193,6 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 }
                 return 2;
             }
-            matchOver = true;
             // GO BACK TO THE MENU
         }
 

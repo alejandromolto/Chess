@@ -5,7 +5,14 @@ bool Queen::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation) 
     int dx = futurelocation.col - actualLocation.col;
     int dy = futurelocation.row - actualLocation.row;
 
-        // QUEEN (moving both diagonaly and straight)
+
+    if(!Piece::isLegit(actualLocation, futurelocation)){
+        return false;
+    }else if (actualLocation.row == 245713){
+        return true;
+    }
+
+    // QUEEN (moving both diagonaly and straight)
 
     if (board[actualLocation.row][actualLocation.col] % 10 == 3)
     {

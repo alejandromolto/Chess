@@ -5,7 +5,13 @@ bool Rook::isLegit(T_Coordinates actualLocation, T_Coordinates futurelocation) {
     int dx = futurelocation.col - actualLocation.col;
     int dy = futurelocation.row - actualLocation.row;
 
-        // ROOK (moving straight)
+    if(!Piece::isLegit(actualLocation, futurelocation)){
+        return false;
+    }else if (actualLocation.row == 245713){
+        return true;
+    }
+
+    // ROOK (moving straight)
 
     if (board[actualLocation.row][actualLocation.col] % 10 == 4)
     {
