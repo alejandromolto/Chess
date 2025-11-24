@@ -30,7 +30,6 @@ class Piece{
         T_Coordinates enPassantTarget;        
         Board* boardObj;
     public:
-
         // Constructor
         Piece(Board* boardObj);
         void setboard(int board[8][8]);

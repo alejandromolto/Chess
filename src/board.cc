@@ -16,8 +16,6 @@
 #include "queen.h"
 #include "rook.h"
 
-
-
 Board::Board()
 {
 
@@ -739,142 +737,9 @@ void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue)
     board[pawnCoords.row][pawnCoords.col] = NewValue;
 }
 
-
 bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureLocation)
 {
     return (!(board[futureLocation.row][futureLocation.col] == 0) && (board[actualLocation.row][actualLocation.col] / 10) == (board[futureLocation.row][futureLocation.col] / 10));
-}
-
-// export
-
-void Board::exportGametoFile(std::string filename)
-{
-
-    std::ofstream file(filename, std::ios::out | std::ios::app);
-
-    if (file.is_open())
-    {
-
-        // GAME HEADER
-
-        file << "# [GAME]" << "\n";
-
-        // Boards
-        for (int k = 0; k < static_cast<int>(history.size()); k++)
-        {
-
-            int board[8][8];
-            int cont = 0;
-
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    board[i][j] = history[k][cont++];
-                }
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    if (board[i][j] < 10)
-                    {
-                        file << 0;
-                    }
-                    file << board[i][j];
-                    if (j < 7)
-                    {
-                        file << " ";
-                    }
-                }
-                file << "\n";
-            }
-            file << "\n";
-        }
-    }
-}
-
-bool Board::importGametoBoard(std::string filename, int numgame)
-{
-
-    // This means that the vector "history" will hold the history of a imported game.
-
-    bool imported = false;
-    std::ifstream file(filename, std::ios::in);
-
-    if (file.is_open())
-    {
-
-        std::vector<std::vector<int>> fileHistory;
-        std::vector<int> board;
-        std::string line;
-        int currentgame = -1;
-        int numLineBoard = 0;
-        bool reading = false;
-
-        while (getline(file, line))
-        {
-
-            if (reading)
-            {
-                if (numLineBoard == 8)
-                {
-                    fileHistory.push_back(board);
-                    if (line == "# [GAME]")
-                    {
-                        reading = false;
-                        numLineBoard = 0;
-                        break;
-                    }
-                    else
-                    {
-                        numLineBoard = 0;
-                        board.clear();
-                    }
-                }
-                else
-                {
-                    std::istringstream iss(line);
-                    int piece;
-                    for (int i = 0; i < 8; ++i)
-                    {
-                        iss >> piece;
-                        board.push_back(piece);
-                        imported = true;
-                    }
-                    numLineBoard++;
-                }
-            }
-
-            if (line == "# [GAME]")
-            {
-                if (reading)
-                {
-                    break;
-                }
-                if (++currentgame == numgame)
-                {
-                    reading = true;
-                }
-            }
-        }
-
-        if (imported)
-        {
-            history = fileHistory;
-            file.close();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
 }
 
 std::vector<int> Board::flattenBoardAndAppend()

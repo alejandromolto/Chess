@@ -9,6 +9,8 @@
 #include <algorithm>
 #include "include/utils.h"
 #include "include/board.h"
+#include "exporter.h"
+#include "importer.h"
 
 // Menus.
 int mainmenu(int width, int height, SDL_Renderer *renderer);
@@ -18,7 +20,7 @@ void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, in
 // Main scenes
 int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename);
 int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename);
-void reviewMatchs(Board board, SDL_Renderer *renderer, int width, int height, std::string filename);
+void reviewMatchs(SDL_Renderer *renderer, int width, int height, std::string filename);
 
 // InGame related functions.
 T_Coordinates selectPiece(Board board, bool kingClicked, int width, int height, SDL_Renderer *renderer);
@@ -81,7 +83,7 @@ int main()
         }
         else if (option == 3)
         {
-            reviewMatchs(board, renderer, width, height, filename);
+            reviewMatchs(renderer, width, height, filename);
         }
         else if (option == 4)
         {
@@ -171,7 +173,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 { // BLACK WINS
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     return -1;
                 }
@@ -179,7 +182,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 { // WHITE WINS
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     return 1;
                 }
@@ -189,7 +193,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 // STALEMATE
                 if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                 {
-                    board.exportGametoFile(filename);
+                    Exporter e;
+                    e.exportGametoFile(board, filename);
                 }
                 return 2;
             }
@@ -234,7 +239,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                         {
                             if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                             {
-                                board.exportGametoFile(filename);
+                                Exporter e;
+                                e.exportGametoFile(board, filename);
                             }
                             if (board.getMovementCount() % 2)
                             {
@@ -257,7 +263,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 {
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     if (board.getMovementCount() % 2)
                     {
@@ -291,7 +298,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                         {
                             if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                             {
-                                board.exportGametoFile(filename);
+                                Exporter e;
+                                e.exportGametoFile(board, filename);                            
                             }
                             if (board.getMovementCount() % 2)
                             {
@@ -314,7 +322,8 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
                 { // forfeit
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     if (board.getMovementCount() % 2)
                     {
@@ -452,7 +461,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                 { // BLACK WINS
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     return -1;
                 }
@@ -460,7 +470,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                 { // WHITE WINS
                     if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                     {
-                        board.exportGametoFile(filename);
+                        Exporter e;
+                        e.exportGametoFile(board, filename);
                     }
                     return 1;
                 }
@@ -470,7 +481,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                 // STALEMATE
                 if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                 {
-                    board.exportGametoFile(filename);
+                    Exporter e;
+                    e.exportGametoFile(board, filename);
                 }
                 return 2;
             }
@@ -514,7 +526,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                             {
                                 if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                                 {
-                                    board.exportGametoFile(filename);
+                                    Exporter e;
+                                    e.exportGametoFile(board, filename);
                                 }
                                 if (board.getMovementCount() % 2)
                                 {
@@ -538,7 +551,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                     {
                         if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                         {
-                            board.exportGametoFile(filename);
+                            Exporter e;
+                            e.exportGametoFile(board, filename);
                         }
                         if (color)
                         {
@@ -568,7 +582,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                             {
                                 if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                                 {
-                                    board.exportGametoFile(filename);
+                                    Exporter e;
+                                    e.exportGametoFile(board, filename);
                                 }
                                 if (board.getMovementCount() % 2)
                                 {
@@ -592,7 +607,8 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
                     {
                         if (userConfirmation(renderer, width, height, "assets/images/downloadboard.png"))
                         {
-                            board.exportGametoFile(filename);
+                            Exporter e;
+                            e.exportGametoFile(board, filename);
                         }
                         if (color)
                         {
@@ -685,7 +701,7 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
     return 0;
 }
 
-void reviewMatchs(Board board, SDL_Renderer *renderer, int width, int height, std::string filename)
+void reviewMatchs(SDL_Renderer *renderer, int width, int height, std::string filename)
 {
 
     // REVIEW BACKGROUND
@@ -712,10 +728,10 @@ void reviewMatchs(Board board, SDL_Renderer *renderer, int width, int height, st
     int boardpointer = 0; // This pointer points to the board that the user is reviewing.
 
     // IMPORT
+    Importer i;
+    i.importGametoBoard(filename, matchpointer);
 
-    board.importGametoBoard(filename, matchpointer);
-
-    std::vector<std::vector<int>> game = board.gethistory();
+    std::vector<std::vector<int>> game = i.gethistory();
 
     importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height); // Match background
     importImageInRender(renderer, "assets/images/Leftarrow.png", 600 + 10, 600 - 200, 200, 200);
@@ -737,6 +753,7 @@ void reviewMatchs(Board board, SDL_Renderer *renderer, int width, int height, st
             }
         }
 
+        Board board;
         board.setboard(gameBoard);
         board.printboard(600, 600, renderer);
         SDL_RenderPresent(renderer);
