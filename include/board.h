@@ -29,7 +29,6 @@ class Board{
         std::vector<std::vector<int>> history;
     
         // AI related methods/attributes
-        std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves();
         int maxi(int depth, int alpha, int beta );
         int mini(int depth, int alpha, int beta);
     
@@ -38,6 +37,7 @@ class Board{
         // Constructors
         Board();
         Board(int board[8][8], int movementCount);
+        Board(const Board& otherBoard);
 
         // Getters/Setters 
         int (*getboard())[8] { return board; }
@@ -45,6 +45,7 @@ class Board{
         int getMovementCount(){ return movementCount; }
         void setMovementCount(int movementCount);
         void setboard(int board[8][8]);
+        void turnOver();
         bool getWhiteCanCastleLong(){ return whiteCanCastleLong; }
         bool getWhiteCanCastleShort(){ return whiteCanCastleShort; }
         bool getBlackCanCastleLong(){ return blackCanCastleLong; }
@@ -65,6 +66,7 @@ class Board{
         std::vector<T_Coordinates> prohibitedMoves(); 
         std::vector<T_Coordinates> legitMoves(T_Coordinates actualLocation);
         std::set<T_Coordinates> controlledSquares();
+        std::vector<std::pair<T_Coordinates,T_Coordinates>> generateAllLegalMoves();
 
         // Checks using those vectors/sets.
         bool isTheKingCheckMated();

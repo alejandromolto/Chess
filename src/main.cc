@@ -11,6 +11,7 @@
 #include "include/board.h"
 #include "exporter.h"
 #include "importer.h"
+#include "AI.h"
 
 // Menus.
 int mainmenu(int width, int height, SDL_Renderer *renderer);
@@ -18,8 +19,8 @@ bool optionsmenu(SDL_Renderer *renderer, int &width, int &height);
 void renderoptions(SDL_Renderer *renderer, int optionWidth, int optionHeight, int width, int height);
 
 // Main scenes
-int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename);
-int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename);
+int singleplayerloop(SDL_Renderer *renderer, int width, int height, std::string filename);
+int twoplayerloop(SDL_Renderer *renderer, int width, int height, std::string filename);
 void reviewMatchs(SDL_Renderer *renderer, int width, int height, std::string filename);
 
 // InGame related functions.
@@ -75,11 +76,11 @@ int main()
         }
         else if (option == 1)
         {
-            singleplayerloop(board, renderer, width, height, filename);
+            singleplayerloop(renderer, width, height, filename);
         }
         else if (option == 2)
         {
-            twoplayerloop(board, renderer, width, height, filename);
+            twoplayerloop(renderer, width, height, filename);
         }
         else if (option == 3)
         {
@@ -151,14 +152,14 @@ int mainmenu(int width, int height, SDL_Renderer *renderer)
     }
 }
 
-int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename)
+int twoplayerloop(SDL_Renderer *renderer, int width, int height, std::string filename)
 {
 
     // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
     // GAME LOOP:
-
+    Board board;
     bool matchOver = false;
-
+    
     while (!matchOver)
     {
 
@@ -401,7 +402,7 @@ int twoplayerloop(Board board, SDL_Renderer *renderer, int width, int height, st
     return 0;
 }
 
-int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height, std::string filename)
+int singleplayerloop(SDL_Renderer *renderer, int width, int height, std::string filename)
 {
 
     // Returns 1 (White win), -1 (Black win), 2 (Stalemate)
@@ -410,8 +411,11 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
     importImageInRender(renderer, "assets/images/chooseColor.png", 0, 0, (width), (height));
     importImageInRender(renderer, "assets/images/blackwhite.png", (width / 3), (height / 4), (width / 3), (height / 3));
     SDL_RenderPresent(renderer);
-    bool color = true;
 
+    Board board;
+    AI playerAI = AI(&board, 2);
+
+    bool color = true;
     bool waiting = true;
 
     while (waiting)
@@ -682,11 +686,11 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
             }
             else
             { // AI MOVING (FUNCTION THAT GENERATES MOVES)
-                std::pair<T_Coordinates, T_Coordinates> bestMove = board.bestMoveWithMinimax(2, -2147483647, +2147483647);
+                std::pair<T_Coordinates, T_Coordinates> bestMove = playerAI.bestMoveWithMinimax(-2147483647, +2147483647);
                 board.updateboard(bestMove.first, bestMove.second);
                 if (board.isPawnPromoting())
                 {
-                    board.AIPawnPromotion();
+                    playerAI.AIPawnPromotion();
                 }
                 validmove = true;
             }
@@ -695,7 +699,7 @@ int singleplayerloop(Board board, SDL_Renderer *renderer, int width, int height,
             printBoard(board, width, height, renderer);
         }
 
-        board.setMovementCount(board.getMovementCount() + 1);
+        board.turnOver();
     }
 
     return 0;

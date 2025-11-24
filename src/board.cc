@@ -36,9 +36,27 @@ Board::Board()
 
 Board::Board(int board[8][8], int movementCount)
 {
-
     setboard(board);
     this->movementCount = movementCount;
+}
+
+Board::Board(const Board& other)
+{
+    for(int i = 0; i < 8; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            board[i][j] = other.board[i][j];
+        }
+    }
+
+    movementCount = other.movementCount;
+    whiteCanCastleLong = other.whiteCanCastleLong;
+    whiteCanCastleShort = other.whiteCanCastleShort;
+    blackCanCastleLong = other.blackCanCastleLong;
+    blackCanCastleShort = other.blackCanCastleShort;
+    enPassantTarget = other.enPassantTarget;
+    history = other.history;
 }
 
 void Board::setboard(int board[8][8])
@@ -56,6 +74,10 @@ void Board::setboard(int board[8][8])
 void Board::setMovementCount(int movementCount)
 {
     this->movementCount = movementCount;
+}
+
+void Board::turnOver(){
+    this->movementCount++;
 }
 
 void Board::printboard(int width, int height, SDL_Renderer *renderer)
@@ -760,256 +782,6 @@ std::vector<int> Board::flattenBoardAndAppend()
     return flatBoard;
 }
 
-// ai
-
-void Board::AIPawnPromotion()
-{
-
-    T_Coordinates pawnCoords{-1, -1};
-
-    if (movementCount % 2 == 0)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            if (board[0][i] % 10 == 1)
-            {
-                pawnCoords.row = 0;
-                pawnCoords.col = i;
-                break;
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            if (board[7][i] % 10 == 1)
-            {
-                pawnCoords.row = 7;
-                pawnCoords.col = i;
-                break;
-            }
-        }
-    }
-
-    board[pawnCoords.row][pawnCoords.col] = ((board[pawnCoords.row][pawnCoords.col] / 10) * 10 + 3);
-}
-
-int Board::evaluate()
-{
-
-    // The convention for the evaluating function is:
-    // +: White (Max evaluation for white is 1000)
-    // -: Black (Max evaluation for black is -1000)
-
-    int evaluation = 0;
-
-    // 1. EVALUATE MATERIAL.
-    // This criteria simply evaluates the material that each player has.
-
-    int materialEvaluationSum = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            if (board[i][j] / 10 == 1)
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    materialEvaluationSum += 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    materialEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    materialEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    materialEvaluationSum += 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    materialEvaluationSum += 9;
-                }
-            }
-            else if (board[i][j] / 10 == 0 && !(board[i][j] == 0))
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    materialEvaluationSum -= 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    materialEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    materialEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    materialEvaluationSum -= 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    materialEvaluationSum -= 9;
-                }
-            }
-        }
-    }
-
-    // 2. MOBILITY
-    // This criteria evaluates the number of legal moves that the two players have.
-
-    int mobilityEvaluationSum;
-    Board boardEnemy = Board(board, movementCount + 1);
-
-    if (movementCount % 2 == 0)
-    {
-        mobilityEvaluationSum = generateAllLegalMoves().size() - boardEnemy.generateAllLegalMoves().size(); // If white moving
-    }
-    else
-    {
-        mobilityEvaluationSum = boardEnemy.generateAllLegalMoves().size() - generateAllLegalMoves().size(); // If black moving
-    }
-
-    // 3. CENTER CONTROL.
-
-    int centerEvaluationSum = 0;
-    for (int i = 3; i < 5; i++)
-    {
-        for (int j = 3; j < 5; j++)
-        {
-            if (board[i][j] / 10 == 1)
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    centerEvaluationSum += 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    centerEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    centerEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    centerEvaluationSum += 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    centerEvaluationSum += 9;
-                }
-            }
-            else if (board[i][j] / 10 == 0 && !(board[i][j] == 0))
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    centerEvaluationSum -= 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    centerEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    centerEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    centerEvaluationSum -= 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    centerEvaluationSum -= 9;
-                }
-            }
-        }
-    }
-
-    int outercenterEvaluationSum = 0;
-    for (int i = 2; i < 6; i++)
-    {
-        for (int j = 2; j < 6; j++)
-        {
-            if (board[i][j] / 10 == 1)
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    outercenterEvaluationSum += 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    outercenterEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    outercenterEvaluationSum += 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    outercenterEvaluationSum += 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    outercenterEvaluationSum += 9;
-                }
-            }
-            else if (board[i][j] / 10 == 0 && !(board[i][j] == 0))
-            {
-                if (board[i][j] % 10 == 1)
-                {
-                    outercenterEvaluationSum -= 1;
-                }
-                else if (board[i][j] % 10 == 6)
-                {
-                    outercenterEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 3)
-                {
-                    outercenterEvaluationSum -= 3;
-                }
-                else if (board[i][j] % 10 == 4)
-                {
-                    outercenterEvaluationSum -= 5;
-                }
-                else if (board[i][j] % 10 == 5)
-                {
-                    outercenterEvaluationSum -= 9;
-                }
-            }
-        }
-    }
-
-    outercenterEvaluationSum = outercenterEvaluationSum - centerEvaluationSum;
-
-    // FINAL CALCULULATION
-
-    evaluation = materialEvaluationSum * 2 + mobilityEvaluationSum + centerEvaluationSum + outercenterEvaluationSum;
-
-    // LAST CRITERIA
-    // This criteria states that if the king of the other color is checkmated, the points are the maximum.
-
-    if (boardEnemy.isTheKingCheckMated())
-    { // If the move is a checkmate, the evaluation is maximum.
-        if (movementCount % 2 == 0)
-        {
-            evaluation = 1000;
-        }
-        else
-        {
-            evaluation = -1000;
-        }
-    }
-
-    return evaluation;
-}
-
 std::vector<std::pair<T_Coordinates, T_Coordinates>> Board::generateAllLegalMoves()
 {
 
@@ -1063,136 +835,4 @@ std::vector<std::pair<T_Coordinates, T_Coordinates>> Board::generateAllLegalMove
 
     // Return the vector with all the legal moves.
     return legalMoves;
-}
-
-std::pair<T_Coordinates, T_Coordinates> Board::bestMoveWithMinimax(int depth, int alpha, int beta)
-{
-    std::vector<std::pair<T_Coordinates, T_Coordinates>> legalMoves = generateAllLegalMoves();
-    std::pair<T_Coordinates, T_Coordinates> bestMove;
-
-    int bestScore;
-
-    if (movementCount % 2 == 0)
-    { // MAX (blancas)
-        bestScore = -2147483647;
-
-        for (int i = 0; i < static_cast<int>(legalMoves.size()); i++)
-        {
-            Board boardCopy(board, movementCount);
-            boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
-            boardCopy.movementCount = boardCopy.movementCount + 1;
-            int score = boardCopy.mini(depth - 1, alpha, beta);
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestMove = legalMoves[i];
-            }
-
-            if (bestScore > alpha)
-            {
-                alpha = bestScore;
-            }
-
-            if (alpha >= beta)
-            {
-                break;
-            }
-        }
-    }
-    else
-    { // MIN (negras)
-        bestScore = 2147483647;
-
-        for (int i = 0; i < static_cast<int>(legalMoves.size()); i++)
-        {
-            Board boardCopy(board, movementCount);
-            boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
-            boardCopy.movementCount = boardCopy.movementCount + 1;
-            int score = boardCopy.maxi(depth - 1, alpha, beta);
-
-            if (score < bestScore)
-            {
-                bestScore = score;
-                bestMove = legalMoves[i];
-            }
-
-            if (bestScore < beta)
-            {
-                beta = bestScore;
-            }
-
-            if (alpha >= beta)
-            {
-                break;
-            }
-        }
-    }
-
-    return bestMove;
-}
-
-int Board::maxi(int depth, int alpha, int beta)
-{
-    if (depth == 0)
-    {
-        return evaluate();
-    }
-
-    int maximum = -2147483647;
-    std::vector<std::pair<T_Coordinates, T_Coordinates>> legalMoves = generateAllLegalMoves();
-
-    for (int i = 0; i < static_cast<int>(legalMoves.size()); i++)
-    {
-        Board boardCopy(board, movementCount);
-        boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
-        boardCopy.movementCount = boardCopy.movementCount + 1;
-        int score = boardCopy.mini(depth - 1, alpha, beta);
-        if (score > maximum)
-        {
-            maximum = score;
-        }
-        if (maximum > alpha)
-        {
-            alpha = maximum;
-        }
-        if (alpha >= beta)
-        {
-            break;
-        }
-    }
-    return maximum;
-}
-
-int Board::mini(int depth, int alpha, int beta)
-{
-
-    if (depth == 0)
-    {
-        return evaluate();
-    }
-
-    int minimum = 2147483647;
-    std::vector<std::pair<T_Coordinates, T_Coordinates>> legalMoves = generateAllLegalMoves();
-
-    for (int i = 0; i < static_cast<int>(legalMoves.size()); i++)
-    {
-        Board boardCopy(board, movementCount);
-        boardCopy.updateboard(legalMoves[i].first, legalMoves[i].second);
-        boardCopy.movementCount = boardCopy.movementCount + 1;
-        int score = boardCopy.maxi(depth - 1, alpha, beta);
-        if (score < minimum)
-        {
-            minimum = score;
-        }
-        if (minimum < beta)
-        {
-            beta = minimum;
-        }
-        if (alpha >= beta)
-        {
-            break;
-        }
-    }
-    return minimum;
 }
