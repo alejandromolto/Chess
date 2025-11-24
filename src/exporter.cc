@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-void Exporter::exportGametoFile(Board board, const std::string &filename){
+bool Exporter::exportGametoFile(Board board, const std::string &filename){
 
     std::ofstream file(filename, std::ios::out | std::ios::app);
     std::vector<std::vector<int>> history = board.gethistory();
@@ -47,5 +47,10 @@ void Exporter::exportGametoFile(Board board, const std::string &filename){
             }
             file << "\n";
         }
+
+        return true;
+        
+    }else{
+        return false;
     }
 }

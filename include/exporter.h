@@ -6,7 +6,7 @@
 
 class Exporter {
 public:
-    void exportGametoFile(Board board, const std::string &filename);
+    bool exportGametoFile(Board board, const std::string &filename);
 };
 
 #endif
