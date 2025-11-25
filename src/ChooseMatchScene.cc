@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "importer.h"
 #include "exporter.h"
+#include "ReviewScene.h"
 
 void ChooseMatchScene::render()
 {
@@ -55,39 +56,58 @@ Scene *ChooseMatchScene::HandleEvent(SDL_Point click)
     {
 
         if (mx > width / 4 + 45 && mx < width / 4 + 45 + width / 8 && my > height / 6 && my < height / 6 + height / 12 && ngames > 0)
-            std::cout << ":)" << std::endl;
-            // 1
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 1);
+        }
         else if (mx > width / 2 + 50 && mx < width / 2 + 50 + width / 8 && my > height / 6 && my < height / 6 + height / 12 && ngames > 1)
-            std::cout << ":)" << std::endl;
-            // 2
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 2);
+        }
         else if (mx > width / 4 + 45 && mx < width / 4 + 45 + width / 8 && my > height / 3 + 5 && my < height / 3 + 5 + height / 12 && ngames > 2)
-            std::cout << ":)" << std::endl;
-            // 3
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 3);
+        }
         else if (mx > width / 2 + 50 && mx < width / 2 + 50 + width / 8 && my > height / 3 + 5 && my < height / 3 + 5 + height / 12 && ngames > 3)
-            std::cout << ":)" << std::endl;
-            // 4
+        {
+            delete lastScene;   
+            return new ReviewScene(this, renderer, width, height, filename, 4);
+        }
         else if (mx > width / 4 + 45 && mx < width / 4 + 45 + width / 8 && my > height / 2 + 10 && my < height / 2 + 10 + height / 12 && ngames > 4)
-            std::cout << ":)" << std::endl;
-            // 5
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 5);
+        }
         else if (mx > width / 2 + 50 && mx < width / 2 + 50 + width / 8 && my > height / 2 + 10 && my < height / 2 + 10 + height / 12 && ngames > 5)
-            std::cout << ":)" << std::endl;
-            // 6
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 6);
+        }
         else if (mx > width / 4 + 45 && mx < width / 4 + 45 + width / 8 && my > height * 2 / 3 + 15 && my < height * 2 / 3 + 15 + height / 12 && ngames > 6)
-            std::cout << ":)" << std::endl;
-            // 7
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 7);
+        }
         else if (mx > width / 2 + 50 && mx < width / 2 + 50 + width / 8 && my > height * 2 / 3 + 15 && my < height * 2 / 3 + 15 + height / 12 && ngames > 7)
-            std::cout << ":)" << std::endl;
-            // 8
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 8);
+        }
         else if (mx > width / 4 + 45 && mx < width / 4 + 45 + width / 8 && my > height * 5 / 6 + 20 && my < height * 5 / 6 + 20 + height / 12 && ngames > 8)
-            std::cout << ":)" << std::endl;
-            // 9
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 9);
+        }
         else if (mx > width / 2 + 50 && mx < width / 2 + 50 + width / 8 && my > height * 5 / 6 + 20 && my < height * 5 / 6 + 20 + height / 12 && ngames > 1)
-            std::cout << ":)" << std::endl;
-            // 10
+        {
+            delete lastScene;
+            return new ReviewScene(this, renderer, width, height, filename, 10);
+        }
         else if (mx >= width - std::max(20, width / 64) - std::max(100, std::min(width / 8, height / 8)) && mx < width - std::max(20, width / 64) &&
                  my >= height - std::max(20, width / 64) - std::max(100, std::min(width / 8, height / 8)) && my < height - std::max(20, width / 64))
         {
-            // delete files
             Exporter exp;
             exp.emptyFile(filename);
             lastScene->setLastScene(this);
@@ -97,7 +117,9 @@ Scene *ChooseMatchScene::HandleEvent(SDL_Point click)
         {
             lastScene->setLastScene(this);
             return lastScene;
-        }else{
+        }
+        else
+        {
             return this;
         }
     }
