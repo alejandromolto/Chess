@@ -12,8 +12,19 @@ Scene* ForfeitScene::HandleEvent(SDL_Point click)
 
     if (mx > width / 2 - 150 && mx < width / 2 - 150 + 100 && my > height / 2 + 120 && my < height / 2 + 120 + 100)
     {
-        delete lastScene;
-        return new SaveMatchScene(this, renderer, width, height, filename, "assets/images/downloadboard.png");
+        BScene* tps = dynamic_cast<BScene*>(lastScene);
+        if (tps != 0) 
+        {
+            Board tempBoard = tps->getBoard();
+            Scene* gameScene = new SaveMatchScene(this, renderer, width, height, filename, "assets/images/downloadboard.png", tempBoard);
+            delete lastScene;
+            return gameScene; // POSSIBLE MEMORY LEAK
+        }
+        else
+        {
+            return lastScene;
+        }
+        
     }
     else if (mx > width / 2 + 50 && mx < width / 2 + 50 + 100 && my > height / 2 + 120 && my < height / 2 + 120 + 100)
     {

@@ -23,6 +23,6 @@ Scene* SaveMatchScene::HandleEvent(SDL_Point click)
     }
 
     delete lastScene;
-    new MainMenuScene(this, renderer, width, height, filename);
+    return new MainMenuScene(this, renderer, width, height, filename);
 }
 

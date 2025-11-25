@@ -8,6 +8,7 @@ private:
 public:
     using Scene::Scene;
     void setPhase(int phase){ this->phase = phase; }
+    Board getBoard(){ return board; }
 protected:
     int phase = 1;
     Board board;
