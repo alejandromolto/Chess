@@ -86,6 +86,8 @@ class Board{
         bool haveSameColor(T_Coordinates actualLocation, T_Coordinates futurelocation);
         bool isPieceValid(T_Coordinates pieceCoords);
         bool isPawnPromoting();
+        bool isPawnPromoting(bool nexTurn);
+
 
 };
 

@@ -4,7 +4,7 @@
 #include "OptionsMenuScene.h"
 #include "ChooseMatchScene.h"
 #include "utils.h"
-
+#include "TwoPlayerScene.h"
 
 void MainMenuScene::render(){
     importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
@@ -27,7 +27,7 @@ Scene* MainMenuScene::HandleEvent(SDL_Point click){
     }
     else if (mx > width / 2 + width / 24 - 20 && mx < width / 2 + width / 24 - 20 + width / 6 && my > height / 8 * 3 && my < height / 8 * 3 + width / 6)
     {
-        // two player
+        return new TwoPlayerScene(this, renderer, width, height, filename);
     }
     else if (mx > width / 3 - 20 && mx < width / 3 - 20 + width * 3 / 8 && my > height / 8 * 6 && my < height / 8 * 6 + height / 5)
     {

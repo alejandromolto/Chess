@@ -754,6 +754,22 @@ bool Board::isPawnPromoting()
     }
 }
 
+bool Board::isPawnPromoting(bool nexTurn)
+{
+    if(nexTurn){
+        movementCount--;
+    }
+
+    if (movementCount % 2 == 0)
+    {
+        return (board[0][0] % 10 == 1 || board[0][1] % 10 == 1 || board[0][2] % 10 == 1 || board[0][3] % 10 == 1 || board[0][4] % 10 == 1 || board[0][5] % 10 == 1 || board[0][6] % 10 == 1 || board[0][7] % 10 == 1);
+    }
+    else
+    {
+        return (board[7][0] % 10 == 1 || board[7][1] % 10 == 1 || board[7][2] % 10 == 1 || board[7][3] % 10 == 1 || board[7][4] % 10 == 1 || board[7][5] % 10 == 1 || board[7][6] % 10 == 1 || board[7][7] % 10 == 1);
+    }
+}
+
 void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue)
 {
     board[pawnCoords.row][pawnCoords.col] = NewValue;
