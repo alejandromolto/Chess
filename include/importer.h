@@ -1,5 +1,5 @@
 #ifndef IMPORTER_H
-#define EXPORTER_H
+#define IMPORTER_H
 
 #include <string>
 #include "board.h"

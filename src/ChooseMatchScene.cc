@@ -88,12 +88,17 @@ Scene *ChooseMatchScene::HandleEvent(SDL_Point click)
                  my >= height - std::max(20, width / 64) - std::max(100, std::min(width / 8, height / 8)) && my < height - std::max(20, width / 64))
         {
             // delete files
+            Exporter exp;
+            exp.emptyFile(filename);
+            lastScene->setLastScene(this);
+            return lastScene;
         }
         else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
         {
             lastScene->setLastScene(this);
             return lastScene;
-            // back main
+        }else{
+            return this;
         }
     }
 }

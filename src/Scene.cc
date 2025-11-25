@@ -2,11 +2,12 @@
 #include "utils.h"
 
 
-    Scene::Scene(Scene* lastScene, SDL_Renderer* renderer, int width, int height){
+    Scene::Scene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename){
         this->lastScene = lastScene;
         this->renderer = renderer;
         this->width = width;
         this->height = height;
+        this->filename = filename;
     }
 
     Scene::Scene(Scene* Scene){

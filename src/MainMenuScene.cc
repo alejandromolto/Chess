@@ -2,6 +2,7 @@
 #include <iostream>
 #include "MainMenuScene.h"
 #include "OptionsMenuScene.h"
+#include "ChooseMatchScene.h"
 #include "utils.h"
 
 
@@ -30,11 +31,11 @@ Scene* MainMenuScene::HandleEvent(SDL_Point click){
     }
     else if (mx > width / 3 - 20 && mx < width / 3 - 20 + width * 3 / 8 && my > height / 8 * 6 && my < height / 8 * 6 + height / 5)
     {
-         // review match
+        return new ChooseMatchScene(this, renderer, width, height, filename);
     }
     else if (mx > width - (width / 50) - (width / 12) - (width / 50) - (width / 11.52) && mx < width - (width / 50) - (width / 12) - (width / 50) - (width / 11.52) + width / 11.52 && my > height / 50 && my < height / 50 + width / 11.52)
     {
-        return new OptionsMenuScene(this, renderer, width, height);
+        return new OptionsMenuScene(this, renderer, width, height, filename);
     }
     else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
     {

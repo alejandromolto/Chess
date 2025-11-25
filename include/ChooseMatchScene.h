@@ -5,7 +5,7 @@
 
 class ChooseMatchScene : public Scene {
 public:
-    ChooseMatchScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height);
+    using Scene::Scene;
     void render() override;
     Scene* HandleEvent(SDL_Point click) override;
 };
