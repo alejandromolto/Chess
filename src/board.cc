@@ -756,11 +756,14 @@ bool Board::isPawnPromoting()
 
 bool Board::isPawnPromoting(bool nexTurn)
 {
+
+    int newMovementCount = movementCount;
+
     if(nexTurn){
-        movementCount--;
+        newMovementCount--;
     }
 
-    if (movementCount % 2 == 0)
+    if (newMovementCount % 2 == 0)
     {
         return (board[0][0] % 10 == 1 || board[0][1] % 10 == 1 || board[0][2] % 10 == 1 || board[0][3] % 10 == 1 || board[0][4] % 10 == 1 || board[0][5] % 10 == 1 || board[0][6] % 10 == 1 || board[0][7] % 10 == 1);
     }

@@ -5,28 +5,21 @@
 #include "ChooseMatchScene.h"
 #include "utils.h"
 #include "TwoPlayerScene.h"
+#include "ForfeitScene.h"
+#include "ExitScene.h"
+
 
 void TwoPlayerScene::render()
 {
-    
     if (phase == 1)
     {
-        std::cout << "phase 1" << std::endl;
-        std::cout << firstPieceCoords.row << std::endl;
-        std::cout << firstPieceCoords.col << std::endl;
         printBoard();
     }
     else if (phase == 2)
     {
-        std::cout << "phase 2" << std::endl;
-        std::cout << firstPieceCoords.row << std::endl;
-        std::cout << firstPieceCoords.col << std::endl;
-        std::cout << secondPieceCoords.row << std::endl;
-        std::cout << firstPieceCoords.col << std::endl;
         printBoardAndLegitMoves(firstPieceCoords, board.getMovementCount());
     }
 }
-
 
 Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
 {
@@ -121,23 +114,19 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
             else if (mx >= (width * 527) / 864 && mx < (width * 527) / 864 + (width * 328) / 864 && my >= (height * 364) / 510 && my < (height * 364) / 510 + (height * 141) / 510)
             { // Forfeit button
                 // IF USER CONFIRMS
-                return new MainMenuScene(this, renderer, width, height, filename);
+                return new ForfeitScene(this, renderer, width, height, filename, "assets/images/forfeit.png");
             }
             else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
             { // Normal exit
                 // IF USER CONIRMS
-                return new MainMenuScene(this, renderer, width, height, filename);
+                return new ExitScene(this, renderer, width, height, filename, "assets/images/matchEnd.png");
             }
             else
             {
                 setPhase(1);
                 return this;
             }
-        
-
-
         }
-
 
         if(board.isLegal(firstPieceCoords, secondPieceCoords)){
             board.updateboard(firstPieceCoords, secondPieceCoords);
@@ -152,5 +141,5 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
             return this;
         }
     }
-}
 
+}

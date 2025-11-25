@@ -7,6 +7,7 @@ class BScene : public Scene {
 private:
 public:
     using Scene::Scene;
+    void setPhase(int phase){ this->phase = phase; }
 protected:
     int phase = 1;
     Board board;
@@ -14,7 +15,6 @@ protected:
     T_Coordinates secondPieceCoords = {-1, -1};
     void printBoard();
     void printBoardAndLegitMoves(T_Coordinates pieceCoords, int movementCount);
-    void setPhase(int phase){ this->phase = phase; }
     void nextPhase(){this->phase++; }
     int getPhase(){ return phase; }
 };
