@@ -33,7 +33,7 @@ int main()
 
     // CODE
 
-    Scene* currentScene = new MainMenuScene(nullptr, renderer, width, height);
+    Scene* currentScene = new MainMenuScene(nullptr, renderer, width, height, filename);
 
     while (running){
         currentScene->render();
@@ -49,7 +49,7 @@ int main()
             SDL_DestroyWindow(window);
             SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-            currentScene = new MainMenuScene(nullptr, renderer, width, height);
+            currentScene = new MainMenuScene(nullptr, renderer, width, height, filename);
         }
     }
 

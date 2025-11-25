@@ -11,13 +11,17 @@ protected:
     SDL_Renderer* renderer = nullptr;
     int width = 0;
     int height = 0;
+    std::string filename;
 public:
-    Scene(Scene* lastScene, SDL_Renderer* renderer, int width, int height);
+    Scene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename);
     Scene(Scene* Scene);
 
     virtual void render();
     virtual Scene* HandleEvent(SDL_Point click);
     Scene* getLastScene(){return lastScene; }
+    void setLastScene(Scene* lastScene){ this->lastScene = lastScene; }
+    void setWidth(int width){this->width = width; }
+    void setHeight(int height){ this->height = height; }
     int getWidth(){ return width; }
     int getHeight(){ return height; }
     SDL_Renderer* getRenderer(){ return renderer;}

@@ -7,8 +7,9 @@
 class Importer {
 public:
     std::vector<std::vector<int>> history;
-    bool importGametoBoard(std::string filename, int numgame);
     std::vector<std::vector<int>> gethistory(){ return history; }
+    bool importGametoBoard(std::string filename, int numgame);
+    int howManyGames(std::string filename);
 };
 
 #endif

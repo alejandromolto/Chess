@@ -54,3 +54,7 @@ bool Exporter::exportGametoFile(Board board, const std::string &filename){
         return false;
     }
 }
+
+void emptyFile(std::string filename){
+    std::ofstream ofs(filename, std::ios::trunc);   
+}

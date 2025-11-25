@@ -81,3 +81,29 @@ bool Importer::importGametoBoard(std::string filename, int numgame){
         return false;
     }
 }
+
+int Importer::howManyGames(std::string filename)
+{
+
+    // Returns how many games does the file have.
+
+    std::ifstream file(filename);
+
+    if (!file.is_open())
+    {
+        return 0;
+    }
+
+    int count = 0;
+    std::string line;
+
+    while (std::getline(file, line))
+    {
+        if (line == "# [GAME]")
+        {
+            ++count;
+        }
+    }
+
+    return count;
+}

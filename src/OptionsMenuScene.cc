@@ -3,7 +3,7 @@
 #include "utils.h"
 #include <iostream>
 
-OptionsMenuScene::OptionsMenuScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height): Scene(lastScene, renderer, width, height)
+OptionsMenuScene::OptionsMenuScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename): Scene(lastScene, renderer, width, height, filename)
 {
     optionWidth = width;                        
     optionHeight = height;
@@ -57,13 +57,12 @@ Scene* OptionsMenuScene::HandleEvent(SDL_Point click){
         if (mx >= width - (width * 72) / 720 - width / 60 && mx <= width - (width * 72) / 720 - width / 60 + (width * 72) / 720 &&
             my >= height / 60 && my <= height / 60 + (width * 72) / 720)
         {
-            if (width != optionWidth || height != optionHeight)
-            {
-                width = optionWidth;
-                height = optionHeight;
-                delete lastScene;
-                return new MainMenuScene(this, lastScene->getRenderer(), lastScene->getWidth(), lastScene->getHeight());
-            }
+
+            width = optionWidth;
+            height = optionHeight;
+            lastScene->setLastScene(this);
+            return lastScene;
+
         }
         else if (mx >= (width / 16) * 2 + (width * 50) / 720 && mx <= (width / 16) * 2 + (width * 50) / 720 + (width * 90) / 720 &&
                  my >= (height * 320) / 720 && my <= (height * 320) / 720 + (width * 90) / 720)
