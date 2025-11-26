@@ -5,6 +5,8 @@
 #include "ChooseMatchScene.h"
 #include "utils.h"
 #include "TwoPlayerScene.h"
+#include "OnePlayerScene.h"
+#include "ChooseColorScene.h"
 
 void MainMenuScene::render(){
     importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
@@ -23,7 +25,7 @@ Scene* MainMenuScene::HandleEvent(SDL_Point click){
 
     if (mx > width / 3 - 20 && mx < width / 3 - 20 + width / 6 && my > height / 8 * 3 && my < height / 8 * 3 + width / 6)
     {
-        // single player
+        return new ChooseColorScene(this, renderer, width, height, filename);
     }
     else if (mx > width / 2 + width / 24 - 20 && mx < width / 2 + width / 24 - 20 + width / 6 && my > height / 8 * 3 && my < height / 8 * 3 + width / 6)
     {
@@ -39,9 +41,7 @@ Scene* MainMenuScene::HandleEvent(SDL_Point click){
     }
     else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
     {
-        if(lastScene!=nullptr){
-            delete lastScene;
-        }
+        delete lastScene;
         return nullptr;
     }else{
         return this;
