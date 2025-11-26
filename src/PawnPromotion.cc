@@ -23,12 +23,12 @@ void PawnPromotionScene::render()
     }
     else
     {
-        int x = pawnPromoting.col * 75;
-        int y = (pawnPromoting.row - 3) * 75;
-        int w = 100;
-        int h = 300;
-        importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
-        SDL_RenderPresent(renderer);
+    int x = pawnPromoting.col * 75;
+    int y = (pawnPromoting.row - 3) * 75;
+    int w = 75;
+    int h = 300;
+    importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
+    SDL_RenderPresent(renderer);
     }
 }
 
@@ -38,6 +38,8 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
     int y = 0;
     int w = 0;
     int h = 0;
+    int mx = click.x;
+    int my = click.y;
 
     if (board->isWhiteTurn())
     {
@@ -46,6 +48,26 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
         w = 75;
         h = 300;
 
+        if (mx >= x && mx < x + w && my >= y && my < y + h)
+        {
+            switch (my / 75)
+            {
+            case 0:
+                board->PawnPromotion(pawnPromoting, 3, board->isWhiteTurn()); // QUEEN
+                break;
+            case 1:
+                board->PawnPromotion(pawnPromoting, 6, board->isWhiteTurn()); // KNIGHT
+                break;
+            case 2:
+                board->PawnPromotion(pawnPromoting, 4, board->isWhiteTurn()); // ROOK
+                break;
+            case 3:
+                board->PawnPromotion(pawnPromoting, 5, board->isWhiteTurn()); // BISHOP
+                break;
+            default:
+                break;
+            }
+        }
     }
     else
     {
@@ -54,33 +76,37 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
         w = 100;
         h = 300;
 
-    }
-
-    int mx = click.x;
-    int my = click.y;
-
-    if (mx >= x && mx < x + w && my >= y && my < y + h)
-    {
-        switch (my / 75)
+        if (mx >= x && mx < x + w && my >= y && my < y + h)
         {
-        case 4:
-            board->PawnPromotion(pawnPromoting, 3, board->isWhiteTurn()); // QUEEN
-            break;
-        case 5:
-            board->PawnPromotion(pawnPromoting, 6, board->isWhiteTurn()); // KNIGHT
-            break;
-        case 6:
-            board->PawnPromotion(pawnPromoting, 4, board->isWhiteTurn()); // ROOK
-            break;
-        case 7:
-            board->PawnPromotion(pawnPromoting, 5, board->isWhiteTurn()); // BISHOP
-            break;
-        default:
-            break;
+            switch (my / 75)
+            {
+            case 4:
+                board->PawnPromotion(pawnPromoting, 3, board->isWhiteTurn()); // QUEEN
+                break;
+            case 5:
+                board->PawnPromotion(pawnPromoting, 6, board->isWhiteTurn()); // KNIGHT
+                break;
+            case 6:
+                board->PawnPromotion(pawnPromoting, 4, board->isWhiteTurn()); // ROOK
+                break;
+            case 7:
+                board->PawnPromotion(pawnPromoting, 5, board->isWhiteTurn()); // BISHOP
+                break;
+            default:
+                std::cout << "fede" << std::endl;
+                break;
+            }
+        }
+        else if (false)
+        {
+            // SHOULD DO EXIT, FORFEIT.
+        }
+        else
+        {
+            return this;
         }
     }
-        
+
     board->turnOver();
     return lastScene;
-
 }

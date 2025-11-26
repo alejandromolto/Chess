@@ -60,6 +60,7 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
     {
 
         bool kingClicked = board.getboard()[firstPieceCoords.row][firstPieceCoords.col] % 10 == 2;
+        bool castling = false;
 
         if (kingClicked) // CASTLING
         {
@@ -74,6 +75,7 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
                 {
                     firstPieceCoords = longCastle;
                     secondPieceCoords = white;
+                    castling = true;
                 }
             }
             if (board.isLegit(longCastle, black))
@@ -82,6 +84,7 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
                 {
                     firstPieceCoords = longCastle;
                     secondPieceCoords = black;
+                    castling = true;
                 }
             }
             if (board.isLegit(shortCastle, white))
@@ -90,6 +93,7 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
                 {
                     firstPieceCoords = shortCastle;
                     secondPieceCoords = white;
+                    castling = true;
                 }
             }
             if (board.isLegit(shortCastle, black))
@@ -98,15 +102,19 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
                 {
                     firstPieceCoords = shortCastle;
                     secondPieceCoords = black;
+                    castling = true;
                 }
             }
-        }else{ // REGULAR MOVES
+        }
+        // REGULAR MOVES
 
+        if(!castling){
             if (mx / squareW >= 0 && mx / squareW < 8 && my / squareH >= 0 && my / squareH < 8)
             { // Standard case.
                 secondPieceCoords.col = mx / squareW;
                 secondPieceCoords.row = my / squareH;
-                if(board.haveSameColor(firstPieceCoords, secondPieceCoords)){
+                if (board.haveSameColor(firstPieceCoords, secondPieceCoords))
+                {
                     firstPieceCoords = secondPieceCoords;
                     return this;
                 }
@@ -127,6 +135,7 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
                 return this;
             }
         }
+ 
 
         if(board.isLegal(firstPieceCoords, secondPieceCoords)){
             board.updateboard(firstPieceCoords, secondPieceCoords);
