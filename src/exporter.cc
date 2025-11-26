@@ -14,6 +14,9 @@ bool Exporter::exportGametoFile(Board board, const std::string &filename){
 
         file << "# [GAME]" << "\n";
 
+        std::cout << "EXPORTING" << std::endl;
+        std::cout << history.size() << std::endl;
+
         // Boards
         for (int k = 0; k < static_cast<int>(history.size()); k++)
         {

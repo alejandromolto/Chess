@@ -30,14 +30,16 @@ Board::Board()
         {14, 16, 15, 13, 12, 15, 16, 14}};
 
     setboard(chessBoard);
-
+    flattenBoardAndAppend();
     movementCount = 0;
 }
 
 Board::Board(int board[8][8], int movementCount)
 {
     setboard(board);
+    flattenBoardAndAppend();
     this->movementCount = movementCount;
+
 }
 
 Board::Board(const Board& other)
@@ -203,11 +205,6 @@ void Board::updateboard(T_Coordinates actualLocation, T_Coordinates futureLocati
     if (actualLocation.row > 0 && actualLocation.row < 8 && actualLocation.col > 0 && actualLocation.col < 8)
     {
         square = board[actualLocation.row][actualLocation.col];
-    }
-
-    if (movementCount == 0)
-    {
-        flattenBoardAndAppend();
     }
 
     if (actualLocation.row != 245713)
