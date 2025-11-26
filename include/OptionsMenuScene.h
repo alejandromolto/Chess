@@ -11,6 +11,7 @@ public:
     OptionsMenuScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename);
     void render() override;
     Scene* HandleEvent(SDL_Point click) override;
+    ~OptionsMenuScene() override = default;
 };
 
 #endif

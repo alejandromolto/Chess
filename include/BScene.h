@@ -9,6 +9,7 @@ public:
     using Scene::Scene;
     void setPhase(int phase){ this->phase = phase; }
     const Board& getBoard() const { return board; }
+    ~BScene() override = default;
 protected:
     int phase = 1;
     Board board;

@@ -25,6 +25,7 @@ public:
     int getWidth(){ return width; }
     int getHeight(){ return height; }
     SDL_Renderer* getRenderer(){ return renderer;}
+    virtual ~Scene() = default;
 };
 
 #endif

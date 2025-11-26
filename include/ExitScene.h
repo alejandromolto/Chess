@@ -9,6 +9,7 @@ class ExitScene : public ConfirmationScene {
 public:
     using ConfirmationScene::ConfirmationScene;
     Scene* HandleEvent(SDL_Point click) override;
+    ~ExitScene() override = default;
 };
 
 #endif

@@ -8,6 +8,7 @@ public:
     using Scene::Scene;
     void render() override;
     Scene* HandleEvent(SDL_Point click) override;
+    ~MainMenuScene() override = default;
 };
 
 #endif

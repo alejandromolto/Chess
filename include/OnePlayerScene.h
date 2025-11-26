@@ -12,6 +12,7 @@ public:
     void render() override;
     Scene* HandleEvent(SDL_Point click) override;
     std::pair<T_Coordinates, T_Coordinates> getAIMove();
+    ~OnePlayerScene() override = default;
 };
 
 #endif

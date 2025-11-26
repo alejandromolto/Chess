@@ -10,6 +10,7 @@ class ForfeitScene : public ConfirmationScene {
 public:
     using ConfirmationScene::ConfirmationScene;
     Scene* HandleEvent(SDL_Point click) override;
+    ~ForfeitScene() override = default;
 };
 
 #endif
