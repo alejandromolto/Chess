@@ -72,8 +72,8 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
     else
     {
         x = pawnPromoting.col * 75;
-        y = (pawnPromoting.row - 3) * 75;
-        w = 100;
+        y = (pawnPromoting.row-3) * 75;
+        w = 75;
         h = 300;
 
         if (mx >= x && mx < x + w && my >= y && my < y + h)
@@ -107,6 +107,7 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
         }
     }
 
+    std::cout << "exiting..." << std::endl;
     board->turnOver();
     return lastScene;
 }

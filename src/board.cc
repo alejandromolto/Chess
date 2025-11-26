@@ -772,7 +772,7 @@ T_Coordinates Board::getLocationOfPawnPromoting()
     else
     {
         for(int i = 0; i < 8; i++){
-            if (board[0][i] % 10 == 1)
+            if (board[7][i] % 10 == 1)
             {
                 pawnCoords.row = 7;
                 pawnCoords.col = i;
