@@ -16,8 +16,31 @@ OnePlayerScene::OnePlayerScene(Scene* lastScene, SDL_Renderer* renderer, int wid
 
 void OnePlayerScene::render()
 {
-    bool aiPlaying = (isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn());
 
+    std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
+    if (board.isTheKingCheckMated())
+    {
+        if (board.isTheKingChecked(prohibitedSquares))
+        {
+            if (board.isWhiteTurn())
+            {
+                std::cout << "negro gana" << std::endl;
+                // BLACK WINS
+            }
+            else
+            {
+                std::cout << "blanco gana" << std::endl;
+                // WHITE WINS
+            }
+        }
+        else
+        {
+            std::cout << "blanco gana" << std::endl;
+            // STALEMATE
+        }
+    }
+
+    bool aiPlaying = (isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn());
 
     if(aiPlaying){ // If AI is playing, it doesnt need an input and therefore performs the move and renders
         printBoard();
@@ -45,7 +68,6 @@ void OnePlayerScene::render()
 
 Scene *OnePlayerScene::HandleEvent(SDL_Point click)
 {
-    std::cout << "hola" << std::endl;
     int mx = click.x;
     int my = click.y;
     int squareW = width * 600 / 1152 / 8;

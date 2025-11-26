@@ -39,6 +39,7 @@ int main()
         currentScene->render();
         SDL_Point click = userInput();
         currentScene = currentScene->HandleEvent(click);
+        std::cout << currentScene << std::endl;
         if(currentScene == nullptr){
             break;
         }

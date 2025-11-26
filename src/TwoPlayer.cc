@@ -11,6 +11,29 @@
 
 void TwoPlayerScene::render()
 {
+
+    std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
+    if (board.isTheKingCheckMated())
+    {
+        if (board.isTheKingChecked(prohibitedSquares))
+        {
+            if (board.isWhiteTurn())
+            {
+                std::cout << "negro gana" << std::endl;
+                // BLACK WINS
+            }
+            else
+            {
+                std::cout << "blanco gana" << std::endl;
+                // WHITE WINS
+            }
+        }
+        else
+        {
+            std::cout << "blanco gana" << std::endl;
+            // STALEMATE
+        }
+    }
     if (phase == 1)
     {
         printBoard();
@@ -31,7 +54,6 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
 
     if (phase == 1) // SELECTING PIECE
     {
-
         if (mx / squareW >= 0 && mx / squareW < 8 && my / squareH >= 0 && my / squareH < 8)
         { // Standard case.
             firstPieceCoords.col = mx / squareW;
