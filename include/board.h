@@ -43,6 +43,7 @@ class Board{
         int (*getboard())[8] { return board; }
         std::vector<std::vector<int>> gethistory(){ return history; }
         int getMovementCount(){ return movementCount; }
+        bool isWhiteTurn(){ return movementCount%2==0; }
         void setMovementCount(int movementCount);
         void setboard(int board[8][8]);
         void turnOver();
@@ -55,7 +56,8 @@ class Board{
         // Functionalities
         void printboard(int width, int height, SDL_Renderer *renderer);   
         void updateboard(T_Coordinates actualLocation, T_Coordinates futurelocation);
-        void PawnPromotion(T_Coordinates pawnCoords, int NewValue);
+        void PawnPromotion(T_Coordinates pawnCoords, int NewValue, bool isWhite);
+        T_Coordinates getLocationOfPawnPromoting();
 
         // Simple checks
         bool isThreatened(T_Coordinates actualLocation, T_Coordinates futurelocation);

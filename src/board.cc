@@ -754,6 +754,38 @@ bool Board::isPawnPromoting()
     }
 }
 
+T_Coordinates Board::getLocationOfPawnPromoting()
+{
+    T_Coordinates pawnCoords;
+
+    if (movementCount % 2 == 0)
+    {
+        for(int i = 0; i < 8; i++){
+            if (board[0][i] % 10 == 1)
+            {
+                pawnCoords.row = 0;
+                pawnCoords.col = i;
+                return pawnCoords;
+            }
+        }
+    }
+    else
+    {
+        for(int i = 0; i < 8; i++){
+            if (board[0][i] % 10 == 1)
+            {
+                pawnCoords.row = 7;
+                pawnCoords.col = i;
+                return pawnCoords;
+            }
+        }
+    }
+
+    pawnCoords.row = -1;
+    pawnCoords.col = -1;
+    return pawnCoords;
+}
+
 bool Board::isPawnPromoting(bool nexTurn)
 {
 
@@ -773,9 +805,16 @@ bool Board::isPawnPromoting(bool nexTurn)
     }
 }
 
-void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue)
+void Board::PawnPromotion(T_Coordinates pawnCoords, int NewValue, bool isWhite)
 {
-    board[pawnCoords.row][pawnCoords.col] = NewValue;
+
+    int colorValue = 0;
+
+    if(isWhite){
+        colorValue = 10;
+    }
+
+    board[pawnCoords.row][pawnCoords.col] = colorValue + NewValue;
 }
 
 bool Board::haveSameColor(T_Coordinates actualLocation, T_Coordinates futureLocation)

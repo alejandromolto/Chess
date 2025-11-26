@@ -7,7 +7,7 @@
 #include "TwoPlayerScene.h"
 #include "ForfeitScene.h"
 #include "ExitScene.h"
-
+#include "PawnPromotionScene.h"
 
 void TwoPlayerScene::render()
 {
@@ -130,10 +130,12 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
 
         if(board.isLegal(firstPieceCoords, secondPieceCoords)){
             board.updateboard(firstPieceCoords, secondPieceCoords);
-            board.turnOver();
             setPhase(1);
-            if(board.isPawnPromoting(true)){
-                // pawn promotion
+            if(board.isPawnPromoting()){
+                T_Coordinates pawnPromoting = board.getLocationOfPawnPromoting();
+                return new PawnPromotionScene(this, renderer, width, height, filename, &board, pawnPromoting); 
+            }else{
+                board.turnOver();
             }
             return this;
         }else{
