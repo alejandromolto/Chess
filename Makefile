@@ -1,26 +1,38 @@
-TARGET = chess_game
-CXX = g++
-PKG = sdl2 SDL2_image
+CXX := g++
+PKGCONFIG := $(shell command -v pkg-config 2>/dev/null)
 
-CXXFLAGS = -std=c++17 -Wall -Wextra -g $(shell pkg-config --cflags $(PKG)) -I. -Iinclude
-LDFLAGS = $(shell pkg-config --libs $(PKG))
+SDL_CFLAGS := $(shell $(PKGCONFIG) --cflags sdl2 SDL2_image 2>/dev/null || echo -I/usr/include/SDL2)
+SDL_LIBS   := $(shell $(PKGCONFIG) --libs   sdl2 SDL2_image 2>/dev/null || echo -lSDL2 -lSDL2_image)
 
-SRC_DIR = src
-SRCS = $(wildcard $(SRC_DIR)/*.cc)
-OBJS = $(SRCS:.cc=.o)
-DEPS = $(SRCS:.cc=.d)
+INCLUDE_DIRS := $(shell find src -type d)
+INCLUDES := $(addprefix -I,$(INCLUDE_DIRS))
 
+CXXFLAGS := -std=c++17 -Wall -Wextra -MMD -MP $(INCLUDES) $(SDL_CFLAGS)
+LDFLAGS  := $(SDL_LIBS)
+
+SRCS := $(shell find src -name '*.cc')
+OBJS := $(SRCS:.cc=.o)
+DEPS := $(OBJS:.o=.d)
+
+TARGET := bin/chess_game
+
+.PHONY: all clean run debug
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Compile source files and generate dependency files
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.cc
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Include dependency files if they exist
 -include $(DEPS)
 
-clean: $(TARGET)
+run: $(TARGET)
+	./$(TARGET)  # ejecutar desde la raíz del proyecto
+
+debug: CXXFLAGS += -g -O0
+debug: clean all
+
+clean:
 	rm -f $(OBJS) $(DEPS)

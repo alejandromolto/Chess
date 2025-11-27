@@ -7,8 +7,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <algorithm>
-#include "include/utils.h"
-#include "include/board.h"
+#include "utils.h"
+#include "board.h"
 #include "exporter.h"
 #include "importer.h"
 #include "AI.h"
@@ -45,7 +45,6 @@ int main()
         }
         lastScene = currentScene;
         currentScene = currentScene->HandleEvent(click);
-        std::cout << currentScene << std::endl;
         if(currentScene == nullptr){
             delete lastScene;
             break;

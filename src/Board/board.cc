@@ -1,5 +1,5 @@
-#include "include/utils.h"
-#include "include/board.h"
+#include "utils.h"
+#include "board.h"
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
