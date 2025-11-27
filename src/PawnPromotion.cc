@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "BScene.h"
 #include "PawnPromotionScene.h"
+#include "ForfeitScene.h"
+#include "ExitScene.h"
 
 PawnPromotionScene::PawnPromotionScene(Scene *lastScene, SDL_Renderer *renderer, int width, int height, std::string filename, Board *board, T_Coordinates pawnPromoting) : Scene::Scene(lastScene, renderer, width, height, filename)
 {
@@ -97,9 +99,13 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
                 break;
             }
         }
-        else if (false)
-        {
-            // SHOULD DO EXIT, FORFEIT.
+        else if (mx >= (width * 527) / 864 && mx < (width * 527) / 864 + (width * 328) / 864 && my >= (height * 364) / 510 && my < (height * 364) / 510 + (height * 141) / 510)
+        { // Forfeit button
+            return new ForfeitScene(this, renderer, width, height, filename, "assets/images/forfeit.png");
+        }
+        else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
+        { // Normal exit
+            return new ExitScene(this, renderer, width, height, filename, "assets/images/matchEnd.png");
         }
         else
         {
@@ -107,7 +113,6 @@ Scene *PawnPromotionScene::HandleEvent(SDL_Point click)
         }
     }
 
-    std::cout << "exiting..." << std::endl;
     board->turnOver();
     return lastScene;
 }

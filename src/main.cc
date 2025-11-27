@@ -34,13 +34,16 @@ int main()
     // CODE
 
     Scene* currentScene = new MainMenuScene(nullptr, renderer, width, height, filename);
+    Scene* lastScene = currentScene;
 
     while (running){
         currentScene->render();
         SDL_Point click = userInput();
+        lastScene = currentScene;
         currentScene = currentScene->HandleEvent(click);
         std::cout << currentScene << std::endl;
         if(currentScene == nullptr){
+            delete lastScene;
             break;
         }
         if(width != currentScene->getLastScene()->getWidth() || height != currentScene->getLastScene()->getHeight()){

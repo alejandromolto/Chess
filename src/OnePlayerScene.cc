@@ -39,6 +39,7 @@ void OnePlayerScene::render()
             // STALEMATE
         }
     }
+    
 
     bool aiPlaying = (isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn());
 
@@ -70,6 +71,11 @@ Scene *OnePlayerScene::HandleEvent(SDL_Point click)
 {
     int mx = click.x;
     int my = click.y;
+
+    if(mx  == -1 && my == -1){
+        return nullptr;
+    }
+
     int squareW = width * 600 / 1152 / 8;
     int squareH = height * 600 / 680 / 8;
 
@@ -196,6 +202,8 @@ Scene *OnePlayerScene::HandleEvent(SDL_Point click)
                 setPhase(1);
                 return this;
             }
+        }else{ // ERROR
+            return nullptr;
         }
 
 }

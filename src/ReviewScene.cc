@@ -66,5 +66,7 @@ Scene *ReviewScene::HandleEvent(SDL_Point click)
     else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
     {
         return new MainMenuScene(this, renderer, width, height, filename);
+    }else{
+        return this;
     }
 }

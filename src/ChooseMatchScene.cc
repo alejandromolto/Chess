@@ -50,7 +50,7 @@ Scene *ChooseMatchScene::HandleEvent(SDL_Point click)
     int ngames = import.howManyGames(filename);
     if (mx == -1 && my == -1)
     {
-        return nullptr; // MEMORY LEAK
+        return nullptr; 
     }
     else
     {

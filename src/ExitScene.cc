@@ -28,5 +28,13 @@ Scene* ExitScene::HandleEvent(SDL_Point click)
             return lastScene;
         }
     }
+    else if(mx == -1 && my == -1)
+    {
+        return nullptr;
+    }
+    else
+    {
+        return this;
+    }
 }
 

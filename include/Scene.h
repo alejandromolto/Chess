@@ -16,8 +16,8 @@ public:
     Scene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename);
     Scene(Scene* Scene);
 
-    virtual void render();
-    virtual Scene* HandleEvent(SDL_Point click);
+    virtual void render() = 0;
+    virtual Scene* HandleEvent(SDL_Point click) = 0;
     Scene* getLastScene(){return lastScene; }
     void setLastScene(Scene* lastScene){ this->lastScene = lastScene; }
     void setWidth(int width){this->width = width; }

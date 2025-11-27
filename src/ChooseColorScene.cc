@@ -19,10 +19,7 @@ Scene *ChooseColorScene::HandleEvent(SDL_Point click)
     int mx = click.x;
     int my = click.y;
 
-    if (my == -1 && mx == -1)
-    {
-        //ERROR
-    }
+
 
     if (mx >= width / 3 && mx <= width / 3 + (width / 6) && my >= height / 4 && my <= height / 4 + (height * 2 / 3))
     {
@@ -33,7 +30,12 @@ Scene *ChooseColorScene::HandleEvent(SDL_Point click)
     {
     //BLACK
         return new OnePlayerScene(this, renderer, width, height, filename, false);
-    }else{
+    }
+    else if (my == -1 && mx == -1)
+    {
+        return nullptr;
+    }
+    else{
         return this;
     }
 }

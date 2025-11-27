@@ -43,7 +43,13 @@ Scene* MainMenuScene::HandleEvent(SDL_Point click){
     {
         delete lastScene;
         return nullptr;
-    }else{
+
+    }
+    else if(mx == -1 && my == -1)
+    {
+        return nullptr;
+    }
+    else{
         return this;
     }
 

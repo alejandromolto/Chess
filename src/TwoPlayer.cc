@@ -49,6 +49,11 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
 
     int mx = click.x;
     int my = click.y;
+
+    if(mx == -1 && my == -1){
+        return nullptr;
+    }
+
     int squareW = width * 600 / 1152 / 8;
     int squareH = height * 600 / 680 / 8;
 
@@ -65,12 +70,10 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
         }
         else if (mx >= (width * 527) / 864 && mx < (width * 527) / 864 + (width * 328) / 864 && my >= (height * 364) / 510 && my < (height * 364) / 510 + (height * 141) / 510)
         { // Forfeit button
-            // IF USER CONFIRMS
             return new ForfeitScene(this, renderer, width, height, filename, "assets/images/forfeit.png");
         }
         else if (mx > width - width / 50 - width / 12 && mx < width - width / 50 - width / 12 + width / 12 && my > height / 50 && my < height / 50 + width / 12)
         { // Normal exit
-            // IF USER CONIRMS
             return new ExitScene(this, renderer, width, height, filename, "assets/images/matchEnd.png");
         }
         else
@@ -173,6 +176,8 @@ Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
             setPhase(1);
             return this;
         }
+    }else{ // ERROR
+        return nullptr;
     }
 
 }

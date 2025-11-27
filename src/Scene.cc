@@ -16,9 +16,3 @@
         this->width = Scene->getWidth();
         this->height = Scene->getHeight();
     }
-
-    void Scene::render(){
-    }
-
-    Scene* Scene::HandleEvent(SDL_Point click){
-    }
