@@ -9,6 +9,7 @@
 #include "ExitScene.h"
 #include "PawnPromotionScene.h"
 #include "AI.h"
+#include "EndGameScene.h"
 
 OnePlayerScene::OnePlayerScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, bool isAiWhite) : BScene(lastScene, renderer, width, height, filename){
     this->isAiWhite = isAiWhite;
@@ -17,6 +18,34 @@ OnePlayerScene::OnePlayerScene(Scene* lastScene, SDL_Renderer* renderer, int wid
 bool OnePlayerScene::render()
 {
 
+    bool inputTaken = true;
+
+    std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
+    if (board.isTheKingCheckMated())
+    {
+        inputTaken = false;
+    }else if ((isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn()))
+    { 
+        inputTaken = false;
+    }
+    
+    if (phase == 1) 
+    {
+        printBoard();
+    }
+    else if (phase == 2)
+    {
+        printBoardAndLegitMoves(firstPieceCoords, board.getMovementCount());
+    }
+
+    return inputTaken;
+}
+
+Scene *OnePlayerScene::HandleEvent(SDL_Point click)
+{
+    int mx = click.x;
+    int my = click.y;
+
     std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
     if (board.isTheKingCheckMated())
     {
@@ -24,26 +53,19 @@ bool OnePlayerScene::render()
         {
             if (board.isWhiteTurn())
             {
-                std::cout << "negro gana" << std::endl;
-                // BLACK WINS
+                return new EndGameScene(this, renderer, width, height, filename, false, true);
             }
             else
             {
-                std::cout << "blanco gana" << std::endl;
-                // WHITE WINS
+                return new EndGameScene(this, renderer, width, height, filename, true, false);
             }
         }
         else
         {
-            std::cout << "blanco gana" << std::endl;
-            // STALEMATE
-        }
+            return new EndGameScene(this, renderer, width, height, filename, false, false);
+         }
     }
-    
-
-    bool aiPlaying = (isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn());
-
-    if(aiPlaying){ // If AI is playing, it doesnt need an input and therefore performs the move and renders
+    if((isAiWhite && board.isWhiteTurn()) || (!isAiWhite && !board.isWhiteTurn())){ // If AI is playing, it doesnt need an input and therefore performs the move and renders
         printBoard();
         AI playerAi(&board, 2);
         std::pair<T_Coordinates, T_Coordinates> bestMove = playerAi.bestMoveWithMinimax(-2147483647, +2147483647);
@@ -53,25 +75,8 @@ bool OnePlayerScene::render()
             playerAi.AIPawnPromotion();
         }
         board.turnOver();
-        printBoard();
-    }else{
-        if (phase == 1) // if its user's phase 1 or AI's turn, the board just prints
-        {
-            printBoard();
-        }
-        else if (phase == 2)
-        {
-            printBoardAndLegitMoves(firstPieceCoords, board.getMovementCount());
-        }
+        return this;
     }
-
-    return true;
-}
-
-Scene *OnePlayerScene::HandleEvent(SDL_Point click)
-{
-    int mx = click.x;
-    int my = click.y;
 
     if(mx  == -1 && my == -1){
         return nullptr;
