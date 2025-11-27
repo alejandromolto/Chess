@@ -6,8 +6,8 @@
 #include "MainMenuScene.h"
 #include "exporter.h"
 
-SaveMatchScene::SaveMatchScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, std::string imageRoute, const Board& board): ConfirmationScene(lastScene, renderer, width, height, filename, imageRoute){
-    this->board = board;
+SaveMatchScene::SaveMatchScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, std::string imageRoute, const Board& board): ConfirmationScene(lastScene, renderer, width, height, filename, imageRoute), board(board){
+    
 }
 
 Scene* SaveMatchScene::HandleEvent(SDL_Point click)

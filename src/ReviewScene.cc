@@ -58,7 +58,7 @@ Scene *ReviewScene::HandleEvent(SDL_Point click)
     else if (mx > 600 + 210 && mx < 600 + 210 + 200 && my > 600 - 200 && my < 600 - 200 + 200)
     {
         boardpointer++;
-        if(boardpointer == game.size()){
+        if(boardpointer == static_cast<int>(game.size())){
            return new MainMenuScene(this, renderer, width, height, filename);
         }
         return this;
