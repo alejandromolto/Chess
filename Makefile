@@ -16,7 +16,8 @@ DEPS := $(OBJS:.o=.d)
 
 TARGET := bin/chess_game
 
-.PHONY: all clean run debug
+.PHONY: all clean cleanall run debug
+
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -29,10 +30,13 @@ $(TARGET): $(OBJS)
 -include $(DEPS)
 
 run: $(TARGET)
-	./$(TARGET)  # ejecutar desde la raíz del proyecto
+	./$(TARGET)
 
 debug: CXXFLAGS += -g -O0
 debug: clean all
 
 clean:
 	rm -f $(OBJS) $(DEPS)
+
+cleanall: clean
+	rm -f $(TARGET)
