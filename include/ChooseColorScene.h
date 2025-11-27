@@ -6,7 +6,7 @@
 class ChooseColorScene : public Scene {
 public:
     using Scene::Scene;
-    void render() override;
+    bool render() override;
     Scene* HandleEvent(SDL_Point click) override;
     ~ChooseColorScene() override = default;
 };

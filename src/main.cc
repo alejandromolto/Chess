@@ -35,10 +35,14 @@ int main()
 
     Scene* currentScene = new MainMenuScene(nullptr, renderer, width, height, filename);
     Scene* lastScene = currentScene;
+    SDL_Point click;
 
     while (running){
-        currentScene->render();
-        SDL_Point click = userInput();
+        if(currentScene->render()){
+            click = userInput();
+        }else{
+            click = {-1, -1};
+        }
         lastScene = currentScene;
         currentScene = currentScene->HandleEvent(click);
         std::cout << currentScene << std::endl;

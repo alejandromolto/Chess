@@ -8,7 +8,7 @@ private:
 public:
     using BScene::BScene;
     // TwoPlayerScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename);
-    void render() override;
+    bool render() override;
     Scene* HandleEvent(SDL_Point click) override;
     ~TwoPlayerScene() override = default;
 

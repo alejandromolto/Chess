@@ -9,7 +9,7 @@ private:
     bool isAiWhite;
 public:
     OnePlayerScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, bool isAiWhite);
-    void render() override;
+    bool render() override;
     Scene* HandleEvent(SDL_Point click) override;
     std::pair<T_Coordinates, T_Coordinates> getAIMove();
     ~OnePlayerScene() override = default;

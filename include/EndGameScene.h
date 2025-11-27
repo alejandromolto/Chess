@@ -13,7 +13,7 @@ public:
     using Scene::Scene;
     EndGameScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, bool whiteWon, bool blackWon);
     Scene* HandleEvent(SDL_Point click) override;
-    void render() override;
+    bool render() override;
     ~EndGameScene() override = default;
 };
 

@@ -7,11 +7,13 @@
 #include "ChooseColorScene.h"
 #include "OnePlayerScene.h"
 
-void ChooseColorScene::render()
+bool ChooseColorScene::render()
 {
     importImageInRender(renderer, "assets/images/chooseColor.png", 0, 0, (width), (height));
     importImageInRender(renderer, "assets/images/blackwhite.png", (width / 3), (height / 4), (width / 3), (height / 3));
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene *ChooseColorScene::HandleEvent(SDL_Point click)

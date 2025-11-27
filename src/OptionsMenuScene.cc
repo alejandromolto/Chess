@@ -9,7 +9,7 @@ OptionsMenuScene::OptionsMenuScene(Scene* lastScene, SDL_Renderer* renderer, int
     optionHeight = height;
 }
 
-void OptionsMenuScene::render(){
+bool OptionsMenuScene::render(){
     importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/back.png", width - (width * 72) / 720 - width / 60, height / 60, (width * 72) / 720, (width * 72) / 720);
     importImageInRender(renderer, "assets/images/linkTreeLogo.png", width - width / 50 - width / 24, height - width / 24 - height / 50, width / 24, width / 24);
@@ -41,6 +41,8 @@ void OptionsMenuScene::render(){
     importImageInRender(renderer, "assets/images/largeRes.png", (width / 16) * 10 + (width * 50) / 720, (height * 320) / 720, (width * 90) / 720, (width * 90) / 720);
 
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene* OptionsMenuScene::HandleEvent(SDL_Point click){

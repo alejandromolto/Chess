@@ -13,7 +13,7 @@ ReviewScene::ReviewScene(Scene *lastScene, SDL_Renderer *renderer, int width, in
     this->game = i.gethistory();
 }
 
-void ReviewScene::render()
+bool ReviewScene::render()
 {
 
     importImageInRender(renderer, "assets/images/greyColor.png", 0, 0, width, height);
@@ -38,6 +38,8 @@ void ReviewScene::render()
     board.setboard(gameBoard);
     board.printboard(600, 600, renderer);
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene *ReviewScene::HandleEvent(SDL_Point click)

@@ -8,31 +8,17 @@
 #include "ForfeitScene.h"
 #include "ExitScene.h"
 #include "PawnPromotionScene.h"
+#include "EndGameScene.h"
 
-void TwoPlayerScene::render()
+bool TwoPlayerScene::render()
 {
+
+    bool input = true;
 
     std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
     if (board.isTheKingCheckMated())
     {
-        if (board.isTheKingChecked(prohibitedSquares))
-        {
-            if (board.isWhiteTurn())
-            {
-                std::cout << "negro gana" << std::endl;
-                // BLACK WINS
-            }
-            else
-            {
-                std::cout << "blanco gana" << std::endl;
-                // WHITE WINS
-            }
-        }
-        else
-        {
-            std::cout << "blanco gana" << std::endl;
-            // STALEMATE
-        }
+        input = false;
     }
     if (phase == 1)
     {
@@ -42,10 +28,32 @@ void TwoPlayerScene::render()
     {
         printBoardAndLegitMoves(firstPieceCoords, board.getMovementCount());
     }
+
+    return input;
 }
 
 Scene *TwoPlayerScene::HandleEvent(SDL_Point click)
 {
+
+    std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
+    if (board.isTheKingCheckMated())
+    {
+        if (board.isTheKingChecked(prohibitedSquares))
+        {
+            if (board.isWhiteTurn())
+            {
+                return new EndGameScene(this, renderer, width, height, filename, false, true);
+            }
+            else
+            {
+                return new EndGameScene(this, renderer, width, height, filename, true, false);
+            }
+        }
+        else
+        {
+            return new EndGameScene(this, renderer, width, height, filename, false, false);
+         }
+    }
 
     int mx = click.x;
     int my = click.y;

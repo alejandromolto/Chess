@@ -9,7 +9,7 @@ private:
     int boardpointer;
 public:
     ReviewScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, int matchpointer);
-    void render() override;
+    bool render() override;
     Scene* HandleEvent(SDL_Point click) override;
     ~ReviewScene() override = default;
 };

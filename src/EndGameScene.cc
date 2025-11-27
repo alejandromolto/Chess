@@ -12,7 +12,7 @@ EndGameScene::EndGameScene(Scene* lastScene, SDL_Renderer* renderer, int width, 
     this->blackWon = blackWon;
 }
 
-void EndGameScene::render()
+bool EndGameScene::render()
 {
 
     if(whiteWon){
@@ -27,6 +27,8 @@ void EndGameScene::render()
     importImageInRender(renderer, "assets/images/PlayAgain.png", width / 3 - width / 24, height * 2 / 3 - width / 24, width / 12, width / 12);
     importImageInRender(renderer, "assets/images/MainMenu.png", width * 2 / 3 - width / 24, height * 2 / 3 - width / 24, width / 12, width / 12);
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene* EndGameScene::HandleEvent(SDL_Point click)

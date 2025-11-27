@@ -6,7 +6,7 @@
 class ChooseMatchScene : public Scene {
 public:
     using Scene::Scene;
-    void render() override;
+    bool render() override;
     Scene* HandleEvent(SDL_Point click) override;
     ~ChooseMatchScene() override = default;
 };

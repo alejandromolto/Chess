@@ -12,7 +12,7 @@ PawnPromotionScene::PawnPromotionScene(Scene *lastScene, SDL_Renderer *renderer,
     this->pawnPromoting = pawnPromoting;
 }
 
-void PawnPromotionScene::render()
+bool PawnPromotionScene::render()
 {
     if (board->isWhiteTurn())
     {
@@ -32,6 +32,8 @@ void PawnPromotionScene::render()
     importImageInRender(renderer, "assets/images/pawnpromotion.png", x, y, w, h);
     SDL_RenderPresent(renderer);
     }
+
+    return true;
 }
 
 Scene *PawnPromotionScene::HandleEvent(SDL_Point click)

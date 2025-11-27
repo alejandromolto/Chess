@@ -5,7 +5,7 @@
 #include "exporter.h"
 #include "ReviewScene.h"
 
-void ChooseMatchScene::render()
+bool ChooseMatchScene::render()
 {
     importImageInRender(renderer, "assets/images/ChooseGameBackground.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/deleteFiles.png", width - std::max(20, width / 64) - std::max(100, std::min(width / 8, height / 8)), height - std::max(20, width / 64) - std::max(100, std::min(width / 8, height / 8)), std::max(100, std::min(width / 8, height / 8)), std::max(100, std::min(width / 8, height / 8)));
@@ -39,6 +39,8 @@ void ChooseMatchScene::render()
         }
     }
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene *ChooseMatchScene::HandleEvent(SDL_Point click)

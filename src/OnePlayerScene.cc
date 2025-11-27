@@ -14,7 +14,7 @@ OnePlayerScene::OnePlayerScene(Scene* lastScene, SDL_Renderer* renderer, int wid
     this->isAiWhite = isAiWhite;
 }
 
-void OnePlayerScene::render()
+bool OnePlayerScene::render()
 {
 
     std::vector<T_Coordinates> prohibitedSquares = board.prohibitedMoves();
@@ -65,6 +65,7 @@ void OnePlayerScene::render()
         }
     }
 
+    return true;
 }
 
 Scene *OnePlayerScene::HandleEvent(SDL_Point click)

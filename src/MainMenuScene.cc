@@ -8,7 +8,7 @@
 #include "OnePlayerScene.h"
 #include "ChooseColorScene.h"
 
-void MainMenuScene::render(){
+bool MainMenuScene::render(){
     importImageInRender(renderer, "assets/images/mainbackground.png", 0, 0, width, height);
     importImageInRender(renderer, "assets/images/singleplayer.png", width / 3 - 20, height / 8 * 3, width / 6, width / 6);
     importImageInRender(renderer, "assets/images/twoplayers.png", width / 2 + width / 24 - 20, height / 8 * 3, width / 6, width / 6);
@@ -16,6 +16,8 @@ void MainMenuScene::render(){
     importImageInRender(renderer, "assets/images/close.png", width - width / 50 - width / 12, height / 50, width / 12, width / 12);
     importImageInRender(renderer, "assets/images/burguerSettings.png", width - (width / 50) - (width / 12) - (width / 50) - (width / 11.52), height / 50, width / 11.52, width / 11.52);
     SDL_RenderPresent(renderer);
+
+    return true;
 }
 
 Scene* MainMenuScene::HandleEvent(SDL_Point click){

@@ -12,7 +12,7 @@ private:
     T_Coordinates pawnPromoting;
 public:
     PawnPromotionScene(Scene* lastScene, SDL_Renderer* renderer, int width, int height, std::string filename, Board* board, T_Coordinates pawnPromoting);
-    void render();
+    bool render();
     Scene* HandleEvent(SDL_Point click) override;
     ~PawnPromotionScene() override = default;
 };
