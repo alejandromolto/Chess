@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ExitScene.h"
 #include "utils.h"
-#include "BScene.h"
+#include "GameScene.h"
 #include "SaveMatchScene.h"
 
 Scene* ExitScene::HandleEvent(SDL_Point click)
@@ -30,6 +30,7 @@ Scene* ExitScene::HandleEvent(SDL_Point click)
     }
     else if(mx == -1 && my == -1)
     {
+        delete lastScene;
         return nullptr;
     }
     else

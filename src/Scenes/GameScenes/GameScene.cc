@@ -1,4 +1,4 @@
-#include "BScene.h"
+#include "GameScene.h"
 #include "board.h"
 #include "utils.h"
 #include <algorithm>

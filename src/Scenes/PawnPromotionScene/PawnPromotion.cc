@@ -1,6 +1,5 @@
 #include <iostream>
 #include "utils.h"
-#include "BScene.h"
 #include "PawnPromotionScene.h"
 #include "ForfeitScene.h"
 #include "ExitScene.h"

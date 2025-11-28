@@ -1,7 +1,7 @@
 #ifndef TWOPLAYERSCENE_H
 #define TWOPLAYERSCENE_H
 #include "Scene.h"
-#include "BScene.h"
+#include "GameScene.h"
 
 class TwoPlayerScene : public BScene {
 private:

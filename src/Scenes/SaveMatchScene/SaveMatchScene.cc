@@ -1,7 +1,6 @@
 #include <iostream>
 #include "ForfeitScene.h"
 #include "utils.h"
-#include "BScene.h"
 #include "SaveMatchScene.h"
 #include "MainMenuScene.h"
 #include "exporter.h"

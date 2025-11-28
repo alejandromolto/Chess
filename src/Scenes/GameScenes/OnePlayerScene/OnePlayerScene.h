@@ -1,7 +1,7 @@
 #ifndef ONEPLAYERSCENE_H
 #define ONEPLAYERSCENE_H
 #include "Scene.h"
-#include "BScene.h"
+#include "GameScene.h"
 #include "AI.h"
 
 class OnePlayerScene : public BScene {

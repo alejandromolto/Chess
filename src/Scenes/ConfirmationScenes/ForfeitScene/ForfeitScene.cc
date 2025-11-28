@@ -1,7 +1,7 @@
 #include <iostream>
 #include "ForfeitScene.h"
 #include "utils.h"
-#include "BScene.h"
+#include "GameScene.h"
 #include "SaveMatchScene.h"
 
 Scene* ForfeitScene::HandleEvent(SDL_Point click)
