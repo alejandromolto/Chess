@@ -6,4 +6,5 @@
   <li><a href="https://github.com/libsdl-org/SDL">SDL library</a> – for being the primary library used in this project, responsible for rendering graphics and handling input.</li>
   <li><a href="https://www.pixilart.com">Pixilart</a> – for offering a great platform to create pixel art designs.</li>
   <li>My programming 2 class – for teaching me the fundamentals of C++.</li>
+  <li>My programming 3 class - for teaching me the basics of the OOP paradigm.</li>
 </ul>
