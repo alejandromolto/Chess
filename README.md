@@ -1,7 +1,6 @@
 <div align="center">  
   <h1>CHESS</h1>  
-  <div>A chess engine built in <strong>C++</strong> using the <strong>SDL library</strong>, featuring a graphical interface.</div>  
-  <div>This project is the direct evolution of my earlier project <strong>C Chess</strong>, which was a terminal-only chess engine written in <strong>C</strong>.</div> 
+  <div>A chess engine built in <strong>C++</strong> using the <strong>SDL library</strong>.</div>  
   <br>  
   <div>    
     <img src="https://img.shields.io/badge/language-C++-blue.svg" alt="C++" style="display:inline-block; margin:2px;">    
@@ -30,34 +29,22 @@
 ---  
 
 ## Features 
-- **Board Class** implementation in C++ with:   
-  - Legal move generation & move execution     
-  - Match import/export (save & load games)     
-  - AI methods to generate movements  
-- **Graphical Interface** using SDL with:   
-  - Main menu with settings & options     
-  - Single-player mode against AI     
-  - Multiplayer (local) mode     
-  - Game review mode (analyze past games)    
+- **Board**  
+- **AI**
+- **Exporter**
+- **Importer**
+- **Graphical Interface** 
 
 ---  
 
-## Project Structure  
+## Project Structure 
+### Game logic structure
+<img src="assets/images/GameLogicStructure.png" alt="Description" width="720">
 
-`assets/`  
-* `images/`: Images for the game, including backgrounds, button designs, and game pieces.  
-* `gifs/`: GIFs used in the project's README file.  
+### Scene structure.
+<img src="assets/images/SceneStructure.png" alt="Description" width="720">
 
-`include/`  
-* `utils.h`: Header file for utility functions.  
-* `board.h`: Header file for the `Board` class.  
-
-`src/`  
-* `main.cc`: The main source file that implements the game's interface and core loop.  
-* `utils.cc`: The source file for utility functions, primarily related to SDL output and input.  
-* `board.cc`: The source file for the `Board` class, which contains the game logic, AI methods, and import/export functionality.  
-
----  
+---
 
 ## Requirements 
 - Ubuntu
@@ -85,9 +72,10 @@ cd Chess
 ```bash
 make clean
 ```
-4. To run the game:
+4. To run the game
+(In the root directory):
 ```bash
-./chess_game
+./bin/chess_game
 ```
 ---
 
@@ -151,8 +139,6 @@ Through it, I learned a lot about:
 - Basic AI in board games  
 - File handling
 - Git
-
-While this project works, it is not fully object-oriented. It follows a more imperative style due to the proyect inheriting a considerably big part of its code from its predecessor, built in C. Future works will be built with stronger OOP principles.
 
 ---  
 
