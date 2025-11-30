@@ -28,12 +28,19 @@
 8. [Licence](#licence)
 ---  
 
-## Features 
-- **Board**  
-- **AI**
-- **Exporter**
-- **Importer**
-- **Graphical Interface** 
+## Features
+
+### Comprehensive Board Management  
+The core of the project is a dedicated Board system that handles all aspects of game logic. It manages legal moves, updates positions, controls turns and applies special rules such as castling or en-passant. This keeps the logic organized and makes future improvements pssible.
+
+### Modular Chess Engine   
+The engine uses a self contained AI component that produces moves through evaluation and search logic, with a basic minimax algorithm. 
+
+### Game Importing and Exporting  
+The project includes tools to save and load complete games using a custom format. The exporter records every move and relevant state information while the importer rebuilds full matches from those files. The game is able to store up to 10 games.
+
+### Graphical Interface with Scene System  
+A graphical front end organizes the user experience into multiple scenes for menus, gameplay, settings and other screens. This structure keeps the interface clear and makes it simple to extend with new visual elements or interactions.
 
 ---  
 
