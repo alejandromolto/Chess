@@ -7,6 +7,8 @@
     <img src="https://img.shields.io/badge/library-SDL2-green.svg" alt="SDL2" style="display:inline-block; margin:2px;">    
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="display:inline-block; margin:2px;">    
     <img src="https://img.shields.io/badge/contributions-OPEN-brightgreen.svg" alt="Contributions Open" style="display:inline-block; margin:2px;">  
+    <a href="https://deepwiki.com/alejandromolto/Chess"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+
   </div> 
 </div>  
 
